@@ -25,3 +25,5 @@ outputs/reports/*.json
 
 # Keep docs and markdown reports tracked
 !outputs/reports/*.md
+!outputs/reports/release_manifest.json
+!outputs/reports/validation_summary.json

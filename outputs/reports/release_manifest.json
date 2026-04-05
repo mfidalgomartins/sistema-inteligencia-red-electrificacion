@@ -1,0 +1,71 @@
+{
+  "manifest_version": "1.0",
+  "generated_at_utc": "2026-04-02T13:04:56.710922+00:00",
+  "python_version": "3.12.13",
+  "platform": "macOS-15.5-arm64-arm-64bit",
+  "release_readiness": {
+    "technical_state": "technically valid",
+    "analytical_state": "analytically acceptable",
+    "decision_state": "decision-support ready",
+    "committee_state": "committee-grade",
+    "publish_state": "publish-ready"
+  },
+  "validation_status": "PASS",
+  "confidence_level": "alta",
+  "row_counts": {
+    "n_zonas": 24,
+    "n_subestaciones": 77,
+    "n_alimentadores": 274,
+    "n_demanda_horaria": 4807056,
+    "n_node_features": 4807056,
+    "n_zone_day_features": 17544,
+    "n_zone_month_features": 576,
+    "n_scoring": 24
+  },
+  "top_zone_by_priority": "Z013",
+  "n_scoring_rows": 24,
+  "artifacts": {
+    "dashboard": {
+      "path": "/Users/miguelfidalgo/Documents/sistema-inteligencia-red-electrificacion/outputs/dashboard/dashboard_inteligencia_red.html",
+      "exists": true,
+      "size_bytes": 401493,
+      "sha256": "255228c5fe3abdfd4be1b2ec4510bb5aef7d64a40f36ff8b070eb18c22b47007",
+      "updated_utc": "2026-04-02T13:04:53.641818+00:00"
+    },
+    "validation_summary": {
+      "path": "/Users/miguelfidalgo/Documents/sistema-inteligencia-red-electrificacion/outputs/reports/validation_summary.json",
+      "exists": true,
+      "size_bytes": 741,
+      "sha256": "49a191191e62462f458d5c81f2bdf9cc11d3897d21f1c0625c072b6dde4adee6",
+      "updated_utc": "2026-04-02T13:04:56.701564+00:00"
+    },
+    "validation_report": {
+      "path": "/Users/miguelfidalgo/Documents/sistema-inteligencia-red-electrificacion/outputs/reports/validation_report.md",
+      "exists": true,
+      "size_bytes": 6352,
+      "sha256": "fc4688b96946c984cc98dad9dfb29c7311de23bf8187bd49fd6c3772b7b844c5",
+      "updated_utc": "2026-04-02T13:04:56.700542+00:00"
+    },
+    "scoring_table": {
+      "path": "/Users/miguelfidalgo/Documents/sistema-inteligencia-red-electrificacion/data/processed/intervention_scoring_table.csv",
+      "exists": true,
+      "size_bytes": 23486,
+      "sha256": "a53c90344372692b9cb0e672d8361022b09c714f8aa73eff9f85e2af9834bbc7",
+      "updated_utc": "2026-04-02T13:04:44.642466+00:00"
+    },
+    "ranking_final": {
+      "path": "/Users/miguelfidalgo/Documents/sistema-inteligencia-red-electrificacion/data/processed/intervention_ranking_final.csv",
+      "exists": true,
+      "size_bytes": 3148,
+      "sha256": "03648c6b3dcb30d62a4b87039eee59791b80a8dbaf617674cb6faefddd1c079f",
+      "updated_utc": "2026-04-02T13:04:44.643126+00:00"
+    },
+    "scenario_summary": {
+      "path": "/Users/miguelfidalgo/Documents/sistema-inteligencia-red-electrificacion/data/processed/scenario_summary_v2.csv",
+      "exists": true,
+      "size_bytes": 1484,
+      "sha256": "11be4761309dcdacb5f67c72d761b7c0d2f792c66697ea68a6cb8299c5c3f4df",
+      "updated_utc": "2026-04-02T13:04:44.746236+00:00"
+    }
+  }
+}

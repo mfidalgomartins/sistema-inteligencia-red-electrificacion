@@ -1,0 +1,27 @@
+{
+  "generated_at_utc": "2026-04-02T13:04:56.701335+00:00",
+  "overall_status": "PASS",
+  "confidence_level": "alta",
+  "issues_high": 0,
+  "issues_medium": 0,
+  "issues_low": 0,
+  "row_counts": {
+    "n_zonas": 24,
+    "n_subestaciones": 77,
+    "n_alimentadores": 274,
+    "n_demanda_horaria": 4807056,
+    "n_node_features": 4807056,
+    "n_zone_day_features": 17544,
+    "n_zone_month_features": 576,
+    "n_scoring": 24
+  },
+  "release_readiness": {
+    "technical_state": "technically valid",
+    "analytical_state": "analytically acceptable",
+    "decision_state": "decision-support ready",
+    "committee_state": "committee-grade",
+    "publish_state": "publish-ready"
+  },
+  "blocking_gates_failed": 0,
+  "warning_gates_failed": 0
+}
