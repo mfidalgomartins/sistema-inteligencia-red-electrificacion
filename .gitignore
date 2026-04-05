@@ -1,0 +1,27 @@
+# Python / tooling
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+
+# OS / editor noise
+.DS_Store
+.mplconfig/
+
+# Large generated datasets (rebuild with pipeline)
+data/raw/*.csv
+data/raw/*.parquet
+data/processed/*.csv
+data/processed/*.parquet
+data/processed/*.duckdb
+
+# Generated outputs (keep only executive markdown reports and final dashboard)
+outputs/charts/*.png
+outputs/dashboard/*.html
+!outputs/dashboard/dashboard_inteligencia_red.html
+outputs/reports/*.csv
+outputs/reports/*.html
+outputs/reports/*.json
+
+# Keep docs and markdown reports tracked
+!outputs/reports/*.md
