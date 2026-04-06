@@ -15,7 +15,7 @@ Separar con claridad código fuente, contratos oficiales, artefactos generados y
 - `docs/governance_framework.md`: reglas de release y estados de readiness.
 
 ## 3) Legacy aislado
-- `sql/legacy/`: scripts SQL históricos no canónicos.
+- `archive/sql_legacy/`: scripts SQL históricos no canónicos.
 
 ## 4) Datos y salidas generadas
 - `data/raw/`: datos sintéticos de entrada.
@@ -28,6 +28,7 @@ Separar con claridad código fuente, contratos oficiales, artefactos generados y
 ## 5) Artefactos de trabajo
 - `notebooks/`: notebooks de exploración/comunicación.
 - `tests/`: contratos y pruebas automatizadas.
+- `scripts/`: entrypoints auxiliares de ejecución manual.
 
 ## 6) Política de revisión rápida
 1. Verificar `outputs/reports/validation_summary.json`.

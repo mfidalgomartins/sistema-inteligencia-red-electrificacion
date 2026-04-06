@@ -170,18 +170,21 @@ Incluye:
 
 ## Repository Structure
 ```
+src/
 data/
   raw/
   processed/
+sql/
 docs/
-notebooks/
+tests/
 outputs/
   charts/
   dashboard/
   reports/
-sql/
-src/
-tests/
+notebooks/
+scripts/
+archive/
+  sql_legacy/
 README.md
 requirements.txt
 ```

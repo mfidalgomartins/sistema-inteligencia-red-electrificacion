@@ -10,11 +10,11 @@ from .config import CONFIG, Config
 
 
 SQL_SEQUENCE = [
-    "legacy/00_load_raw.sql",
-    "legacy/10_staging.sql",
-    "legacy/20_marts.sql",
-    "legacy/30_kpis.sql",
-    "legacy/40_validations.sql",
+    "../archive/sql_legacy/00_load_raw.sql",
+    "../archive/sql_legacy/10_staging.sql",
+    "../archive/sql_legacy/20_marts.sql",
+    "../archive/sql_legacy/30_kpis.sql",
+    "../archive/sql_legacy/40_validations.sql",
 ]
 
 

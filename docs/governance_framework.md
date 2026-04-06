@@ -20,7 +20,7 @@ Establecer un contrato operativo único para evitar ambigüedad entre artefactos
 ## 2) Artefactos legacy (solo compatibilidad)
 Los siguientes componentes permanecen para trazabilidad histórica y no deben usarse como fuente principal:
 - `src/pipeline.py`, `src/sql_runner.py`, `src/scoring.py`, `src/scenario_engine.py`
-- SQL legacy: `sql/legacy/00_load_raw.sql`, `sql/legacy/10_staging.sql`, `sql/legacy/20_marts.sql`, `sql/legacy/30_kpis.sql`, `sql/legacy/40_validations.sql`
+- SQL legacy: `archive/sql_legacy/00_load_raw.sql`, `archive/sql_legacy/10_staging.sql`, `archive/sql_legacy/20_marts.sql`, `archive/sql_legacy/30_kpis.sql`, `archive/sql_legacy/40_validations.sql`
 - Datasets legacy en `data/raw` con naming inglés (`territories`, `feeders`, etc.)
 
 ## 3) Política de calidad
