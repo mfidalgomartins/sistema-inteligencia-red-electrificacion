@@ -1,11 +1,13 @@
 # Outputs
 
-Este directorio contiene los entregables finales del proyecto.
+Entregables finales del proyecto, organizados para revisión rápida.
 
-- `dashboard/`: dashboard ejecutivo interactivo y guía de acceso.
-- `charts/`: pack de visualizaciones estáticas para comité.
-- `reports/`: memo, validación y reportes analíticos.
+- `dashboard/`: dashboard interactivo y guía de acceso.
+- `charts/`: visualizaciones estáticas para presentación.
+- `reports/`: memo ejecutivo, validación y soporte analítico.
 
-Acceso rápido al dashboard en vivo:
+Dashboard en vivo (acceso principal):  
+https://mfidalgomartins.github.io/sistema-inteligencia-red-electrificacion/
 
-- https://mfidalgomartins.github.io/sistema-inteligencia-red-electrificacion/
+Guía de carpeta dashboard:  
+`outputs/dashboard/README.md`

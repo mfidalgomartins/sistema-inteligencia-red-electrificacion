@@ -7,6 +7,6 @@ Este directorio contiene el dashboard ejecutivo interactivo del proyecto.
 https://mfidalgomartins.github.io/sistema-inteligencia-red-electrificacion/
 
 Acceso alternativo:  
-[URL directa de la página](https://mfidalgomartins.github.io/sistema-inteligencia-red-electrificacion/grid-electrification-command-center.html)
+[URL directa del dashboard](https://mfidalgomartins.github.io/sistema-inteligencia-red-electrificacion/outputs/dashboard/grid-electrification-command-center.html)
 
 Nota breve: en GitHub, abrir el `.html` desde el árbol del repo muestra código; para la experiencia interactiva usa los enlaces de GitHub Pages.
