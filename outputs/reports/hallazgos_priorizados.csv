@@ -1,0 +1,6 @@
+prioridad,hallazgo,evidencia,implicacion
+1,La congestión y el estrés se concentran en un subconjunto reducido de nodos.,"Top 10 nodos concentran 65,071 horas de congestión.",Priorizar intervención focalizada reduce riesgo sin sobredimensionar CAPEX global.
+2,La ENS y clientes afectados siguen patrón territorial asimétrico.,Zona líder en ENS: Z013 con 4143.87 MWh.,Necesario combinar resiliencia operativa con renovación selectiva de activos.
+3,La brecha de flexibilidad no es homogénea entre zonas.,Gap técnico máximo: 109.75 MW en Z011.,Hay espacio para CAPEX diferible donde ratio flex/estrés es alto.
+4,EV + electrificación industrial incrementan presión de absorción.,Zona con mayor ratio nueva demanda: Z013.,Reforzar forecasting y flexibilidad antes de escalada estructural de CAPEX.
+5,Existe cartera con secuencia diferenciada por urgencia y madurez.,Intervención recomendada dominante: monitorizar.,Secuenciar decisiones evita inversiones prematuras y reduce coste de no actuar.

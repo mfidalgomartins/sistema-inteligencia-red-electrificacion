@@ -15,14 +15,14 @@ data/processed/*.csv
 data/processed/*.parquet
 data/processed/*.duckdb
 
-# Generated outputs (keep curated dashboard/reports and executive chart pack)
+# Generated outputs
 outputs/dashboard/*.html
 !outputs/dashboard/dashboard_inteligencia_red.html
-outputs/reports/*.csv
 outputs/reports/*.html
-outputs/reports/*.json
 
-# Keep docs and markdown reports tracked
+# Keep charts and report artifacts tracked
+!outputs/charts/*.png
+!outputs/charts/*.md
 !outputs/reports/*.md
-!outputs/reports/release_manifest.json
-!outputs/reports/validation_summary.json
+!outputs/reports/*.csv
+!outputs/reports/*.json

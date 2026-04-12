@@ -1,0 +1,11 @@
+script,status
+01_staging_core_tables.sql,ok
+02_integrated_network_load.sql,ok
+03_integrated_grid_events.sql,ok
+04_integrated_service_quality.sql,ok
+05_integrated_flexibility_assets.sql,ok
+06_analytical_mart_node_hour.sql,ok
+07_analytical_mart_zone_day.sql,ok
+08_analytical_mart_zone_month.sql,ok
+09_kpi_queries.sql,ok
+10_validation_queries.sql,ok

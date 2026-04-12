@@ -1,0 +1,13 @@
+gate_name,passed,is_blocker,detail
+official_dashboard_exists,True,True,/Users/miguelfidalgo/Documents/sistema-inteligencia-red-electrificacion/outputs/dashboard/dashboard_inteligencia_red.html
+official_dashboard_singleton,True,False,Solo dashboard_inteligencia_red.html debe ser oficial
+core_scoring_files_exist,True,True,scoring_table + ranking_final
+scenario_files_exist,True,True,scenario_impacts_v2 + scenario_summary_v2
+anomaly_files_exist,True,False,anomalies_detected + anomalies_summary_by_type
+forecast_benchmark_exists,True,False,forecast_model_benchmark.csv
+sensitivity_exists,True,False,scoring_sensitivity_analysis.csv
+ranking_matches_scoring_top,True,True,"score_top=Z013, rank_top=Z013"
+scenario_cost_consistency,True,True,max_abs_diff=5.820766091346741e-11
+anomaly_summary_consistency,True,False,mismatch_rows=0
+score_stability_rank_shift,True,False,max_rank_shift=1.0
+forecast_required_tasks_covered,True,False,"present=['carga_relativa_zona', 'demanda_ev_zona', 'demanda_industrial_zona', 'demanda_subestacion', 'demanda_zona']"

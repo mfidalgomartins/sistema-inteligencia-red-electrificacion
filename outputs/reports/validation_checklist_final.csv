@@ -1,0 +1,14 @@
+item,status
+generacion_datos,ok
+relaciones_tablas,ok
+profiling,ok
+sql,ok
+features,ok
+forecasting,ok
+anomaly_detection,ok
+scoring,ok
+scenario_engine,ok
+impacto_economico,ok
+visualizaciones,ok
+dashboard,ok
+narrativa_final,ok
