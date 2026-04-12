@@ -39,6 +39,9 @@ scripts/
 - Validación integral: `outputs/reports/validation_report.md`
 - Manifest de release: `outputs/reports/release_manifest.json`
 
+## Dashboard en vivo
+https://mfidalgomartins.github.io/sistema-inteligencia-red-electrificacion/
+
 ## Por qué este trabajo está por encima del portfolio medio
 Porque está diseñado como sistema de decisión, no como ejercicio de visualización: combina gobierno de métricas, validación explícita, métodos interpretables y una narrativa operativa coherente con contexto utility.
 
