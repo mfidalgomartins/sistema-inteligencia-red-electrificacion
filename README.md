@@ -1,33 +1,54 @@
 # Sistema de Inteligencia de Red para Electrificación Territorial
 
-Plataforma analítica orientada a utility para decidir **dónde** y **cómo** intervenir primero ante congestión, pérdida de resiliencia, presión de electrificación y restricciones de CAPEX.
+Sistema analítico de apoyo a decisión para priorizar intervenciones de red entre refuerzo, flexibilidad, almacenamiento y operación.
 
 ## Problema de negocio
-La pregunta central del sistema es:
+La red de distribución pierde capacidad operativa en territorios concretos por congestión, electrificación de demanda, activos envejecidos y límites locales. La decisión crítica no es solo *dónde* intervenir, sino *con qué palanca* y *en qué secuencia*.
 
-**¿Qué zonas de red están perdiendo capacidad operativa y flexibilidad, cuál es el impacto técnico-económico y qué palanca conviene priorizar entre refuerzo, flexibilidad, almacenamiento y operación avanzada?**
+## Qué hace el sistema
+- Genera un ecosistema sintético realista multi-zona y multi-nodo.
+- Integra datos y KPIs con una capa SQL por niveles.
+- Construye features, forecasting interpretable, detección de anomalías y scoring multicriterio.
+- Ejecuta escenarios what-if para comparar impacto técnico y económico.
+- Entrega dashboard ejecutivo y reportes de validación para comité.
 
-## Qué demuestra este proyecto
-- Diseño de arquitectura analítica por capas (raw, SQL, features, scoring, escenarios, dashboard).
-- SQL profesional sobre DuckDB para integración operativa, marts y validaciones.
-- Framework interpretable de priorización multicriterio para decisiones de inversión.
-- Dashboard ejecutivo autocontenido para lectura rápida y decisión territorial.
-- Disciplina de validación, smoke checks y release manifest.
+## Decisiones que soporta
+- Qué zonas requieren refuerzo estructural inmediato.
+- Dónde conviene activar flexibilidad para diferir CAPEX.
+- Dónde el almacenamiento aporta mayor reducción de riesgo.
+- Qué focos deben quedar en monitorización reforzada antes de invertir.
 
-## Arquitectura resumida
-- `data/raw`: ecosistema sintético multi-zona/multi-nodo.
-- `sql`: 10 scripts por capas (`staging` → `integration` → `marts` → `kpi` → `validation`).
-- `src`: pipeline v2 de features, forecasting, anomalías, scoring, escenarios, visualización y QA.
-- `data/processed`: tablas analíticas y outputs de decisión.
-- `outputs/dashboard`: dashboard oficial único.
-- `outputs/reports`: validación, memo ejecutivo y snapshot de release.
+## Arquitectura del proyecto
+- `data/raw`: datos sintéticos base.
+- `sql`: staging, integración, marts, KPIs y validaciones.
+- `src`: pipeline analítico v2 (features, modelos, scoring, escenarios, dashboard, QA).
+- `data/processed`: tablas analíticas y salidas de decisión.
+- `outputs`: charts, dashboard y reportes finales.
+- `tests`: checks de contrato y smoke tests.
 
-## Outputs oficiales para revisión
-- Dashboard: `outputs/dashboard/dashboard_inteligencia_red.html`
+## Estructura del repositorio
+```text
+src/
+sql/
+data/
+outputs/
+docs/
+tests/
+notebooks/
+scripts/
+```
+
+## Outputs clave
+- Dashboard final: `outputs/dashboard/dashboard_inteligencia_red.html`
 - Memo ejecutivo: `outputs/reports/memo_ejecutivo_es.md`
-- Validación: `outputs/reports/validation_report.md`
-- Estado machine-readable: `outputs/reports/validation_summary.json`
-- Manifest de release: `outputs/reports/release_manifest.json`
+- Validación integral: `outputs/reports/validation_report.md`
+- Estado de release: `outputs/reports/release_manifest.json`
+
+## Por qué este proyecto es fuerte
+- Está orientado a decisión operativa e inversión, no a visualización decorativa.
+- Mantiene trazabilidad de extremo a extremo: dato → métrica → score → recomendación.
+- Usa métodos interpretables y gobierno explícito de calidad/validación.
+- Incluye una capa ejecutiva utilizable en contexto real de utility.
 
 ## Cómo ejecutar
 ```bash
@@ -37,16 +58,10 @@ pip install -r requirements.txt
 python -m src
 ```
 
-## Decisiones que habilita
-- Dónde reforzar red local por riesgo estructural persistente.
-- Dónde activar flexibilidad para diferir CAPEX sin degradar servicio.
-- Dónde desplegar almacenamiento por brecha flexible y curtailment.
-- Dónde mantener monitorización reforzada antes de invertir.
+## Limitaciones
+- Datos sintéticos: sirven para diseño y comparación de decisiones, no sustituyen operación real.
+- Capa económica basada en proxies: no reemplaza evaluación financiera regulatoria.
+- Escenarios de priorización: no equivalen a ingeniería eléctrica de detalle.
 
-## Límites del modelo
-- El dataset es sintético: válido para diseño de decisión, no sustituto de telemetría real.
-- La capa económica usa proxies comparativos, no valoración financiera regulatoria final.
-- El motor de escenarios es de estrés/priorización, no optimización eléctrica de detalle.
-
-## Stack
-Python, SQL, DuckDB, pandas, matplotlib, Chart.js
+## Herramientas
+Python, SQL, DuckDB, pandas, scikit-learn, matplotlib, Chart.js.
