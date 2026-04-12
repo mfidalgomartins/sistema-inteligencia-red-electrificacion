@@ -1,6 +1,6 @@
 # Guía de uso del dashboard
 
-1. Abrir `outputs/dashboard/dashboard_inteligencia_red.html`.
+1. Abrir `outputs/dashboard/grid-electrification-command-center.html`.
 2. Aplicar filtros territoriales y de riesgo desde el panel lateral.
 3. Leer el bloque ejecutivo (qué pasa, por qué, decisión sugerida).
 4. Validar trade-offs en el comparador multicriterio.

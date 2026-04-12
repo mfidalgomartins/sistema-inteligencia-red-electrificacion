@@ -26,7 +26,7 @@
   "n_scoring_rows": 24,
   "artifacts": {
     "dashboard": {
-      "path": "/Users/miguelfidalgo/Documents/sistema-inteligencia-red-electrificacion/outputs/dashboard/dashboard_inteligencia_red.html",
+      "path": "/Users/miguelfidalgo/Documents/sistema-inteligencia-red-electrificacion/outputs/dashboard/grid-electrification-command-center.html",
       "exists": true,
       "size_bytes": 612564,
       "sha256": "460369a80e86467a4d883046a86eed0681e43aa86cb9165c3c34f9daeab37b48",

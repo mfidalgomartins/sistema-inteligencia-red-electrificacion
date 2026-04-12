@@ -1,6 +1,6 @@
 gate_name,passed,is_blocker,detail
-official_dashboard_exists,True,True,/Users/miguelfidalgo/Documents/sistema-inteligencia-red-electrificacion/outputs/dashboard/dashboard_inteligencia_red.html
-official_dashboard_singleton,True,False,Solo dashboard_inteligencia_red.html debe ser oficial
+official_dashboard_exists,True,True,/Users/miguelfidalgo/Documents/sistema-inteligencia-red-electrificacion/outputs/dashboard/grid-electrification-command-center.html
+official_dashboard_singleton,True,False,Solo grid-electrification-command-center.html debe ser oficial
 core_scoring_files_exist,True,True,scoring_table + ranking_final
 scenario_files_exist,True,True,scenario_impacts_v2 + scenario_summary_v2
 anomaly_files_exist,True,False,anomalies_detected + anomalies_summary_by_type

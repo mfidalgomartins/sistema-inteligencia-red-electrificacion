@@ -109,7 +109,7 @@
 - Reports: 17 archivos en outputs/reports.
 
 ## 7) Dashboard HTML final
-- /Users/miguelfidalgo/Documents/sistema-inteligencia-red-electrificacion/outputs/dashboard/dashboard_inteligencia_red.html
+- /Users/miguelfidalgo/Documents/sistema-inteligencia-red-electrificacion/outputs/dashboard/grid-electrification-command-center.html
 
 ## 8) Resumen ejecutivo final
 - Se consolidó un sistema de decisión para red que integra riesgo técnico, resiliencia, presión de electrificación y criterios económicos.

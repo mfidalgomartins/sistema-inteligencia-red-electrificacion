@@ -12,7 +12,7 @@ from .common_v2 import ensure_dirs, get_paths
 
 
 ARTIFACTS = {
-    "dashboard": lambda p: p.outputs_dashboard / "dashboard_inteligencia_red.html",
+    "dashboard": lambda p: p.outputs_dashboard / "grid-electrification-command-center.html",
     "validation_summary": lambda p: p.outputs_reports / "validation_summary.json",
     "validation_report": lambda p: p.outputs_reports / "validation_report.md",
     "scoring_table": lambda p: p.data_processed / "intervention_scoring_table.csv",

@@ -17,7 +17,7 @@ data/processed/*.duckdb
 
 # Generated outputs
 outputs/dashboard/*.html
-!outputs/dashboard/dashboard_inteligencia_red.html
+!outputs/dashboard/grid-electrification-command-center.html
 outputs/reports/*.html
 
 # Keep charts and report artifacts tracked

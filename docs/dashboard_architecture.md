@@ -24,5 +24,5 @@ Convertir el HTML en una herramienta de decisión para utility: diagnóstico + p
 12. Tabla accionable con export de priorización.
 
 ## Consistencia de producto
-- Dashboard oficial único: `dashboard_inteligencia_red.html`.
+- Dashboard oficial único: `grid-electrification-command-center.html`.
 - Se elimina duplicidad de artefactos para evitar divergencia en comités.

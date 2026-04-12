@@ -34,7 +34,7 @@ scripts/
 ```
 
 ## Entregables que importan
-- Dashboard ejecutivo: `outputs/dashboard/dashboard_inteligencia_red.html`
+- Dashboard ejecutivo: `outputs/dashboard/grid-electrification-command-center.html`
 - Memo para dirección: `outputs/reports/memo_ejecutivo_es.md`
 - Validación integral: `outputs/reports/validation_report.md`
 - Manifest de release: `outputs/reports/release_manifest.json`

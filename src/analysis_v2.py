@@ -304,7 +304,7 @@ def run_advanced_analysis_v2() -> dict[str, pd.DataFrame]:
                 "source": [
                     "## Informe completo\\n",
                     "Consultar `/outputs/reports/analisis_avanzado.md` para la narrativa ejecutiva estructurada en 6 bloques.\\n",
-                    "Complementar con `/outputs/dashboard/dashboard_inteligencia_red.html` para exploración interactiva.\\n",
+                    "Complementar con `/outputs/dashboard/grid-electrification-command-center.html` para exploración interactiva.\\n",
                 ],
             },
         ],

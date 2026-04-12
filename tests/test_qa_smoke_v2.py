@@ -61,7 +61,7 @@ def _write_minimal_fixture(root):
         encoding="utf-8",
     )
 
-    (paths.outputs_dashboard / "dashboard_inteligencia_red.html").write_text(
+    (paths.outputs_dashboard / "grid-electrification-command-center.html").write_text(
         "<html><body>ok</body></html>",
         encoding="utf-8",
     )
@@ -84,7 +84,7 @@ def test_smoke_ok_with_governed_artifacts(monkeypatch, tmp_path):
 def test_smoke_fails_on_unresolved_dashboard_placeholders(monkeypatch, tmp_path):
     paths = _write_minimal_fixture(tmp_path)
     monkeypatch.setattr("src.qa_smoke_v2.get_paths", lambda: paths)
-    (paths.outputs_dashboard / "dashboard_inteligencia_red.html").write_text(
+    (paths.outputs_dashboard / "grid-electrification-command-center.html").write_text(
         "<script>const DATA = __PAYLOAD__;</script>",
         encoding="utf-8",
     )

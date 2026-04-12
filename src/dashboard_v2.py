@@ -2509,7 +2509,7 @@ bootstrap();
         .replace("__GOVERNANCE__", json.dumps(governance_payload, ensure_ascii=False))
     )
 
-    out_official = paths.outputs_dashboard / "dashboard_inteligencia_red.html"
+    out_official = paths.outputs_dashboard / "grid-electrification-command-center.html"
     legacy_duplicate = paths.outputs_dashboard / "dashboard_inteligencia_red_premium.html"
     if legacy_duplicate.exists():
         legacy_duplicate.unlink()
@@ -2602,7 +2602,7 @@ bootstrap();
         12. Tabla accionable con export de priorización.
 
         ## Consistencia de producto
-        - Dashboard oficial único: `dashboard_inteligencia_red.html`.
+        - Dashboard oficial único: `grid-electrification-command-center.html`.
         - Se elimina duplicidad de artefactos para evitar divergencia en comités.
         """
     ).strip() + "\n"
@@ -2612,7 +2612,7 @@ bootstrap();
         """
         # Guía de uso del dashboard
 
-        1. Abrir `outputs/dashboard/dashboard_inteligencia_red.html`.
+        1. Abrir `outputs/dashboard/grid-electrification-command-center.html`.
         2. Aplicar filtros territoriales y de riesgo desde el panel lateral.
         3. Leer el bloque ejecutivo (qué pasa, por qué, decisión sugerida).
         4. Validar trade-offs en el comparador multicriterio.

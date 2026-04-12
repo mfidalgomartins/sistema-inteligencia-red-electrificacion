@@ -64,7 +64,7 @@ def run_smoke_checks_v2() -> dict[str, str]:
         if df.empty:
             errors.append(f"empty_raw:{file_name}")
 
-    dashboard_official = paths.outputs_dashboard / "dashboard_inteligencia_red.html"
+    dashboard_official = paths.outputs_dashboard / "grid-electrification-command-center.html"
     dashboard_legacy = paths.outputs_dashboard / "dashboard_inteligencia_red_premium.html"
     if not dashboard_official.exists():
         errors.append("missing_dashboard_official")

@@ -228,7 +228,7 @@ def run_validate_data_v2() -> dict[str, pd.DataFrame]:
         add_issue("scoring", "zonas_sin_score", "alta", int(no_score), "0", "forzar cobertura full join en scoring")
 
     # 10) Coherencia outputs-dashboard.
-    dashboard_file = paths.outputs_dashboard / "dashboard_inteligencia_red.html"
+    dashboard_file = paths.outputs_dashboard / "grid-electrification-command-center.html"
     if not dashboard_file.exists():
         add_issue("dashboard", "dashboard_missing", "alta", "no_file", "file_exists", "ejecutar build_dashboard_v2")
 
@@ -377,7 +377,7 @@ def run_validate_data_v2() -> dict[str, pd.DataFrame]:
     forecast_benchmark_path = paths.data_processed / "forecast_model_benchmark.csv"
 
     add_gate("official_dashboard_exists", dashboard_file.exists(), True, str(dashboard_file))
-    add_gate("official_dashboard_singleton", not (paths.outputs_dashboard / "dashboard_inteligencia_red_premium.html").exists(), False, "Solo dashboard_inteligencia_red.html debe ser oficial")
+    add_gate("official_dashboard_singleton", not (paths.outputs_dashboard / "dashboard_inteligencia_red_premium.html").exists(), False, "Solo grid-electrification-command-center.html debe ser oficial")
     add_gate("core_scoring_files_exist", score_path.exists() and ranking_path.exists(), True, "scoring_table + ranking_final")
     add_gate("scenario_files_exist", scenario_impacts_path.exists() and scenario_summary_path.exists(), True, "scenario_impacts_v2 + scenario_summary_v2")
     add_gate("anomaly_files_exist", anomalies_path.exists() and anomalies_summary_path.exists(), False, "anomalies_detected + anomalies_summary_by_type")
