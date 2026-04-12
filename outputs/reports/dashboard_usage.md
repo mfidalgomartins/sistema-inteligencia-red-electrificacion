@@ -1,4 +1,4 @@
-# Instrucciones de uso (Dashboard v2.2)
+# Guía de uso del dashboard
 
 1. Abrir `outputs/dashboard/dashboard_inteligencia_red.html`.
 2. Aplicar filtros territoriales y de riesgo desde el panel lateral.

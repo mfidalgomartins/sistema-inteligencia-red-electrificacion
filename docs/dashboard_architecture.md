@@ -1,4 +1,4 @@
-# Arquitectura Dashboard v2.2 (Refactor Premium Final)
+# Arquitectura del Dashboard Ejecutivo
 
 ## Objetivo
 Convertir el HTML en una herramienta de decisión para utility: diagnóstico + priorización + trade-offs + escenarios.

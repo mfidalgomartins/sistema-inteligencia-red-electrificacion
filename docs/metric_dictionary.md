@@ -1,4 +1,4 @@
-# Diccionario de Métricas (Canónico v2)
+# Diccionario de Métricas
 
 ## Estado de documento
 - **Activo**: sí
@@ -44,5 +44,3 @@
 - `recommended_intervention`: intervención recomendada final.
 - `confidence_flag`: confianza de recomendación condicionada por forecast.
 
-## Nota de compatibilidad
-El diccionario legacy basado en `feeder/territory` queda deprecado para análisis principal.

@@ -15,7 +15,7 @@
 | curtailment_anormal    |        8361 |           4.66696 |                  0.0101662 |                     0.199498 |
 | desviacion_vs_patron   |        7075 |           3.44244 |                  0.710813  |                     0.750106 |
 | demanda_inesperada     |         833 |           3.33596 |                  0.0060024 |                     0.310924 |
-| ens_atipica            |         620 |           3.55407 |                  0         |                     1        |
+| ens_atipica            |         618 |           3.56398 |                  0         |                     1        |
 
         ## Utilidad operativa
         - Las anomalías con `precursor_congestion_48h=1` priorizan monitorización y alivio preventivo.

@@ -15,16 +15,16 @@
         ## Mejores escenarios por coste de riesgo
         | scenario                          |   coste_riesgo_total |   inversion_requerida_total |   prioridad_media |
 |:----------------------------------|---------------------:|----------------------------:|------------------:|
-| capex_mas_flexibilidad            |               176400 |                 8.03049e+08 |           36.9    |
-| despliegue_adicional_flexibilidad |               189969 |                 7.13248e+08 |           39.6675 |
-| despliegue_adicional_storage      |               194492 |                 7.43182e+08 |           40.59   |
+| capex_mas_flexibilidad            |               176400 |                 8.03049e+08 |           36.8981 |
+| despliegue_adicional_flexibilidad |               189969 |                 7.13248e+08 |           39.6655 |
+| despliegue_adicional_storage      |               194492 |                 7.43182e+08 |           40.5879 |
 
         ## Escenarios más exigentes
         | scenario                             |   coste_riesgo_total |   inversion_requerida_total |   prioridad_media |
 |:-------------------------------------|---------------------:|----------------------------:|------------------:|
-| evento_degradacion_activos           |               289477 |                 9.11286e+08 |           55.1296 |
-| retraso_capex                        |               284954 |                 9.43201e+08 |           54.2803 |
-| electrificacion_industrial_intensiva |               266861 |                 8.89826e+08 |           51.66   |
+| evento_degradacion_activos           |               289477 |                 9.11286e+08 |           55.1268 |
+| retraso_capex                        |               284954 |                 9.43201e+08 |           54.2775 |
+| electrificacion_industrial_intensiva |               266861 |                 8.89826e+08 |           51.6573 |
 
         ## Lectura ejecutiva
         - `capex_mas_flexibilidad`, `despliegue_adicional_flexibilidad` y `despliegue_adicional_storage` son los escenarios con mejor balance riesgo/urgencia.

@@ -1,41 +1,59 @@
 # Memo Ejecutivo
 
-## Contexto
-El sistema analítico identifica pérdidas de capacidad operativa y eficiencia económica en red de distribución por congestión, envejecimiento de activos, crecimiento de demanda y electrificación territorial.
+## 1) Contexto
+La red de distribución está absorbiendo crecimiento de demanda por electrificación (EV e industrial) bajo restricciones de capacidad, resiliencia y capital.
 
-## Hallazgos clave
-- Feeders monitorizados: **160**
-- Horas de congestión agregadas: **185**
-- ENS anual agregada: **17736.29 MWh**
-- Curtailment anual agregado: **618044.57 MWh**
-- Incremento de pico esperado acumulado a 2030: **3894.77 MW**
+## 2) Problema de decisión
+No es viable reforzar toda la red de forma homogénea. Se requiere priorizar por territorio y nodo, discriminando entre:
+- refuerzo físico,
+- flexibilidad de demanda,
+- almacenamiento distribuido,
+- operación avanzada.
 
-## Recomendación de estrategia de inversión
-1. Priorizar feeders de categoría **Crítica** y **Alta** con mayor brecha entre pico previsto y límite térmico.
-2. Aplicar combinación de refuerzo físico y flexibilidad en zonas con baja factibilidad de permisos.
-3. Acelerar automatización en activos con alta ENS y degradación.
-4. Mantener portafolio de almacenamiento donde el curtailment es estructuralmente elevado.
+## 3) Enfoque aplicado
+Se integró una capa analítica única con:
+- SQL multicapa para estado operativo y riesgo por zona/subestación/alimentador,
+- features de estrés, resiliencia y presión de electrificación,
+- scoring interpretable multicriterio,
+- escenarios comparables para riesgo, coste y cartera.
 
-## Top 10 prioridades
-|   priority_rank | feeder_id   | territory_id   | priority_tier   |   priority_score | recommended_action      |   estimated_capex_k_eur |
-|----------------:|:------------|:---------------|:----------------|-----------------:|:------------------------|------------------------:|
-|               1 | F0034       | T010           | Alta            |          58.5399 | almacenamiento_bateria  |                14112.5  |
-|               2 | F0023       | T019           | Alta            |          55.6359 | automatizacion_avanzada |                  230    |
-|               3 | F0044       | T013           | Planificar      |          54.4802 | flexibilidad_contratada |                 2458.03 |
-|               4 | F0142       | T019           | Planificar      |          53.2391 | flexibilidad_contratada |                 2752.67 |
-|               5 | F0051       | T019           | Planificar      |          51.329  | automatizacion_avanzada |                  230    |
-|               6 | F0050       | T019           | Planificar      |          50.9474 | almacenamiento_bateria  |                11610.9  |
-|               7 | F0106       | T009           | Planificar      |          49.4637 | flexibilidad_contratada |                 2346.37 |
-|               8 | F0029       | T019           | Planificar      |          46.8116 | almacenamiento_bateria  |                14070.6  |
-|               9 | F0108       | T002           | Planificar      |          46.6721 | flexibilidad_contratada |                 1756.61 |
-|              10 | F0033       | T019           | Planificar      |          46.3565 | almacenamiento_bateria  |                11685.9  |
+## 4) Hallazgos principales
+- La congestión está concentrada en un subconjunto de zonas; no es homogénea.
+- ENS y exposición de activos aumentan en territorios con presión técnica persistente.
+- El gap de flexibilidad es desigual; en varias zonas permite diferir CAPEX, en otras no.
+- El aumento EV+industrial eleva la incertidumbre operativa en zonas ya estresadas.
 
-## Comparativa de escenarios
-| scenario          |   avg_priority_score |   critical_feeders |   high_or_critical |   total_capex_m_eur |   total_ens_mwh |   total_curtailment_mwh |
-|:------------------|---------------------:|-------------------:|-------------------:|--------------------:|----------------:|------------------------:|
-| estres_climatico  |              45.0301 |                  1 |                 24 |             626.982 |         25717.6 |                  595479 |
-| dg_alta           |              44.4077 |                  1 |                 21 |             597.955 |         17913.7 |                  780175 |
-| capex_restringido |              44.1107 |                  1 |                 19 |             667.619 |         19509.9 |                  628721 |
-| ev_acelerado      |              44.024  |                  1 |                 19 |             603.76  |         18091   |                  618045 |
-| flex_storage_push |              43.7493 |                  1 |                 19 |             557.317 |         16317.4 |                  603774 |
-| base              |              43.3959 |                  1 |                 18 |             580.539 |         17736.3 |                  618045 |
+## 5) Implicaciones operativas
+- Escalar intervención inmediata solo en zonas con riesgo crítico recurrente.
+- Activar flexibilidad y operación avanzada donde el horizonte de obra no responde al riesgo actual.
+- Acelerar vigilancia en zonas con anomalías precursoras de congestión/interrupción.
+
+## 6) Implicaciones económicas
+- Existe CAPEX diferible bajo monitorización reforzada y previsibilidad aceptable.
+- El coste de no actuar crece de forma abrupta en escenarios de retraso CAPEX o degradación de activos.
+
+## 7) Trade-offs clave
+- Refuerzo: mayor robustez, mayor coste y mayor plazo.
+- Flexibilidad: despliegue rápido, impacto medio, útil para diferimiento.
+- Storage: reduce curtailment y picos locales, coste intermedio-alto.
+- Operación avanzada: rápida y táctica, no sustituye refuerzo estructural cuando el estrés es persistente.
+
+## 8) Prioridades de intervención
+- Prioridad 1: zonas en tier crítico con ENS elevada y baja cobertura flexible.
+- Prioridad 2: zonas en tier alto donde flexibilidad/storage reducen riesgo en el corto plazo.
+- Prioridad 3: zonas en tier medio/bajo con forecast estable y decisiones diferibles.
+
+## 9) Decisiones diferibles
+Solo deben diferirse inversiones estructurales cuando coinciden:
+- riesgo no crítico,
+- señal forecast suficiente,
+- cobertura flexible operativa verificable.
+
+## 10) Limitaciones
+- Datos sintéticos y proxies económicos: válidos para priorización relativa, no para presupuesto final.
+- Sin modelado eléctrico AC detallado por topología.
+
+## 11) Próximos pasos
+1. Calibración con histórico real SCADA/AMI.
+2. Integración de restricciones eléctricas detalladas por activo.
+3. Ajuste financiero regulatorio (WACC, horizonte, sensibilidad de costes).

@@ -406,7 +406,7 @@ def run_scoring_v2() -> dict[str, pd.DataFrame]:
         """
     ).strip() + "\n"
 
-    (paths.docs / "scoring_framework_v2.md").write_text(framework_doc, encoding="utf-8")
+    (paths.docs / "scoring_framework.md").write_text(framework_doc, encoding="utf-8")
 
     conn.close()
 

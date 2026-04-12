@@ -807,7 +807,7 @@ def build_dashboard_v2() -> str:
     }
     .chart-sub {
       font-size: .72rem;
-      color: var(--muted);
+      color: #111827;
       margin: 0 0 7px 0;
       line-height: 1.34;
     }
@@ -822,25 +822,42 @@ def build_dashboard_v2() -> str:
     }
 
     .heatmap-wrap {
-      border: 1px solid #dbe3ec;
+      border: 1px solid var(--line);
       border-radius: 10px;
       overflow: auto;
       background: var(--surface);
       max-width: 100%;
+      width: 100%;
     }
     .heatmap {
-      width: max-content;
-      min-width: 100%;
+      width: 100%;
+      min-width: 1120px;
       border-collapse: collapse;
-      font-size: .72rem;
+      table-layout: fixed;
+      font-size: .83rem;
+      color: #000000;
+    }
+    .heatmap thead th {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      background: var(--surface-2);
+      color: #000000;
+      font-weight: 800;
     }
     .heatmap th,
     .heatmap td {
-      border-bottom: 1px solid #edf2f7;
-      border-right: 1px solid #edf2f7;
-      padding: 5px 6px;
+      border-bottom: 1px solid #dbe3ec;
+      border-right: 1px solid #dbe3ec;
+      padding: 8px 9px;
       text-align: center;
       white-space: nowrap;
+      line-height: 1.2;
+      font-variant-numeric: tabular-nums;
+    }
+    .heatmap th:first-child {
+      min-width: 124px;
+      width: 124px;
     }
     .heatmap th:first-child,
     .heatmap td:first-child {
@@ -848,9 +865,14 @@ def build_dashboard_v2() -> str:
       position: sticky;
       left: 0;
       background: var(--surface);
-      z-index: 2;
+      z-index: 4;
       font-weight: 700;
-      color: var(--ink);
+      color: #000000;
+    }
+    .heatmap th:not(:first-child),
+    .heatmap td:not(:first-child) {
+      min-width: 40px;
+      width: 40px;
     }
 
     .alerts {
@@ -1011,7 +1033,7 @@ def build_dashboard_v2() -> str:
     .small-note {
       margin-top: 6px;
       font-size: .73rem;
-      color: var(--muted);
+      color: #111827;
     }
     .chart-fallback {
       margin-top: 8px;
@@ -1064,6 +1086,12 @@ def build_dashboard_v2() -> str:
       font-size: .76rem;
       line-height: 1.36;
       color: var(--muted);
+    }
+
+    .span2 { grid-column: 1 / -1; }
+
+    #ch_riesgo_territorio {
+      min-height: 300px;
     }
 
     @media (max-width: 1450px) {
@@ -1215,12 +1243,12 @@ def build_dashboard_v2() -> str:
         </div>
       </div>
       <div class="grid2" style="margin-top:10px;">
-        <div class="chart-card">
+        <div class="chart-card span2">
           <p class="chart-title">Heatmap horario de estrés por región operativa</p>
           <p class="chart-sub">Proxy combinado de carga relativa y ratio de congestión para detectar ventanas críticas.</p>
           <div class="heatmap-wrap" id="heatmap_container"></div>
         </div>
-        <div class="chart-card">
+        <div class="chart-card span2">
           <p class="chart-title">Riesgo operativo vs criticidad territorial por zona</p>
           <p class="chart-sub">Detecta territorios donde la presión técnica coincide con impacto territorial alto.</p>
           <canvas id="ch_riesgo_territorio"></canvas>
@@ -1983,10 +2011,10 @@ function renderHeatmap(fd) {
 
   function bg(carga, cong) {
     const stress = Math.min(1, Math.max(0, 0.65 * (carga / 1.2) + 0.35 * cong));
-    const red = Math.round(255 * stress);
-    const green = Math.round(175 - 120 * stress);
-    const blue = Math.round(80 - 50 * stress);
-    return `rgb(${red}, ${Math.max(green, 35)}, ${Math.max(blue, 30)})`;
+    const hue = Math.round(140 - 78 * stress);
+    const sat = 52;
+    const light = Math.round(74 - 14 * stress);
+    return `hsl(${hue} ${sat}% ${light}%)`;
   }
 
   const header = `<tr><th>Región / hora</th>${hours.map(h => `<th>${h}</th>`).join("")}</tr>`;
@@ -1995,8 +2023,7 @@ function renderHeatmap(fd) {
       const m = keyMap[`${region}_${h}`] || { carga: 0, cong: 0 };
       const title = `Carga: ${fmt(m.carga,2)} | Cong.: ${fmt(100*m.cong,1)}%`;
       const color = bg(m.carga, m.cong);
-      const text = m.carga >= 0.95 ? "#fff" : "#111827";
-      return `<td title="${title}" style="background:${color};color:${text};">${fmt(m.carga,2)}</td>`;
+      return `<td title="${title}" style="background:${color};color:#000000;">${fmt(m.carga,2)}</td>`;
     }).join("");
     return `<tr><td>${region}</td>${cells}</tr>`;
   }).join("");
@@ -2549,7 +2576,7 @@ bootstrap();
 
     architecture = dedent(
         """
-        # Arquitectura Dashboard v2.2 (Refactor Premium Final)
+        # Arquitectura del Dashboard Ejecutivo
 
         ## Objetivo
         Convertir el HTML en una herramienta de decisión para utility: diagnóstico + priorización + trade-offs + escenarios.
@@ -2583,7 +2610,7 @@ bootstrap();
 
     usage = dedent(
         """
-        # Instrucciones de uso (Dashboard v2.2)
+        # Guía de uso del dashboard
 
         1. Abrir `outputs/dashboard/dashboard_inteligencia_red.html`.
         2. Aplicar filtros territoriales y de riesgo desde el panel lateral.

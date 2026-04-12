@@ -1,7 +1,7 @@
-# Governance & Quality Framework (v2)
+# Governance & Quality Framework
 
 ## Propósito
-Establecer un contrato operativo único para evitar ambigüedad entre artefactos legacy y la arquitectura v2 canónica.
+Establecer un contrato operativo único para ejecución, validación y publicación del sistema analítico.
 
 ## 1) Fuente de verdad canónica
 - **Pipeline oficial**: `python -m src` (ejecuta `run_final_assembly_v2`).
@@ -17,13 +17,7 @@ Establecer un contrato operativo único para evitar ambigüedad entre artefactos
   - `intervention_scoring_table`
   - `scenario_impacts_v2`
 
-## 2) Artefactos legacy (solo compatibilidad)
-Los siguientes componentes permanecen para trazabilidad histórica y no deben usarse como fuente principal:
-- `src/pipeline.py`, `src/sql_runner.py`, `src/scoring.py`, `src/scenario_engine.py`
-- SQL legacy: `archive/sql_legacy/00_load_raw.sql`, `archive/sql_legacy/10_staging.sql`, `archive/sql_legacy/20_marts.sql`, `archive/sql_legacy/30_kpis.sql`, `archive/sql_legacy/40_validations.sql`
-- Datasets legacy en `data/raw` con naming inglés (`territories`, `feeders`, etc.)
-
-## 3) Política de calidad
+## 2) Política de calidad
 - `validation_summary.json` es el estado machine-readable oficial.
 - Reglas de estado:
   - `PASS`: sin issues alta/media.
@@ -43,20 +37,20 @@ Los estados se publican en:
 - `outputs/reports/validation_summary.json`
 - `outputs/reports/validation_gate_checks.csv`
 
-## 4) Política de métricas
+## 3) Política de métricas
 - Definiciones oficiales en:
   - `docs/sql_metric_definitions.md`
-  - `docs/scoring_framework_v2.md`
+  - `docs/scoring_framework.md`
 - Cualquier métrica no incluida en estas fuentes se considera no gobernada.
 
-## 4.1) Release manifest
+## 3.1) Release manifest
 - Artefacto obligatorio: `outputs/reports/release_manifest.json`.
 - Debe incluir hash (`sha256`) de dashboard oficial y estado de readiness.
 - `validation_summary.json` y `release_manifest.json` deben ser consistentes en:
   - `overall_status` ↔ `validation_status`
   - `release_readiness.publish_state`
 
-## 5) Política de testing mínima
+## 4) Política de testing mínima
 - Cobertura mínima por dominio:
   - entrypoint canónico
   - contratos de scoring (tiers/urgencia)
@@ -65,7 +59,7 @@ Los estados se publican en:
   - evaluación de severidad en validación
 - Cualquier PR o release sin `pytest` verde queda bloqueado.
 
-## 6) Hard gates de release
+## 5) Hard gates de release
 El release queda bloqueado si falla cualquier gate bloqueante:
 1. dashboard oficial no existe.
 2. artefactos core (`intervention_scoring_table`, `intervention_ranking_final`, escenarios) no existen.
@@ -73,7 +67,7 @@ El release queda bloqueado si falla cualquier gate bloqueante:
 4. inconsistencia de agregación de coste entre `scenario_impacts_v2` y `scenario_summary_v2`.
 5. issues `alta` > 0.
 
-## 7) Criterio de publicación
+## 6) Criterio de publicación
 Antes de publicar:
 1. Ejecutar `python -m src`.
 2. Ejecutar `pytest -q`.

@@ -1,9 +1,8 @@
-# Diccionario de Datos (Canónico v2)
+# Diccionario de Datos
 
 ## Estado de documento
 - **Activo**: sí
 - **Modelo oficial**: esquema en español de `zonas_red` a `escenario_macro`.
-- **Compatibilidad**: existen datasets legacy en inglés para histórico, fuera de la ruta canónica.
 
 ## Raw (`data/raw`)
 
@@ -96,5 +95,3 @@
 - `intervention_scoring_table.csv`
 - `scenario_impacts_v2.csv`
 
-## Nota de calidad
-La tabla legacy en inglés (`territories`, `feeders`, etc.) no debe usarse para análisis principal v2.

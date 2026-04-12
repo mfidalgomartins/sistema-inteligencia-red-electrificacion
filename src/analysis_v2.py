@@ -320,7 +320,7 @@ def run_advanced_analysis_v2() -> dict[str, pd.DataFrame]:
         "nbformat_minor": 5,
     }
 
-    (paths.root / "notebooks" / "01_principal.ipynb").write_text(json.dumps(notebook, ensure_ascii=False, indent=2), encoding="utf-8")
+    (paths.root / "notebooks" / "proyecto_principal.ipynb").write_text(json.dumps(notebook, ensure_ascii=False, indent=2), encoding="utf-8")
 
     conn.close()
 
