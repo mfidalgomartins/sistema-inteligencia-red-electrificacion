@@ -1,32 +1,27 @@
 # Sistema de Inteligencia de Red para Electrificación Territorial
 
-Sistema analítico de apoyo a decisión para priorizar intervenciones de red entre refuerzo, flexibilidad, almacenamiento y operación.
+Este proyecto construye un sistema de apoyo a decisión para planificación y operación de red en contexto de electrificación acelerada. El foco no está en “mostrar métricas”, sino en decidir con criterio dónde intervenir primero y con qué combinación de palancas: refuerzo físico, flexibilidad, almacenamiento u operación avanzada.
 
-## Problema de negocio
-La red de distribución pierde capacidad operativa en territorios concretos por congestión, electrificación de demanda, activos envejecidos y límites locales. La decisión crítica no es solo *dónde* intervenir, sino *con qué palanca* y *en qué secuencia*.
+## Contexto de negocio
+La presión sobre la red no se reparte de forma homogénea: hay territorios donde coinciden congestión, crecimiento de demanda, activos más expuestos y menor cobertura flexible. En ese contexto, decidir mal el orden de intervención tiene coste operativo, coste económico y coste de resiliencia.
 
-## Qué hace el sistema
-- Genera un ecosistema sintético realista multi-zona y multi-nodo.
-- Integra datos y KPIs con una capa SQL por niveles.
-- Construye features, forecasting interpretable, detección de anomalías y scoring multicriterio.
-- Ejecuta escenarios what-if para comparar impacto técnico y económico.
-- Entrega dashboard ejecutivo y reportes de validación para comité.
+## Qué resuelve el sistema
+Integra un flujo completo de trabajo: generación de datos sintéticos plausibles, capa SQL por niveles, features analíticas, forecasting interpretable, detección de anomalías, scoring multicriterio y simulación de escenarios. El resultado es una salida ejecutiva utilizable para priorizar inversión y operación con trazabilidad técnica.
 
-## Decisiones que soporta
-- Qué zonas requieren refuerzo estructural inmediato.
-- Dónde conviene activar flexibilidad para diferir CAPEX.
-- Dónde el almacenamiento aporta mayor reducción de riesgo.
-- Qué focos deben quedar en monitorización reforzada antes de invertir.
+## Decisiones que habilita
+- Dónde escalar refuerzo estructural por riesgo persistente.
+- Dónde activar flexibilidad para contener riesgo y diferir CAPEX.
+- Dónde desplegar almacenamiento por brecha técnica y curtailment.
+- Dónde mantener monitorización reforzada antes de comprometer inversión.
 
-## Arquitectura del proyecto
-- `data/raw`: datos sintéticos base.
+## Arquitectura, en una vista
+- `data/raw` y `data/processed`: base sintética y tablas analíticas.
 - `sql`: staging, integración, marts, KPIs y validaciones.
-- `src`: pipeline analítico v2 (features, modelos, scoring, escenarios, dashboard, QA).
-- `data/processed`: tablas analíticas y salidas de decisión.
-- `outputs`: charts, dashboard y reportes finales.
+- `src`: pipeline v2 de análisis, scoring, escenarios, dashboard y QA.
+- `outputs`: pack de visuales, dashboard final y reportes de validación.
 - `tests`: checks de contrato y smoke tests.
 
-## Estructura del repositorio
+## Estructura principal
 ```text
 src/
 sql/
@@ -38,19 +33,16 @@ notebooks/
 scripts/
 ```
 
-## Outputs clave
-- Dashboard final: `outputs/dashboard/dashboard_inteligencia_red.html`
-- Memo ejecutivo: `outputs/reports/memo_ejecutivo_es.md`
+## Entregables que importan
+- Dashboard ejecutivo: `outputs/dashboard/dashboard_inteligencia_red.html`
+- Memo para dirección: `outputs/reports/memo_ejecutivo_es.md`
 - Validación integral: `outputs/reports/validation_report.md`
-- Estado de release: `outputs/reports/release_manifest.json`
+- Manifest de release: `outputs/reports/release_manifest.json`
 
-## Por qué este proyecto es fuerte
-- Está orientado a decisión operativa e inversión, no a visualización decorativa.
-- Mantiene trazabilidad de extremo a extremo: dato → métrica → score → recomendación.
-- Usa métodos interpretables y gobierno explícito de calidad/validación.
-- Incluye una capa ejecutiva utilizable en contexto real de utility.
+## Por qué este trabajo está por encima del portfolio medio
+Porque está diseñado como sistema de decisión, no como ejercicio de visualización: combina gobierno de métricas, validación explícita, métodos interpretables y una narrativa operativa coherente con contexto utility.
 
-## Cómo ejecutar
+## Ejecución
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
@@ -58,10 +50,8 @@ pip install -r requirements.txt
 python -m src
 ```
 
-## Limitaciones
-- Datos sintéticos: sirven para diseño y comparación de decisiones, no sustituyen operación real.
-- Capa económica basada en proxies: no reemplaza evaluación financiera regulatoria.
-- Escenarios de priorización: no equivalen a ingeniería eléctrica de detalle.
+## Límites
+Los datos son sintéticos, la capa económica usa proxies comparativos y los escenarios son de priorización (no sustituyen ingeniería eléctrica de detalle ni valoración financiera regulatoria final).
 
 ## Herramientas
 Python, SQL, DuckDB, pandas, scikit-learn, matplotlib, Chart.js.
