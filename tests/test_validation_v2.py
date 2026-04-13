@@ -59,3 +59,18 @@ def test_release_classification_decision_support_only_on_single_medium_issue():
     assert out["decision_state"] == "decision-support only"
     assert out["committee_state"] == "not committee-grade"
     assert out["publish_state"] == "publish-with-caveats"
+
+
+def test_release_classification_pass_is_not_committee_grade_by_default():
+    assessment = {"n_high": 0, "n_med": 0, "n_low": 0}
+    gates = pd.DataFrame(
+        [
+            {"gate_name": "core", "passed": True, "is_blocker": True, "detail": "x"},
+        ]
+    )
+    out = classify_release_readiness(assessment, gates)
+    assert out["technical_state"] == "technically valid"
+    assert out["analytical_state"] == "analytically acceptable"
+    assert out["decision_state"] == "decision-support ready"
+    assert out["committee_state"] == "not committee-grade"
+    assert out["publish_state"] == "publish-with-caveats"

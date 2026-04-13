@@ -1,14 +1,14 @@
 {
   "manifest_version": "1.0",
-  "generated_at_utc": "2026-04-11T22:11:20.014836+00:00",
+  "generated_at_utc": "2026-04-13T00:53:49.587256+00:00",
   "python_version": "3.12.13",
-  "platform": "macOS-15.5-arm64-arm-64bit",
+  "platform": "macOS-26.4.1-arm64-arm-64bit",
   "release_readiness": {
     "technical_state": "technically valid",
     "analytical_state": "analytically acceptable",
     "decision_state": "decision-support ready",
-    "committee_state": "committee-grade",
-    "publish_state": "publish-ready"
+    "committee_state": "not committee-grade",
+    "publish_state": "publish-with-caveats"
   },
   "validation_status": "PASS",
   "confidence_level": "alta",
@@ -28,23 +28,30 @@
     "dashboard": {
       "path": "/Users/miguelfidalgo/Documents/sistema-inteligencia-red-electrificacion/outputs/dashboard/grid-electrification-command-center.html",
       "exists": true,
-      "size_bytes": 612564,
-      "sha256": "460369a80e86467a4d883046a86eed0681e43aa86cb9165c3c34f9daeab37b48",
-      "updated_utc": "2026-04-11T22:11:15.879312+00:00"
+      "size_bytes": 611642,
+      "sha256": "96fc4b9c993f7340ad6c38472477bc8389605c47ba5457db4ce474b34923ed27",
+      "updated_utc": "2026-04-13T00:53:12.954397+00:00"
     },
     "validation_summary": {
       "path": "/Users/miguelfidalgo/Documents/sistema-inteligencia-red-electrificacion/outputs/reports/validation_summary.json",
       "exists": true,
-      "size_bytes": 741,
-      "sha256": "ca5fed1dd247fe48b880d24b0be5c7242b1c3073469218eca47207e8ca0899c2",
-      "updated_utc": "2026-04-11T22:11:20.001467+00:00"
+      "size_bytes": 752,
+      "sha256": "4b140268e18252aae395a4a4dbf1029030e6e1465d4bdb8946c91292a000f445",
+      "updated_utc": "2026-04-13T00:53:07.043977+00:00"
     },
     "validation_report": {
       "path": "/Users/miguelfidalgo/Documents/sistema-inteligencia-red-electrificacion/outputs/reports/validation_report.md",
       "exists": true,
-      "size_bytes": 6352,
-      "sha256": "ceb31b00a49fc982c02a200845bb9d07a4fff6e0c3c9a9e7f12bf12359399f55",
-      "updated_utc": "2026-04-11T22:11:19.998434+00:00"
+      "size_bytes": 6489,
+      "sha256": "dd02940b1ac301e4d3f4a794c5ad265325a80c5842ba61eb7c72689fa40ab962",
+      "updated_utc": "2026-04-13T00:53:07.042085+00:00"
+    },
+    "release_brief": {
+      "path": "/Users/miguelfidalgo/Documents/sistema-inteligencia-red-electrificacion/outputs/reports/release_brief.md",
+      "exists": true,
+      "size_bytes": 509,
+      "sha256": "91780bc53dbf28266a5d5bab5c33ce1fa18a2c4992d21e1e951ff0d031325be9",
+      "updated_utc": "2026-04-13T00:53:49.229886+00:00"
     },
     "scoring_table": {
       "path": "/Users/miguelfidalgo/Documents/sistema-inteligencia-red-electrificacion/data/processed/intervention_scoring_table.csv",

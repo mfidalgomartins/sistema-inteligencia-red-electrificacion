@@ -2,7 +2,7 @@ VENV_PY := .venv/bin/python
 VENV_PIP := .venv/bin/pip
 PYTEST := .venv/bin/pytest
 
-.PHONY: setup test run run-legacy validate smoke
+.PHONY: setup test run validate smoke
 
 setup:
 	python3 -m venv .venv
@@ -13,9 +13,6 @@ test:
 
 run:
 	$(VENV_PY) -m src
-
-run-legacy:
-	$(VENV_PY) -m src --legacy
 
 validate:
 	$(VENV_PY) -m src.validate_data_v2

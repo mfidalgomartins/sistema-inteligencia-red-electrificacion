@@ -20,6 +20,7 @@ REQUIRED_REPORTS = [
     "validation_report.md",
     "validation_summary.json",
     "release_manifest.json",
+    "release_brief.md",
 ]
 
 REQUIRED_RAW = [

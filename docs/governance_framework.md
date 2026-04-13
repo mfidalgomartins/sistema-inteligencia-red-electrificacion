@@ -24,6 +24,7 @@ Establecer un contrato operativo único para ejecución, validación y publicaci
   - `WARN`: >=1 issue media y 0 alta.
   - `FAIL`: >=1 issue alta.
 - La confianza del proyecto no puede declararse como "alta" con estado `WARN` o `FAIL`.
+- En datos sintéticos, `committee_state` no debe declararse `committee-grade` por defecto.
 
 ### Clasificación de readiness (obligatoria en release)
 - `technical_state`: `technically valid` / `not technically valid`
@@ -31,6 +32,9 @@ Establecer un contrato operativo único para ejecución, validación y publicaci
 - `decision_state`: `decision-support ready` / `decision-support only` / `screening-grade only`
 - `committee_state`: `committee-grade` / `not committee-grade`
 - `publish_state`: `publish-ready` / `publish-with-caveats` / `publish-blocked`
+
+Regla operativa:
+- Si el conjunto es sintético o proxy, el release estándar es `publish-with-caveats` y `not committee-grade`.
 
 Los estados se publican en:
 - `outputs/reports/validation_report.md`

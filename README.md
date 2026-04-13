@@ -37,6 +37,7 @@ scripts/
 - Dashboard ejecutivo: `outputs/dashboard/grid-electrification-command-center.html`
 - Memo para dirección: `outputs/reports/memo_ejecutivo_es.md`
 - Validación integral: `outputs/reports/validation_report.md`
+- Resumen de release: `outputs/reports/release_brief.md`
 - Manifest de release: `outputs/reports/release_manifest.json`
 
 ## Dashboard en vivo

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
 from textwrap import dedent
 
 import pandas as pd
@@ -50,24 +49,22 @@ def build_final_docs_v2() -> dict[str, str]:
         else "N/A"
     )
 
-    snapshot = dedent(
+    brief = dedent(
         f"""
-        # Snapshot de Release (v2)
+        # Resumen de release
 
-        Fecha UTC: {datetime.now(timezone.utc).isoformat()}
-
-        ## Estado
-        - validation_status: {validation_summary.get('overall_status', 'N/A')}
-        - confidence_level: {validation_summary.get('confidence_level', 'N/A')}
-        - publish_state: {validation_summary.get('release_readiness', {}).get('publish_state', 'N/A')}
-        - decision_state: {validation_summary.get('release_readiness', {}).get('decision_state', 'N/A')}
+        ## Estado de publicación
+        - Validación: {validation_summary.get('overall_status', 'N/A')}
+        - Confianza: {validation_summary.get('confidence_level', 'N/A')}
+        - Publicación: {validation_summary.get('release_readiness', {}).get('publish_state', 'N/A')}
+        - Estado decisional: {validation_summary.get('release_readiness', {}).get('decision_state', 'N/A')}
 
         ## Señales clave
-        - zonas_analizadas: {n_zonas}
-        - horas_congestion_total: {horas_cong:,.0f}
-        - ens_total_mwh: {ens_total:,.2f}
-        - top_zone_priority: {top_zone}
-        - escenario_menor_coste_riesgo: {top_scenario}
+        - Zonas analizadas: {n_zonas}
+        - Horas de congestión acumuladas: {horas_cong:,.0f}
+        - ENS total (MWh): {ens_total:,.2f}
+        - Zona con mayor prioridad: {top_zone}
+        - Escenario con menor coste de riesgo: {top_scenario}
 
         ## Integridad de artefactos
         - dashboard_sha256: {manifest.get('artifacts', {}).get('dashboard', {}).get('sha256', 'N/A')}
@@ -75,9 +72,9 @@ def build_final_docs_v2() -> dict[str, str]:
         """
     ).strip() + "\n"
 
-    out_path = paths.outputs_reports / "project_snapshot.md"
-    out_path.write_text(snapshot, encoding="utf-8")
-    return {"project_snapshot": str(out_path)}
+    out_path = paths.outputs_reports / "release_brief.md"
+    out_path.write_text(brief, encoding="utf-8")
+    return {"release_brief": str(out_path)}
 
 
 if __name__ == "__main__":

@@ -35,6 +35,7 @@ def _write_minimal_fixture(root):
         raw_df.to_csv(paths.data_raw / file_name, index=False)
 
     (paths.outputs_reports / "validation_report.md").write_text("ok\n", encoding="utf-8")
+    (paths.outputs_reports / "release_brief.md").write_text("ok\n", encoding="utf-8")
     (paths.outputs_reports / "validation_summary.json").write_text(
         json.dumps(
             {

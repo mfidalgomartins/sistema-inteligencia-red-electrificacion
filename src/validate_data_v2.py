@@ -86,8 +86,8 @@ def classify_release_readiness(
         "technical_state": "technically valid",
         "analytical_state": "analytically acceptable",
         "decision_state": "decision-support ready",
-        "committee_state": "committee-grade",
-        "publish_state": "publish-ready",
+        "committee_state": "not committee-grade",
+        "publish_state": "publish-with-caveats",
     }
 
 

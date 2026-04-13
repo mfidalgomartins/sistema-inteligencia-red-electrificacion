@@ -1695,32 +1695,20 @@ function buildKpiCard(title, value, detail) {
 }
 
 function updateKpis(fd) {
-  const isUnfiltered = !fd.filters.region && !fd.filters.zona && !fd.filters.sub &&
-    !fd.filters.tipo && !fd.filters.activo && !fd.filters.risk &&
-    !fd.filters.intervencion && !fd.filters.scenario;
-
-  if (isUnfiltered) {
-    const html = [
-      buildKpiCard("Horas de congestión", fmt(KPI_STATIC.horas_congestion,0), "KPI oficial gobernado"),
-      buildKpiCard("Zonas críticas", fmt(KPI_STATIC.zonas_criticas,0), `${fmt(KPI_STATIC.pct_zonas_criticas,1)}% del total`),
-      buildKpiCard("ENS total (MWh)", fmt(KPI_STATIC.ens_total,1), "KPI oficial gobernado"),
-      buildKpiCard("Clientes afectados", fmt(KPI_STATIC.clientes_afectados,0), "KPI oficial gobernado"),
-      buildKpiCard("Carga relativa media", fmt(KPI_STATIC.carga_media,3), `Zonas >1.0: ${fmt(KPI_STATIC.utilizacion_excesiva_pct,1)}%`),
-      buildKpiCard("Resiliencia índice", fmt(KPI_STATIC.resiliencia_indice,1), "KPI oficial gobernado"),
-      buildKpiCard("Coste de riesgo (EUR)", fmt(KPI_STATIC.coste_riesgo,0), "Proxy económico oficial"),
-      buildKpiCard("CAPEX total evaluado", fmt(KPI_STATIC.capex_total,0), "Cartera gobernada"),
-      buildKpiCard("CAPEX diferible", fmt(KPI_STATIC.capex_diferible,0), `${fmt(KPI_STATIC.capex_diferible_pct,1)}% vs CAPEX total`),
-      buildKpiCard("SAIDI proxy (min)", fmt(KPI_STATIC.saidi_proxy,1), "KPI oficial gobernado"),
-      buildKpiCard("SAIFI proxy", fmt(KPI_STATIC.saifi_proxy,3), "KPI oficial gobernado"),
-      buildKpiCard("Decisiones diferibles", fmt(KPI_STATIC.decisiones_diferibles,0), "Segun policy de forecast"),
-      buildKpiCard("Perímetro filtrado", fmt(fd.zoneRisk.length,0), "Zonas visibles en interfaz"),
-      buildKpiCard("Subestaciones críticas", fmt(fd.substations.filter(s => num(s.pct_horas_congestion) >= 15).length,0), "Con congestión estructural"),
-      buildKpiCard("Alimentadores críticos", fmt(fd.feeders.filter(f => num(f.criticidad_feeder_score) >= 70).length,0), "Criticidad compuesta alta"),
-      buildKpiCard("Flex gap medio", fmt(fd.flexGap.length ? fd.flexGap.reduce((s,f) => s + num(f.gap_tecnico_mw), 0) / fd.flexGap.length : 0,2), "Brecha técnica por zona"),
-    ].join("");
-    byId("kpi_grid").innerHTML = html;
-    return;
-  }
+  const official = [
+    buildKpiCard("Horas de congestión", fmt(KPI_STATIC.horas_congestion,0), "KPI oficial gobernado"),
+    buildKpiCard("Zonas críticas", fmt(KPI_STATIC.zonas_criticas,0), `${fmt(KPI_STATIC.pct_zonas_criticas,1)}% del total`),
+    buildKpiCard("ENS total (MWh)", fmt(KPI_STATIC.ens_total,1), "KPI oficial gobernado"),
+    buildKpiCard("Clientes afectados", fmt(KPI_STATIC.clientes_afectados,0), "KPI oficial gobernado"),
+    buildKpiCard("Carga relativa media", fmt(KPI_STATIC.carga_media,3), `Zonas >1.0: ${fmt(KPI_STATIC.utilizacion_excesiva_pct,1)}%`),
+    buildKpiCard("Resiliencia índice", fmt(KPI_STATIC.resiliencia_indice,1), "KPI oficial gobernado"),
+    buildKpiCard("Coste de riesgo (EUR)", fmt(KPI_STATIC.coste_riesgo,0), "Proxy económico oficial"),
+    buildKpiCard("CAPEX total evaluado", fmt(KPI_STATIC.capex_total,0), "Cartera gobernada"),
+    buildKpiCard("CAPEX diferible", fmt(KPI_STATIC.capex_diferible,0), `${fmt(KPI_STATIC.capex_diferible_pct,1)}% vs CAPEX total`),
+    buildKpiCard("SAIDI proxy (min)", fmt(KPI_STATIC.saidi_proxy,1), "KPI oficial gobernado"),
+    buildKpiCard("SAIFI proxy", fmt(KPI_STATIC.saifi_proxy,3), "KPI oficial gobernado"),
+    buildKpiCard("Decisiones diferibles", fmt(KPI_STATIC.decisiones_diferibles,0), "Segun policy de forecast"),
+  ].join("");
 
   const zoneCount = fd.zoneRisk.length;
   const horasCong = fd.zoneRisk.reduce((s,z) => s + num(z.horas_congestion), 0);
@@ -1749,28 +1737,28 @@ function updateKpis(fd) {
 
   const diffDecisions = fd.scoring.filter(r => String(r.decision_forecast || "").toLowerCase().includes("diferir") && ["bajo", "medio"].includes(String(r.risk_tier))).length;
 
-  const html = [
-    buildKpiCard("Horas de congestión", fmt(horasCong,0), "Acumulado en el perímetro filtrado"),
-    buildKpiCard("Zonas críticas", fmt(criticas,0), `Sobre ${fmt(zoneCount,0)} zonas`),
-    buildKpiCard("ENS total (MWh)", fmt(ens,1), "Impacto de continuidad de servicio"),
-    buildKpiCard("Clientes afectados", fmt(clientes,0), "Proxy de impacto social"),
-    buildKpiCard("Carga relativa media", fmt(cargaMedia,3), `Zonas >1.0: ${fmt(overPct,1)}%`),
-    buildKpiCard("Resiliencia índice", fmt(resiliencia,1), "100 - riesgo de resiliencia medio"),
-    buildKpiCard("Coste de riesgo (EUR)", fmt(costeRiesgo,0), "Proxy económico del no actuar"),
-    buildKpiCard("CAPEX total evaluado", fmt(capex,0), "Cartera de intervenciones"),
-    buildKpiCard("CAPEX diferible", fmt(capexDif,0), `${fmt(capexDifPct,1)}% vs CAPEX total`),
-    buildKpiCard("SAIDI proxy (min)", fmt(saidi,1), "Duración media de interrupción"),
-    buildKpiCard("SAIFI proxy", fmt(saifi,3), "Interrupciones por 1.000 clientes afectados"),
-    buildKpiCard("Demanda nueva (EV+IND)", fmt(evTotal + indTotal,0), `Ratio medio nueva demanda: ${fmt(100*ratioNueva,1)}%`),
-    buildKpiCard("Presión EV (MWh)", fmt(evTotal,0), "Carga incremental territorial"),
-    buildKpiCard("Presión industrial (MWh)", fmt(indTotal,0), "Electrificación productiva"),
-    buildKpiCard("Decisiones diferibles", fmt(diffDecisions,0), "Zonas con monitorización reforzada"),
+  const exploratory = [
+    buildKpiCard("Perímetro filtrado", fmt(zoneCount,0), "Lectura exploratoria del filtro activo"),
+    buildKpiCard("Horas congestión filtradas", fmt(horasCong,0), "No sustituye KPI oficial"),
+    buildKpiCard("ENS filtrada (MWh)", fmt(ens,1), "No sustituye KPI oficial"),
+    buildKpiCard("Clientes filtrados", fmt(clientes,0), "No sustituye KPI oficial"),
+    buildKpiCard("Carga media filtrada", fmt(cargaMedia,3), `Zonas >1.0: ${fmt(overPct,1)}%`),
+    buildKpiCard("Resiliencia filtrada", fmt(resiliencia,1), "Cálculo exploratorio"),
+    buildKpiCard("Coste riesgo filtrado (EUR)", fmt(costeRiesgo,0), "Proxy exploratorio"),
+    buildKpiCard("CAPEX filtrado (EUR)", fmt(capex,0), "Cartera en filtro activo"),
+    buildKpiCard("CAPEX diferible filtrado", fmt(capexDif,0), `${fmt(capexDifPct,1)}% vs CAPEX filtrado`),
+    buildKpiCard("SAIDI filtrado (min)", fmt(saidi,1), "Cálculo exploratorio"),
+    buildKpiCard("SAIFI filtrado", fmt(saifi,3), "Cálculo exploratorio"),
+    buildKpiCard("Demanda nueva filtrada", fmt(evTotal + indTotal,0), `Ratio medio: ${fmt(100*ratioNueva,1)}%`),
+    buildKpiCard("Presión EV filtrada", fmt(evTotal,0), "Exploratorio"),
+    buildKpiCard("Presión industrial filtrada", fmt(indTotal,0), "Exploratorio"),
+    buildKpiCard("Decisiones diferibles filtradas", fmt(diffDecisions,0), "Exploratorio"),
     buildKpiCard("Subestaciones críticas", fmt(fd.substations.filter(s => num(s.pct_horas_congestion) >= 15).length,0), "Con congestión estructural relevante"),
     buildKpiCard("Alimentadores críticos", fmt(fd.feeders.filter(f => num(f.criticidad_feeder_score) >= 70).length,0), "Criticidad compuesta alta"),
     buildKpiCard("Flex gap medio", fmt(fd.flexGap.length ? fd.flexGap.reduce((s,f) => s + num(f.gap_tecnico_mw), 0) / fd.flexGap.length : 0,2), "Brecha técnica por zona"),
   ].join("");
 
-  byId("kpi_grid").innerHTML = html + buildKpiCard("Modo KPI", "Exploratorio", "Filtro activo: usar reporte oficial para comité");
+  byId("kpi_grid").innerHTML = official + exploratory + buildKpiCard("Modo KPI", "Gobernado + exploratorio", "Comité: usar KPIs oficiales y reporte de validación");
 }
 
 function updateAlerts(fd) {
@@ -2607,28 +2595,6 @@ bootstrap();
         """
     ).strip() + "\n"
     (paths.docs / "dashboard_architecture.md").write_text(architecture, encoding="utf-8")
-
-    usage = dedent(
-        """
-        # Guía de uso del dashboard
-
-        1. Abrir `outputs/dashboard/grid-electrification-command-center.html`.
-        2. Aplicar filtros territoriales y de riesgo desde el panel lateral.
-        3. Leer el bloque ejecutivo (qué pasa, por qué, decisión sugerida).
-        4. Validar trade-offs en el comparador multicriterio.
-        5. Revisar escenarios y sensibilidad what-if antes de fijar secuencia de inversión.
-        6. Exportar decisiones desde la tabla accionable (zona, driver, intervención, secuencia).
-        7. Usar `Top crítico` para fijar foco inmediato y revisar el drill-down de zona.
-
-        ## Ruta recomendada de lectura para comité
-        - 1) KPI + alertas
-        - 2) Congestión y ENS
-        - 3) Trade-off CAPEX/flex/storage
-        - 4) Escenarios
-        - 5) Tabla de priorización final
-        """
-    ).strip() + "\n"
-    (paths.outputs_reports / "dashboard_usage.md").write_text(usage, encoding="utf-8")
 
     out_official.write_text(html, encoding="utf-8")
 

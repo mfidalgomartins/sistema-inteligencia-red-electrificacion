@@ -15,6 +15,7 @@ ARTIFACTS = {
     "dashboard": lambda p: p.outputs_dashboard / "grid-electrification-command-center.html",
     "validation_summary": lambda p: p.outputs_reports / "validation_summary.json",
     "validation_report": lambda p: p.outputs_reports / "validation_report.md",
+    "release_brief": lambda p: p.outputs_reports / "release_brief.md",
     "scoring_table": lambda p: p.data_processed / "intervention_scoring_table.csv",
     "ranking_final": lambda p: p.data_processed / "intervention_ranking_final.csv",
     "scenario_summary": lambda p: p.data_processed / "scenario_summary_v2.csv",
