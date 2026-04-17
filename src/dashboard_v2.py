@@ -514,15 +514,20 @@ def build_dashboard_v2() -> str:
     :root {
       --bg: #edf2f7;
       --surface: #ffffff;
-      --surface-2: #f8fafc;
-      --ink: #0b0f19;
-      --muted: #334155;
+      --surface-2: #f6f9fc;
+      --surface-3: #eef4f9;
+      --ink: #0f172a;
+      --ink-soft: #1e293b;
+      --muted: #526277;
       --teal: #0f766e;
+      --blue: #1d4ed8;
       --amber: #b45309;
       --red: #b91c1c;
       --green: #166534;
-      --line: #dbe3ec;
-      --shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+      --line: #d7e1eb;
+      --line-strong: #c1cedd;
+      --shadow: 0 22px 52px rgba(15, 23, 42, 0.10);
+      --shadow-soft: 0 8px 24px rgba(15, 23, 42, 0.06);
       --sidebar-bg: linear-gradient(180deg, #071425 0%, #0b1e34 100%);
       --sidebar-ink: #dbeafe;
       --sidebar-hint: #93c5fd;
@@ -534,10 +539,12 @@ def build_dashboard_v2() -> str:
       --chart-border: #e2e8f0;
       --chart-tick: #334155;
       --chart-grid: rgba(148, 163, 184, .20);
-      --hero-bg: linear-gradient(135deg, #dcecff 0%, #d7f3ef 52%, #e5eefc 100%);
+      --hero-bg: linear-gradient(135deg, #dcecff 0%, #d7f3ef 42%, #eef3fb 100%);
       --hero-meta-bg: rgba(255, 255, 255, .72);
       --hero-meta-border: rgba(148, 163, 184, .55);
       --hero-meta-ink: #000000;
+      --hero-pill-bg: rgba(255, 255, 255, .62);
+      --hero-pill-ink: #0f172a;
       --bg-grad-1: rgba(15,118,110,.22);
       --bg-grad-2: rgba(30,64,175,.20);
     }
@@ -545,10 +552,14 @@ def build_dashboard_v2() -> str:
       --bg: #0b1220;
       --surface: #111827;
       --surface-2: #0f172a;
+      --surface-3: #142033;
       --ink: #f8fafc;
-      --muted: #cbd5e1;
+      --ink-soft: #e2e8f0;
+      --muted: #b7c4d5;
       --line: #334155;
-      --shadow: 0 16px 34px rgba(2, 6, 23, 0.55);
+      --line-strong: #475569;
+      --shadow: 0 18px 42px rgba(2, 6, 23, 0.58);
+      --shadow-soft: 0 8px 20px rgba(2, 6, 23, 0.38);
       --sidebar-bg: linear-gradient(180deg, #020617 0%, #0b1220 100%);
       --sidebar-ink: #e2e8f0;
       --sidebar-hint: #bfdbfe;
@@ -564,6 +575,8 @@ def build_dashboard_v2() -> str:
       --hero-meta-bg: rgba(2, 6, 23, .35);
       --hero-meta-border: rgba(148, 163, 184, .4);
       --hero-meta-ink: #f8fafc;
+      --hero-pill-bg: rgba(15, 23, 42, .32);
+      --hero-pill-ink: #e2e8f0;
       --bg-grad-1: rgba(15,118,110,.10);
       --bg-grad-2: rgba(30,64,175,.08);
     }
@@ -576,6 +589,7 @@ def build_dashboard_v2() -> str:
         radial-gradient(1200px 450px at 85% -120px, var(--bg-grad-1), transparent 60%),
         radial-gradient(900px 360px at -10% -80px, var(--bg-grad-2), transparent 55%),
         var(--bg);
+      line-height: 1.45;
     }
     .layout {
       display: grid;
@@ -586,22 +600,35 @@ def build_dashboard_v2() -> str:
     .sidebar {
       background: var(--sidebar-bg);
       color: var(--sidebar-ink);
-      padding: 18px;
+      padding: 20px 18px 22px;
       position: sticky;
       top: 0;
       height: 100vh;
       overflow: auto;
       border-right: 1px solid rgba(148, 163, 184, .25);
     }
+    .sidebar-head {
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(148, 163, 184, .18);
+      margin-bottom: 14px;
+    }
+    .sidebar-eyebrow {
+      font-size: .68rem;
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      color: #7dd3fc;
+      margin-bottom: 6px;
+      font-weight: 800;
+    }
     .sidebar h2 {
       margin: 0 0 6px 0;
-      font-size: 1.1rem;
+      font-size: 1.18rem;
       letter-spacing: .2px;
     }
     .sidebar .hint {
-      font-size: .78rem;
+      font-size: .79rem;
       color: var(--sidebar-hint);
-      margin-bottom: 14px;
+      margin-bottom: 0;
       line-height: 1.35;
     }
     .theme-switch {
@@ -610,13 +637,23 @@ def build_dashboard_v2() -> str:
     }
     .theme-btn {
       width: 100%;
-      border: 1px solid rgba(148, 163, 184, .35);
-      background: rgba(15, 23, 42, .45);
+      border: 1px solid rgba(148, 163, 184, .28);
+      background: rgba(15, 23, 42, .52);
       color: #f8fafc;
-      border-radius: 8px;
-      padding: 8px 10px;
+      border-radius: 10px;
+      padding: 10px 12px;
       font-weight: 700;
       cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+    }
+    .sidebar-section-label {
+      margin-top: 14px;
+      margin-bottom: 4px;
+      font-size: .68rem;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      color: #94a3b8;
+      font-weight: 800;
     }
     .sidebar label {
       display: block;
@@ -629,39 +666,43 @@ def build_dashboard_v2() -> str:
       width: 100%;
       margin-top: 6px;
       padding: 9px;
-      border-radius: 8px;
+      border-radius: 10px;
       border: 1px solid var(--sidebar-input-border);
       background: var(--sidebar-input-bg);
       color: var(--sidebar-input-ink);
       outline: none;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.02);
     }
     .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
     .btn {
       border: 0;
-      border-radius: 8px;
-      padding: 9px 10px;
+      border-radius: 10px;
+      padding: 10px 12px;
       font-weight: 700;
       cursor: pointer;
-      transition: transform .12s ease;
+      transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
     }
     .btn:active { transform: translateY(1px); }
-    .btn.primary { background: var(--teal); color: #fff; }
+    .btn:hover { box-shadow: 0 8px 20px rgba(15, 23, 42, .16); }
+    .btn.primary { background: linear-gradient(135deg, #0f766e 0%, #0b8b80 100%); color: #fff; }
     .btn.ghost { background: #1e293b; color: #dbeafe; }
-    .btn.secondary { background: #0ea5e9; color: #fff; }
+    .btn.secondary { background: linear-gradient(135deg, #1d4ed8 0%, #0ea5e9 100%); color: #fff; }
 
     .main {
-      padding: 18px 22px 28px;
+      padding: 24px 28px 36px;
       overflow: auto;
+      max-width: 1800px;
     }
 
     .hero {
       background: var(--hero-bg);
       color: var(--ink);
-      border-radius: 16px;
-      padding: 18px 20px;
+      border-radius: 22px;
+      padding: 24px 26px;
       box-shadow: var(--shadow);
       position: relative;
       overflow: hidden;
+      border: 1px solid rgba(193, 206, 221, .75);
     }
     .hero::after {
       content: "";
@@ -673,26 +714,58 @@ def build_dashboard_v2() -> str:
       background: radial-gradient(circle, rgba(148,163,184,.36) 0%, rgba(148,163,184,0) 70%);
       pointer-events: none;
     }
+    .hero-kicker {
+      position: relative;
+      z-index: 1;
+      font-size: .70rem;
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      color: var(--ink-soft);
+      margin-bottom: 10px;
+      font-weight: 800;
+      opacity: .86;
+    }
     .hero h1 {
       margin: 0;
-      font-size: 1.42rem;
-      max-width: 80ch;
-      line-height: 1.28;
+      font-size: 1.75rem;
+      max-width: 26ch;
+      line-height: 1.12;
       position: relative;
       z-index: 1;
       text-shadow: none;
     }
     .hero .subtitle {
-      margin-top: 8px;
-      color: var(--ink);
-      max-width: 90ch;
-      font-size: .92rem;
+      margin-top: 10px;
+      color: var(--ink-soft);
+      max-width: 78ch;
+      font-size: .98rem;
       position: relative;
       z-index: 1;
       text-shadow: none;
     }
-    .hero .meta {
+    .hero-highlights {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
       margin-top: 14px;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      background: var(--hero-pill-bg);
+      color: var(--hero-pill-ink);
+      padding: 7px 12px;
+      font-size: .74rem;
+      font-weight: 700;
+      border: 1px solid rgba(148, 163, 184, .36);
+      backdrop-filter: blur(8px);
+    }
+    .hero .meta {
+      margin-top: 18px;
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 10px;
@@ -702,139 +775,278 @@ def build_dashboard_v2() -> str:
     .hero .meta .m {
       background: var(--hero-meta-bg);
       border: 1px solid var(--hero-meta-border);
-      border-radius: 10px;
-      padding: 9px;
-      font-size: .77rem;
+      border-radius: 14px;
+      padding: 12px;
+      font-size: .78rem;
       line-height: 1.35;
       color: var(--hero-meta-ink);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
     }
 
     .panel {
       background: var(--surface);
       border: 1px solid var(--line);
-      border-radius: 14px;
-      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.07);
+      border-radius: 18px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .active-filters {
+      margin-top: 14px;
+      padding: 14px 16px;
+      background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+    }
+    .active-filters-head {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .active-filters-kicker {
+      font-size: .68rem;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      color: var(--teal);
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .active-filters-title {
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.28;
+    }
+    .active-filters-note {
+      font-size: .80rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .filter-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink-soft);
+      font-size: .77rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .filter-chip .k {
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .filter-chip.muted {
+      background: var(--surface-3);
+      color: var(--muted);
     }
 
     .summary-grid {
-      margin-top: 14px;
+      margin-top: 16px;
       display: grid;
       grid-template-columns: 1.2fr 1.2fr 1fr;
       gap: 12px;
     }
     .summary-card {
-      padding: 12px 13px;
+      padding: 16px 16px 15px;
+      position: relative;
+      overflow: hidden;
+    }
+    .summary-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -40px -52px auto;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(29,78,216,.08) 0%, rgba(29,78,216,0) 72%);
+      pointer-events: none;
+    }
+    .summary-card .eyebrow {
+      font-size: .66rem;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      color: var(--teal);
+      font-weight: 800;
+      margin-bottom: 8px;
     }
     .summary-card h3 {
       margin: 0;
-      font-size: .90rem;
+      font-size: .84rem;
       color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .05em;
     }
     .summary-card .v {
-      margin-top: 4px;
-      font-size: 1.32rem;
+      margin-top: 8px;
+      font-size: 1.52rem;
       font-weight: 800;
-      line-height: 1.1;
+      line-height: 1.08;
       color: var(--ink);
     }
     .summary-card p {
       margin: 8px 0 0 0;
-      font-size: .82rem;
+      font-size: .84rem;
       color: var(--muted);
-      line-height: 1.35;
+      line-height: 1.42;
     }
 
     .kpi-grid {
-      margin-top: 12px;
+      margin-top: 16px;
       display: grid;
       grid-template-columns: repeat(6, minmax(0, 1fr));
-      gap: 10px;
+      gap: 12px;
+    }
+    .kpi-group-head {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 14px;
+      padding: 2px 2px 0;
+    }
+    .kpi-group-head .title {
+      font-size: .76rem;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      font-weight: 800;
+      color: var(--ink-soft);
+    }
+    .kpi-group-head .note {
+      font-size: .75rem;
+      color: var(--muted);
+      line-height: 1.35;
     }
     .kpi {
       background: var(--surface);
       border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 10px;
-      box-shadow: 0 3px 14px rgba(15, 23, 42, 0.06);
+      border-radius: 16px;
+      padding: 12px 12px 13px;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      background: var(--line-strong);
+    }
+    .kpi.official::before { background: linear-gradient(180deg, #0f766e 0%, #14b8a6 100%); }
+    .kpi.exploratory::before { background: linear-gradient(180deg, #1d4ed8 0%, #60a5fa 100%); }
+    .kpi.warning::before { background: linear-gradient(180deg, #b45309 0%, #f59e0b 100%); }
+    .kpi.finance::before { background: linear-gradient(180deg, #166534 0%, #22c55e 100%); }
+    .kpi .eyebrow {
+      font-size: .63rem;
+      text-transform: uppercase;
+      letter-spacing: .13em;
+      color: var(--muted);
+      font-weight: 800;
+      margin-bottom: 8px;
     }
     .kpi .t {
-      font-size: .75rem;
-      color: var(--muted);
-      min-height: 30px;
+      font-size: .77rem;
+      color: var(--ink-soft);
+      min-height: 34px;
+      line-height: 1.3;
+      font-weight: 700;
     }
     .kpi .v {
-      margin-top: 3px;
-      font-size: 1.14rem;
+      margin-top: 6px;
+      font-size: 1.34rem;
       font-weight: 800;
       letter-spacing: .1px;
+      line-height: 1.05;
     }
     .kpi .d {
-      font-size: .72rem;
-      margin-top: 3px;
+      font-size: .73rem;
+      margin-top: 7px;
       color: var(--muted);
+      line-height: 1.35;
     }
 
     .section {
-      margin-top: 12px;
-      padding: 10px 12px 12px;
+      margin-top: 14px;
+      padding: 14px 16px 16px;
     }
     .section h2 {
-      margin: 2px 0 2px;
-      font-size: 1rem;
+      margin: 2px 0 4px;
+      font-size: 1.08rem;
+      line-height: 1.25;
     }
     .section .intro {
-      margin: 0 0 10px 0;
-      font-size: .82rem;
+      margin: 0 0 12px 0;
+      font-size: .84rem;
       color: var(--muted);
-      line-height: 1.36;
+      line-height: 1.46;
     }
     .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
     .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
     .grid2 > *, .grid3 > * { min-width: 0; }
 
     .chart-card {
-      background: var(--surface-2);
+      background: linear-gradient(180deg, var(--surface-2) 0%, var(--surface) 100%);
       border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 8px;
+      border-radius: 16px;
+      padding: 14px;
       min-width: 0;
+      position: relative;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+    }
+    .chart-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 3px;
+      border-radius: 16px 16px 0 0;
+      background: linear-gradient(90deg, rgba(15,118,110,.92) 0%, rgba(29,78,216,.82) 100%);
     }
     .chart-title {
-      font-size: .80rem;
+      font-size: .88rem;
       color: var(--ink);
       margin: 0 0 6px 0;
       font-weight: 700;
+      line-height: 1.3;
     }
     .chart-sub {
-      font-size: .72rem;
-      color: #111827;
-      margin: 0 0 7px 0;
-      line-height: 1.34;
+      font-size: .76rem;
+      color: var(--muted);
+      margin: 0 0 10px 0;
+      line-height: 1.42;
     }
     canvas {
       width: 100% !important;
-      min-height: 240px;
-      max-height: 320px;
+      min-height: 260px;
+      max-height: 340px;
       background: var(--chart-bg);
       border: 1px solid var(--chart-border);
-      border-radius: 9px;
-      padding: 8px;
+      border-radius: 14px;
+      padding: 10px;
     }
 
     .heatmap-wrap {
       border: 1px solid var(--line);
-      border-radius: 10px;
+      border-radius: 14px;
       overflow: auto;
       background: var(--surface);
       max-width: 100%;
       width: 100%;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
     }
     .heatmap {
       width: 100%;
       min-width: 1120px;
       border-collapse: collapse;
       table-layout: fixed;
-      font-size: .83rem;
+      font-size: .84rem;
       color: #000000;
     }
     .heatmap thead th {
@@ -842,14 +1054,14 @@ def build_dashboard_v2() -> str:
       top: 0;
       z-index: 3;
       background: var(--surface-2);
-      color: #000000;
+      color: var(--ink);
       font-weight: 800;
     }
     .heatmap th,
     .heatmap td {
       border-bottom: 1px solid #dbe3ec;
       border-right: 1px solid #dbe3ec;
-      padding: 8px 9px;
+      padding: 10px 10px;
       text-align: center;
       white-space: nowrap;
       line-height: 1.2;
@@ -867,26 +1079,27 @@ def build_dashboard_v2() -> str:
       background: var(--surface);
       z-index: 4;
       font-weight: 700;
-      color: #000000;
+      color: var(--ink);
     }
     .heatmap th:not(:first-child),
     .heatmap td:not(:first-child) {
       min-width: 40px;
-      width: 40px;
+      width: 42px;
     }
 
     .alerts {
-      margin-top: 10px;
+      margin-top: 14px;
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 10px;
     }
     .alert {
-      border-radius: 10px;
-      padding: 10px;
+      border-radius: 14px;
+      padding: 12px 13px;
       font-size: .79rem;
-      line-height: 1.35;
+      line-height: 1.42;
       border: 1px solid;
+      box-shadow: var(--shadow-soft);
     }
     .alert.red { background: #fef2f2; border-color: #fecaca; color: #7f1d1d; }
     .alert.amber { background: #fffbeb; border-color: #fde68a; color: #92400e; }
@@ -905,14 +1118,15 @@ def build_dashboard_v2() -> str:
       gap: 8px;
     }
     .bench-card {
-      border: 1px solid #dbe3ec;
-      background: var(--surface-2);
-      border-radius: 10px;
-      padding: 8px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 10px;
       font-size: .77rem;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
     }
     .bench-card .k { color: var(--ink); font-weight: 700; display: block; }
-    .bench-card .v { margin-top: 2px; font-weight: 800; font-size: .92rem; }
+    .bench-card .v { margin-top: 4px; font-weight: 800; font-size: 1rem; }
     .status-dot {
       display: inline-block;
       width: 8px;
@@ -927,8 +1141,8 @@ def build_dashboard_v2() -> str:
 
     .tbl-wrap {
       margin-top: 10px;
-      border: 1px solid #dbe3ec;
-      border-radius: 10px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
       overflow: auto;
       background: var(--surface);
     }
@@ -938,8 +1152,8 @@ def build_dashboard_v2() -> str:
       font-size: .80rem;
     }
     th, td {
-      border-bottom: 1px solid #edf2f7;
-      padding: 8px;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 10px;
       text-align: left;
       white-space: nowrap;
     }
@@ -949,14 +1163,25 @@ def build_dashboard_v2() -> str:
       background: var(--surface-2);
       color: var(--ink);
       cursor: pointer;
+      z-index: 2;
+      font-size: .74rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    tbody tr:nth-child(even) {
+      background: rgba(148, 163, 184, .05);
+    }
+    tbody tr:hover {
+      background: rgba(15, 118, 110, .08);
     }
 
     .badge {
       display: inline-block;
       border-radius: 999px;
-      padding: 2px 8px;
-      font-size: .70rem;
+      padding: 4px 9px;
+      font-size: .68rem;
       font-weight: 700;
+      letter-spacing: .03em;
     }
     .critico { background: #fee2e2; color: #991b1b; }
     .alto { background: #ffedd5; color: #9a3412; }
@@ -965,13 +1190,15 @@ def build_dashboard_v2() -> str:
     .zone-link {
       border: 0;
       background: transparent;
-      color: #0f766e;
+      color: var(--teal);
       font-weight: 700;
       cursor: pointer;
       padding: 0;
-      text-decoration: underline;
+      text-decoration: none;
       font-size: .79rem;
+      border-bottom: 1px solid rgba(15,118,110,.28);
     }
+    .zone-link:hover { color: var(--blue); }
 
     .whatif {
       margin-top: 10px;
@@ -995,18 +1222,18 @@ def build_dashboard_v2() -> str:
     }
     .whatif-result {
       margin-top: 9px;
-      background: #0b1e34;
+      background: linear-gradient(135deg, #0b1e34 0%, #1f2937 100%);
       color: #e2e8f0;
-      border-radius: 8px;
-      padding: 9px;
-      font-size: .78rem;
-      line-height: 1.35;
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-size: .79rem;
+      line-height: 1.45;
     }
     .drill-card {
-      background: var(--surface-2);
-      border: 1px solid #dbe3ec;
-      border-radius: 10px;
-      padding: 10px;
+      background: linear-gradient(180deg, var(--surface-2) 0%, var(--surface) 100%);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
       font-size: .79rem;
       color: var(--ink);
       line-height: 1.4;
@@ -1023,17 +1250,17 @@ def build_dashboard_v2() -> str:
       gap: 5px 10px;
       margin-bottom: 10px;
     }
-    .drill-metric .k { color: #64748b; }
+    .drill-metric .k { color: var(--muted); }
     .drill-metric .v { font-weight: 700; color: var(--ink); text-align: right; }
     .inline-meta {
       margin-top: 7px;
       font-size: .74rem;
-      color: #475569;
+      color: var(--muted);
     }
     .small-note {
       margin-top: 6px;
       font-size: .73rem;
-      color: #111827;
+      color: var(--muted);
     }
     .chart-fallback {
       margin-top: 8px;
@@ -1050,24 +1277,34 @@ def build_dashboard_v2() -> str:
       gap: 8px;
       align-items: center;
     }
+    .table-tools input {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--ink);
+      outline: none;
+    }
     .table-count {
       font-size: .74rem;
-      color: #64748b;
+      color: var(--muted);
       text-align: right;
       white-space: nowrap;
     }
 
     .exec-decision {
-      margin-top: 12px;
+      margin-top: 14px;
       background: linear-gradient(135deg, #0b1e34 0%, #1f2937 100%);
       color: #e2e8f0;
-      border-radius: 12px;
-      padding: 12px;
+      border-radius: 18px;
+      padding: 16px 18px;
       border: 1px solid #334155;
+      box-shadow: var(--shadow);
     }
     .exec-decision h3 {
-      margin: 0 0 8px 0;
-      font-size: .95rem;
+      margin: 0 0 10px 0;
+      font-size: 1rem;
       color: #e0f2fe;
     }
     .exec-decision ul {
@@ -1078,13 +1315,13 @@ def build_dashboard_v2() -> str:
     }
 
     .method {
-      margin-top: 12px;
-      padding: 10px;
-      border: 1px solid #dbe3ec;
+      margin-top: 14px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
       background: var(--surface-2);
-      border-radius: 10px;
+      border-radius: 14px;
       font-size: .76rem;
-      line-height: 1.36;
+      line-height: 1.46;
       color: var(--muted);
     }
 
@@ -1094,8 +1331,17 @@ def build_dashboard_v2() -> str:
       min-height: 300px;
     }
 
+    body[data-theme="dark"] .alert.red { background: rgba(127, 29, 29, .22); border-color: rgba(248, 113, 113, .38); color: #fecaca; }
+    body[data-theme="dark"] .alert.amber { background: rgba(146, 64, 14, .24); border-color: rgba(251, 191, 36, .34); color: #fde68a; }
+    body[data-theme="dark"] .alert.green { background: rgba(20, 83, 45, .26); border-color: rgba(74, 222, 128, .34); color: #bbf7d0; }
+    body[data-theme="dark"] .critico { background: rgba(127, 29, 29, .24); color: #fecaca; }
+    body[data-theme="dark"] .alto { background: rgba(154, 52, 18, .26); color: #fdba74; }
+    body[data-theme="dark"] .medio { background: rgba(133, 77, 14, .30); color: #fde68a; }
+    body[data-theme="dark"] .bajo { background: rgba(20, 83, 45, .28); color: #bbf7d0; }
+
     @media (max-width: 1450px) {
       .hero .meta { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .active-filters-head { grid-template-columns: 1fr; }
       .kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
       .summary-grid { grid-template-columns: 1fr; }
       .alerts { grid-template-columns: 1fr; }
@@ -1113,18 +1359,24 @@ def build_dashboard_v2() -> str:
       .sidebar { display: none; }
       .layout { grid-template-columns: 1fr; }
       body { background: #fff; }
+      .main { padding: 0; max-width: none; }
+      .hero, .panel, .exec-decision { box-shadow: none; }
     }
   </style>
 </head>
 <body>
 <div class="layout">
   <aside class="sidebar">
-    <h2>Controles de decisión</h2>
-    <div class="hint">Filtra por territorio, riesgo e intervención para orientar decisiones de red, flexibilidad y CAPEX.</div>
+    <div class="sidebar-head">
+      <div class="sidebar-eyebrow">Panel ejecutivo</div>
+      <h2>Controles de decisión</h2>
+      <div class="hint">Ajusta el perímetro de análisis para leer presión territorial, trade-offs operativos y secuencia de inversión.</div>
+    </div>
     <div class="theme-switch">
       <button class="theme-btn" id="btn_theme" aria-label="Cambiar tema">Modo oscuro</button>
     </div>
 
+    <div class="sidebar-section-label">Perímetro</div>
     <label>Región operativa
       <select id="f_region"><option value="">Todas</option></select>
     </label>
@@ -1140,6 +1392,7 @@ def build_dashboard_v2() -> str:
     <label>Tipo de activo dominante
       <select id="f_activo"><option value="">Todos</option></select>
     </label>
+    <div class="sidebar-section-label">Riesgo y respuesta</div>
     <label>Nivel de riesgo
       <select id="f_risk">
         <option value="">Todos</option>
@@ -1152,12 +1405,14 @@ def build_dashboard_v2() -> str:
     <label>Intervención recomendada
       <select id="f_intervencion"><option value="">Todas</option></select>
     </label>
+    <div class="sidebar-section-label">Horizonte temporal</div>
     <label>Mes desde
       <select id="f_from"><option value="">Inicio</option></select>
     </label>
     <label>Mes hasta
       <select id="f_to"><option value="">Fin</option></select>
     </label>
+    <div class="sidebar-section-label">Escenario</div>
     <label>Escenario what-if
       <select id="f_scenario"><option value="">Base (sin escenario)</option></select>
     </label>
@@ -1174,9 +1429,16 @@ def build_dashboard_v2() -> str:
 
   <main class="main">
     <section class="hero panel">
+      <div class="hero-kicker">Command center ejecutivo de red</div>
       <h1>Centro de Decisión de Red: Congestión, Resiliencia, Flexibilidad y Priorización de Inversiones</h1>
       <div class="subtitle">
-        Pregunta guía: ¿dónde la red pierde capacidad operativa y flexibilidad, y cómo priorizar entre refuerzo físico, operación avanzada, flexibilidad y almacenamiento?
+        Pregunta guía: ¿dónde la red pierde capacidad operativa y flexibilidad, y cómo conviene priorizar entre refuerzo físico, operación avanzada, flexibilidad y almacenamiento?
+      </div>
+      <div class="hero-highlights">
+        <span class="hero-pill">Lectura territorial</span>
+        <span class="hero-pill">Trade-offs visibles</span>
+        <span class="hero-pill">Secuencia de acción</span>
+        <span class="hero-pill">Criterio ejecutivo</span>
       </div>
       <div class="meta">
         <div class="m"><b>Cobertura temporal</b><br>__COVERAGE_START__ → __COVERAGE_END__</div>
@@ -1186,18 +1448,32 @@ def build_dashboard_v2() -> str:
       </div>
     </section>
 
+    <section class="active-filters panel">
+      <div class="active-filters-head">
+        <div>
+          <div class="active-filters-kicker">Perímetro activo</div>
+          <div class="active-filters-title">La lectura ejecutiva del dashboard se actualiza sobre este subconjunto</div>
+        </div>
+        <div class="active-filters-note">Usa esta banda para validar rápido si una decisión aplica al sistema completo o a un foco concreto.</div>
+      </div>
+      <div class="filter-pills" id="filter_pills"></div>
+    </section>
+
     <section class="summary-grid">
       <article class="summary-card panel">
+        <div class="eyebrow">Lectura actual</div>
         <h3>Qué está pasando</h3>
         <div class="v" id="sum_riesgo">--</div>
         <p id="sum_riesgo_text"></p>
       </article>
       <article class="summary-card panel">
+        <div class="eyebrow">Diagnóstico</div>
         <h3>Por qué está pasando</h3>
         <div class="v" id="sum_drivers">--</div>
         <p id="sum_drivers_text"></p>
       </article>
       <article class="summary-card panel">
+        <div class="eyebrow">Acción sugerida</div>
         <h3>Decisión sugerida</h3>
         <div class="v" id="sum_decision">--</div>
         <p id="sum_decision_text"></p>
@@ -1381,7 +1657,7 @@ def build_dashboard_v2() -> str:
       <h2>7) Tabla accionable de priorización</h2>
       <p class="intro">Ruta completa dato → insight → acción. La tabla permite filtrar, ordenar y justificar intervención por territorio.</p>
       <div class="table-tools">
-        <input id="searchBox" placeholder="Buscar por zona, driver o intervención" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;" />
+        <input id="searchBox" placeholder="Buscar por zona, driver o intervención" />
         <button class="btn secondary" id="btn_export_table" style="padding:9px 12px;">Export filtro</button>
         <div id="table_count" class="table-count">0 filas</div>
       </div>
@@ -1474,6 +1750,9 @@ function chartTheme() {
     tick: styles.getPropertyValue("--chart-tick").trim() || "#334155",
     grid: styles.getPropertyValue("--chart-grid").trim() || "rgba(148, 163, 184, .20)",
     label: styles.getPropertyValue("--ink").trim() || "#0f172a",
+    surface: styles.getPropertyValue("--surface").trim() || "#ffffff",
+    tooltipBg: getTheme() === "dark" ? "rgba(15, 23, 42, .96)" : "rgba(255, 255, 255, .96)",
+    tooltipBorder: styles.getPropertyValue("--line").trim() || "#dbe3ec",
   };
 }
 
@@ -1687,11 +1966,71 @@ function updateExecutiveSummary(fd) {
   byId("sum_drivers_text").textContent = `Drivers dominantes del filtro: ${driverTxt}.`;
 
   byId("sum_decision").textContent = firstInt;
-  byId("sum_decision_text").textContent = "La recomendación debe validarse contra coste, horizonte y robustez para evitar sobre-inversión indiscriminada.";
+  byId("sum_decision_text").textContent = "La recomendación debe cerrarse contra coste, plazo y robustez para evitar CAPEX homogéneo sin criterio territorial.";
+}
+
+function buildFilterChip(label, value, muted = false) {
+  return `<span class="filter-chip ${muted ? "muted" : ""}"><span class="k">${label}</span>${value}</span>`;
+}
+
+function updateFilterSummary(fd) {
+  const filters = fd.filters || readFilters();
+  const months = uniq((DATA.monthly || []).map(m => m.mes)).sort();
+  const defaultFrom = months[0] || "";
+  const defaultTo = months[months.length - 1] || "";
+  const fullWindow = filters.from === defaultFrom && filters.to === defaultTo;
+  const chips = [];
+
+  if (filters.region) chips.push(buildFilterChip("Región", filters.region));
+  if (filters.zona) chips.push(buildFilterChip("Zona", filters.zona));
+  if (filters.sub) chips.push(buildFilterChip("Subestación", filters.sub));
+  if (filters.tipo) chips.push(buildFilterChip("Tipo", filters.tipo));
+  if (filters.activo) chips.push(buildFilterChip("Activo", filters.activo));
+  if (filters.risk) chips.push(buildFilterChip("Riesgo", filters.risk));
+  if (filters.intervencion) chips.push(buildFilterChip("Intervención", filters.intervencion));
+  if (filters.scenario) chips.push(buildFilterChip("Escenario", filters.scenario));
+
+  chips.push(buildFilterChip("Ventana", `${filters.from || defaultFrom || "inicio"} → ${filters.to || defaultTo || "fin"}`, fullWindow));
+
+  if (!chips.length || (chips.length === 1 && fullWindow)) {
+    chips.unshift(buildFilterChip("Cobertura", "Sistema completo", true));
+  }
+
+  chips.push(buildFilterChip("Zonas activas", fmt(fd.zoneIds.length, 0)));
+  chips.push(buildFilterChip("Subestaciones", fmt(fd.substations.length, 0), fd.substations.length === 0));
+  chips.push(buildFilterChip("Escala de decisión", fd.zoneIds.length <= 3 ? "Foco puntual" : fd.zoneIds.length <= 10 ? "Territorio priorizado" : "Vista ampliada"));
+
+  byId("filter_pills").innerHTML = chips.join("");
+}
+
+function buildKpiGroupHead(title, note) {
+  return `<div class="kpi-group-head"><div class="title">${title}</div><div class="note">${note}</div></div>`;
+}
+
+function classifyKpi(title, detail) {
+  const text = `${title} ${detail}`.toLowerCase();
+  if (text.includes("proxy económico") || title.toLowerCase().includes("capex") || title.toLowerCase().includes("coste")) {
+    return { cls: "finance", eyebrow: detail.toLowerCase().includes("oficial") ? "Gobernado" : "Impacto económico" };
+  }
+  if (text.includes("exploratorio") || text.includes("filtro activo") || title.toLowerCase().includes("filtrado") || title.toLowerCase().includes("filtrada")) {
+    return { cls: "exploratory", eyebrow: "Filtro activo" };
+  }
+  if (text.includes("críticas") || text.includes("diferible") || text.includes("excesiva")) {
+    return { cls: "warning", eyebrow: "Señal clave" };
+  }
+  return { cls: "official", eyebrow: "KPI oficial" };
 }
 
 function buildKpiCard(title, value, detail) {
-  return `<article class="kpi"><div class="t">${title}</div><div class="v">${value}</div><div class="d">${detail}</div></article>`;
+  const meta = classifyKpi(title, detail);
+  return `
+    <article class="kpi ${meta.cls}">
+      <div class="eyebrow">${meta.eyebrow}</div>
+      <div class="t">${title}</div>
+      <div class="v">${value}</div>
+      <div class="d">${detail}</div>
+    </article>
+  `;
 }
 
 function updateKpis(fd) {
@@ -1703,11 +2042,9 @@ function updateKpis(fd) {
     buildKpiCard("Carga relativa media", fmt(KPI_STATIC.carga_media,3), `Zonas >1.0: ${fmt(KPI_STATIC.utilizacion_excesiva_pct,1)}%`),
     buildKpiCard("Resiliencia índice", fmt(KPI_STATIC.resiliencia_indice,1), "KPI oficial gobernado"),
     buildKpiCard("Coste de riesgo (EUR)", fmt(KPI_STATIC.coste_riesgo,0), "Proxy económico oficial"),
-    buildKpiCard("CAPEX total evaluado", fmt(KPI_STATIC.capex_total,0), "Cartera gobernada"),
     buildKpiCard("CAPEX diferible", fmt(KPI_STATIC.capex_diferible,0), `${fmt(KPI_STATIC.capex_diferible_pct,1)}% vs CAPEX total`),
     buildKpiCard("SAIDI proxy (min)", fmt(KPI_STATIC.saidi_proxy,1), "KPI oficial gobernado"),
-    buildKpiCard("SAIFI proxy", fmt(KPI_STATIC.saifi_proxy,3), "KPI oficial gobernado"),
-    buildKpiCard("Decisiones diferibles", fmt(KPI_STATIC.decisiones_diferibles,0), "Segun policy de forecast"),
+    buildKpiCard("Decisiones diferibles", fmt(KPI_STATIC.decisiones_diferibles,0), "Según policy de forecast"),
   ].join("");
 
   const zoneCount = fd.zoneRisk.length;
@@ -1741,24 +2078,21 @@ function updateKpis(fd) {
     buildKpiCard("Perímetro filtrado", fmt(zoneCount,0), "Lectura exploratoria del filtro activo"),
     buildKpiCard("Horas congestión filtradas", fmt(horasCong,0), "No sustituye KPI oficial"),
     buildKpiCard("ENS filtrada (MWh)", fmt(ens,1), "No sustituye KPI oficial"),
-    buildKpiCard("Clientes filtrados", fmt(clientes,0), "No sustituye KPI oficial"),
     buildKpiCard("Carga media filtrada", fmt(cargaMedia,3), `Zonas >1.0: ${fmt(overPct,1)}%`),
     buildKpiCard("Resiliencia filtrada", fmt(resiliencia,1), "Cálculo exploratorio"),
     buildKpiCard("Coste riesgo filtrado (EUR)", fmt(costeRiesgo,0), "Proxy exploratorio"),
-    buildKpiCard("CAPEX filtrado (EUR)", fmt(capex,0), "Cartera en filtro activo"),
-    buildKpiCard("CAPEX diferible filtrado", fmt(capexDif,0), `${fmt(capexDifPct,1)}% vs CAPEX filtrado`),
-    buildKpiCard("SAIDI filtrado (min)", fmt(saidi,1), "Cálculo exploratorio"),
-    buildKpiCard("SAIFI filtrado", fmt(saifi,3), "Cálculo exploratorio"),
-    buildKpiCard("Demanda nueva filtrada", fmt(evTotal + indTotal,0), `Ratio medio: ${fmt(100*ratioNueva,1)}%`),
-    buildKpiCard("Presión EV filtrada", fmt(evTotal,0), "Exploratorio"),
-    buildKpiCard("Presión industrial filtrada", fmt(indTotal,0), "Exploratorio"),
+    buildKpiCard("CAPEX filtrado (EUR)", fmt(capex,0), `${fmt(capexDifPct,1)}% diferible en el perímetro`),
+    buildKpiCard("Clientes filtrados", fmt(clientes,0), `SAIDI: ${fmt(saidi,1)} min · SAIFI: ${fmt(saifi,3)}`),
+    buildKpiCard("Demanda nueva filtrada", fmt(evTotal + indTotal,0), `EV ${fmt(evTotal,0)} · industria ${fmt(indTotal,0)} · ratio ${fmt(100*ratioNueva,1)}%`),
     buildKpiCard("Decisiones diferibles filtradas", fmt(diffDecisions,0), "Exploratorio"),
-    buildKpiCard("Subestaciones críticas", fmt(fd.substations.filter(s => num(s.pct_horas_congestion) >= 15).length,0), "Con congestión estructural relevante"),
-    buildKpiCard("Alimentadores críticos", fmt(fd.feeders.filter(f => num(f.criticidad_feeder_score) >= 70).length,0), "Criticidad compuesta alta"),
     buildKpiCard("Flex gap medio", fmt(fd.flexGap.length ? fd.flexGap.reduce((s,f) => s + num(f.gap_tecnico_mw), 0) / fd.flexGap.length : 0,2), "Brecha técnica por zona"),
   ].join("");
 
-  byId("kpi_grid").innerHTML = official + exploratory + buildKpiCard("Modo KPI", "Gobernado + exploratorio", "Comité: usar KPIs oficiales y reporte de validación");
+  byId("kpi_grid").innerHTML =
+    buildKpiGroupHead("KPIs oficiales", "Usar en lectura de comité, seguimiento gobernado y comparación de release.") +
+    official +
+    buildKpiGroupHead("Lectura exploratoria del filtro activo", "Sirve para focalizar decisiones territoriales sin sustituir los KPIs oficiales.") +
+    exploratory;
 }
 
 function updateAlerts(fd) {
@@ -1844,18 +2178,43 @@ function makeBar(id, labels, values, label, color) {
   destroyChart(id);
   CHARTS[id] = new Chart(byId(id), {
     type: "bar",
-    data: { labels, datasets: [{ label, data: values, backgroundColor: color }] },
+    data: {
+      labels,
+      datasets: [{
+        label,
+        data: values,
+        backgroundColor: color,
+        borderRadius: 10,
+        borderSkipped: false,
+        maxBarThickness: 28,
+      }]
+    },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+      animation: { duration: 380 },
+      layout: { padding: { top: 4, right: 6, bottom: 0, left: 2 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          backgroundColor: pal.tooltipBg,
+          titleColor: pal.label,
+          bodyColor: pal.label,
+          borderColor: pal.tooltipBorder,
+          borderWidth: 1,
+          padding: 10,
+        }
+      },
       scales: {
         x: {
-          ticks: { color: pal.tick, autoSkip: true, maxRotation: 45, minRotation: 0, maxTicksLimit: 10 },
+          ticks: { color: pal.tick, autoSkip: true, maxRotation: 30, minRotation: 0, maxTicksLimit: 10, font: { size: 11, weight: "600" } },
           grid: { color: pal.grid },
         },
         y: {
-          ticks: { color: pal.tick, maxTicksLimit: 8 },
+          beginAtZero: true,
+          ticks: { color: pal.tick, maxTicksLimit: 8, font: { size: 11 } },
           grid: { color: pal.grid },
         }
       }
@@ -1868,21 +2227,43 @@ function makeLine(id, labels, datasets) {
   destroyChart(id);
   CHARTS[id] = new Chart(byId(id), {
     type: "line",
-    data: { labels, datasets },
+    data: {
+      labels,
+      datasets: datasets.map((dataset) => ({
+        fill: false,
+        pointRadius: dataset.pointRadius === 0 ? 0 : 2.5,
+        pointHoverRadius: dataset.pointRadius === 0 ? 0 : 4,
+        borderWidth: dataset.borderWidth || 2.6,
+        ...dataset,
+      })),
+    },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      animation: { duration: 420 },
+      interaction: { mode: "index", intersect: false },
+      layout: { padding: { top: 4, right: 6, bottom: 0, left: 2 } },
       plugins: {
-        tooltip: { mode: 'index', intersect: false },
-        legend: { labels: { color: pal.tick } },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          backgroundColor: pal.tooltipBg,
+          titleColor: pal.label,
+          bodyColor: pal.label,
+          borderColor: pal.tooltipBorder,
+          borderWidth: 1,
+          padding: 10,
+        },
+        legend: { labels: { color: pal.tick, usePointStyle: true, boxWidth: 10, padding: 14, font: { size: 11, weight: "700" } } },
       },
       scales: {
         x: {
-          ticks: { color: pal.tick, autoSkip: true, maxTicksLimit: 12, maxRotation: 45, minRotation: 0 },
+          ticks: { color: pal.tick, autoSkip: true, maxTicksLimit: 12, maxRotation: 30, minRotation: 0, font: { size: 11, weight: "600" } },
           grid: { color: pal.grid },
         },
         y: {
-          ticks: { color: pal.tick, maxTicksLimit: 8 },
+          beginAtZero: true,
+          ticks: { color: pal.tick, maxTicksLimit: 8, font: { size: 11 } },
           grid: { color: pal.grid },
         }
       }
@@ -1890,7 +2271,7 @@ function makeLine(id, labels, datasets) {
   });
 }
 
-function makeScatter(id, points, titleLabel, color) {
+function makeScatter(id, points, titleLabel, color, xTitle, yTitle) {
   const pal = chartTheme();
   destroyChart(id);
   CHARTS[id] = new Chart(byId(id), {
@@ -1901,14 +2282,23 @@ function makeScatter(id, points, titleLabel, color) {
         data: points,
         backgroundColor: color,
         borderColor: color,
-        pointRadius: 5,
+        pointRadius: 5.5,
+        pointHoverRadius: 7,
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      animation: { duration: 380 },
+      layout: { padding: { top: 4, right: 6, bottom: 0, left: 2 } },
       plugins: {
         tooltip: {
+          backgroundColor: pal.tooltipBg,
+          titleColor: pal.label,
+          bodyColor: pal.label,
+          borderColor: pal.tooltipBorder,
+          borderWidth: 1,
+          padding: 10,
           callbacks: {
             label: (ctx) => {
               const p = ctx.raw || {};
@@ -1919,14 +2309,15 @@ function makeScatter(id, points, titleLabel, color) {
       },
       scales: {
         x: {
-          ticks: { color: pal.tick },
+          ticks: { color: pal.tick, font: { size: 11, weight: "600" } },
           grid: { color: pal.grid },
-          title: { display: true, text: "Eje X", color: pal.label },
+          title: { display: true, text: xTitle || "Eje X", color: pal.label, font: { size: 11, weight: "700" } },
         },
         y: {
-          ticks: { color: pal.tick },
+          beginAtZero: true,
+          ticks: { color: pal.tick, font: { size: 11 } },
           grid: { color: pal.grid },
-          title: { display: true, text: "Eje Y", color: pal.label },
+          title: { display: true, text: yTitle || "Eje Y", color: pal.label, font: { size: 11, weight: "700" } },
         }
       }
     }
@@ -1945,6 +2336,8 @@ function makeMixedScenario(id, labels, riskVals, invVals) {
           label: "Coste de riesgo",
           data: riskVals,
           backgroundColor: "rgba(185,28,28,.65)",
+          borderRadius: 10,
+          borderSkipped: false,
           yAxisID: "y",
         },
         {
@@ -1953,6 +2346,9 @@ function makeMixedScenario(id, labels, riskVals, invVals) {
           data: invVals,
           borderColor: "#0f766e",
           backgroundColor: "#0f766e",
+          borderWidth: 2.8,
+          pointRadius: 2.5,
+          pointHoverRadius: 4,
           tension: .25,
           yAxisID: "y1",
         }
@@ -1961,23 +2357,34 @@ function makeMixedScenario(id, labels, riskVals, invVals) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      animation: { duration: 420 },
       plugins: {
-        tooltip: { mode: 'index', intersect: false },
-        legend: { labels: { color: pal.tick } },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          backgroundColor: pal.tooltipBg,
+          titleColor: pal.label,
+          bodyColor: pal.label,
+          borderColor: pal.tooltipBorder,
+          borderWidth: 1,
+          padding: 10,
+        },
+        legend: { labels: { color: pal.tick, usePointStyle: true, boxWidth: 10, padding: 14, font: { size: 11, weight: "700" } } },
       },
       scales: {
         y: {
           position: "left",
-          ticks: { color: pal.tick },
+          beginAtZero: true,
+          ticks: { color: pal.tick, font: { size: 11 } },
           grid: { color: pal.grid },
         },
         y1: {
           position: "right",
           grid: { drawOnChartArea: false, color: pal.grid },
-          ticks: { color: pal.tick },
+          ticks: { color: pal.tick, font: { size: 11 } },
         },
         x: {
-          ticks: { color: pal.tick, maxRotation: 20, minRotation: 20 },
+          ticks: { color: pal.tick, maxRotation: 20, minRotation: 20, font: { size: 11, weight: "600" } },
           grid: { color: pal.grid },
         }
       }
@@ -2111,7 +2518,7 @@ function renderCharts(fd) {
     zona: f.zona_id,
     score: num(f.riesgo_operativo_score),
   }));
-  makeScatter("ch_flex_gap", flexPoints, "Flex gap vs ratio flex/estrés", "rgba(29,78,216,.75)");
+  makeScatter("ch_flex_gap", flexPoints, "Flex gap vs ratio flex/estrés", "rgba(29,78,216,.75)", "Cobertura flex / estrés", "Gap técnico (MW)");
 
   const options = [...(DATA.optionsSummary || [])].sort((a,b) => num(b.option_score_medio) - num(a.option_score_medio));
   makeBar("ch_tradeoff", options.map(o => o.option), options.map(o => num(o.option_score_medio)), "Score multicriterio medio", "rgba(15,118,110,.76)");
@@ -2127,17 +2534,42 @@ function renderCharts(fd) {
     data: {
       labels: topCapex.map(c => c.zona_id),
       datasets: [
-        { label: "CAPEX refuerzo", data: topCapex.map(c => num(c.capex_refuerzo_eur)), backgroundColor: "rgba(185,28,28,.60)" },
-        { label: "CAPEX diferible", data: topCapex.map(c => num(c.capex_diferible_proxy_eur)), backgroundColor: "rgba(15,118,110,.65)" },
+        {
+          label: "CAPEX refuerzo",
+          data: topCapex.map(c => num(c.capex_refuerzo_eur)),
+          backgroundColor: "rgba(185,28,28,.60)",
+          borderRadius: 10,
+          borderSkipped: false,
+          maxBarThickness: 26,
+        },
+        {
+          label: "CAPEX diferible",
+          data: topCapex.map(c => num(c.capex_diferible_proxy_eur)),
+          backgroundColor: "rgba(15,118,110,.65)",
+          borderRadius: 10,
+          borderSkipped: false,
+          maxBarThickness: 26,
+        },
       ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: pal.tick } } },
+      animation: { duration: 400 },
+      plugins: {
+        legend: { labels: { color: pal.tick, usePointStyle: true, boxWidth: 10, padding: 14, font: { size: 11, weight: "700" } } },
+        tooltip: {
+          backgroundColor: pal.tooltipBg,
+          titleColor: pal.label,
+          bodyColor: pal.label,
+          borderColor: pal.tooltipBorder,
+          borderWidth: 1,
+          padding: 10,
+        },
+      },
       scales: {
-        x: { ticks: { color: pal.tick, autoSkip: true, maxTicksLimit: 10 }, grid: { color: pal.grid } },
-        y: { ticks: { color: pal.tick, maxTicksLimit: 8 }, grid: { color: pal.grid } },
+        x: { ticks: { color: pal.tick, autoSkip: true, maxTicksLimit: 10, font: { size: 11, weight: "600" } }, grid: { color: pal.grid } },
+        y: { beginAtZero: true, ticks: { color: pal.tick, maxTicksLimit: 8, font: { size: 11 } }, grid: { color: pal.grid } },
       },
     }
   });
@@ -2169,7 +2601,7 @@ function renderCharts(fd) {
     zona: s.zona_id,
     score: num(s.investment_priority_score),
   }));
-  makeScatter("ch_risk_econ", riskEconPoints, "Riesgo técnico vs prioridad económica", "rgba(124,58,237,.72)");
+  makeScatter("ch_risk_econ", riskEconPoints, "Riesgo técnico vs prioridad económica", "rgba(124,58,237,.72)", "Riesgo técnico", "Prioridad económica");
 
   const topFeed = [...fd.feeders].sort((a,b) => num(b.criticidad_feeder_score) - num(a.criticidad_feeder_score)).slice(0,12);
   makeBar("ch_feeders", topFeed.map(f => f.alimentador_id), topFeed.map(f => num(f.criticidad_feeder_score)), "Criticidad feeder", "rgba(127,29,29,.72)");
@@ -2397,6 +2829,7 @@ function updateWhatIf(fd) {
 
 function applyAll() {
   const fd = getFilteredData();
+  updateFilterSummary(fd);
   updateExecutiveSummary(fd);
   updateKpis(fd);
   updateAlerts(fd);
