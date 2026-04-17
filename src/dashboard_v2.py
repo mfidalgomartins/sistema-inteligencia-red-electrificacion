@@ -590,6 +590,7 @@ def build_dashboard_v2() -> str:
         radial-gradient(900px 360px at -10% -80px, var(--bg-grad-2), transparent 55%),
         var(--bg);
       line-height: 1.45;
+      transition: background-color .24s ease, color .24s ease;
     }
     .layout {
       display: grid;
@@ -663,15 +664,26 @@ def build_dashboard_v2() -> str:
     }
     .sidebar select,
     .sidebar input[type="text"] {
+      appearance: none;
       width: 100%;
       margin-top: 6px;
-      padding: 9px;
+      padding: 10px 38px 10px 12px;
       border-radius: 10px;
       border: 1px solid var(--sidebar-input-border);
       background: var(--sidebar-input-bg);
       color: var(--sidebar-input-ink);
       outline: none;
       box-shadow: inset 0 1px 0 rgba(255,255,255,.02);
+      background-image: linear-gradient(45deg, transparent 50%, rgba(226,232,240,.85) 50%), linear-gradient(135deg, rgba(226,232,240,.85) 50%, transparent 50%);
+      background-position: calc(100% - 18px) calc(50% - 2px), calc(100% - 12px) calc(50% - 2px);
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+    }
+    .sidebar select:focus,
+    .sidebar input[type="text"]:focus,
+    .table-tools input:focus {
+      border-color: rgba(14, 165, 233, .8);
+      box-shadow: 0 0 0 3px rgba(14,165,233,.16);
     }
     .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
     .btn {
@@ -782,12 +794,28 @@ def build_dashboard_v2() -> str:
       color: var(--hero-meta-ink);
       box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
     }
+    .hero .meta .m .label {
+      display: block;
+      font-size: .70rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      opacity: .82;
+      margin-bottom: 6px;
+      font-weight: 800;
+    }
+    .hero .meta .m strong {
+      display: block;
+      font-size: 1rem;
+      line-height: 1.25;
+      color: var(--hero-meta-ink);
+    }
 
     .panel {
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 18px;
       box-shadow: var(--shadow-soft);
+      transition: background-color .24s ease, border-color .24s ease, box-shadow .24s ease;
     }
 
     .active-filters {
@@ -858,6 +886,19 @@ def build_dashboard_v2() -> str:
       padding: 16px 16px 15px;
       position: relative;
       overflow: hidden;
+    }
+    .summary-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 3px;
+      background: linear-gradient(90deg, rgba(15,118,110,.95) 0%, rgba(29,78,216,.82) 100%);
+    }
+    .summary-card:nth-child(2)::before {
+      background: linear-gradient(90deg, rgba(180,83,9,.95) 0%, rgba(245,158,11,.72) 100%);
+    }
+    .summary-card:nth-child(3)::before {
+      background: linear-gradient(90deg, rgba(22,101,52,.95) 0%, rgba(34,197,94,.72) 100%);
     }
     .summary-card::after {
       content: "";
@@ -932,6 +973,12 @@ def build_dashboard_v2() -> str:
       box-shadow: var(--shadow-soft);
       position: relative;
       overflow: hidden;
+      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    }
+    .kpi:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 26px rgba(15, 23, 42, .08);
+      border-color: var(--line-strong);
     }
     .kpi::before {
       content: "";
@@ -981,12 +1028,25 @@ def build_dashboard_v2() -> str:
       margin: 2px 0 4px;
       font-size: 1.08rem;
       line-height: 1.25;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section h2::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(15,118,110,.95) 0%, rgba(29,78,216,.78) 100%);
+      box-shadow: 0 0 0 5px rgba(15,118,110,.08);
+      flex: 0 0 auto;
     }
     .section .intro {
       margin: 0 0 12px 0;
       font-size: .84rem;
       color: var(--muted);
       line-height: 1.46;
+      max-width: 92ch;
     }
     .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
     .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
@@ -1000,6 +1060,12 @@ def build_dashboard_v2() -> str:
       min-width: 0;
       position: relative;
       box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+      transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+    .chart-card:hover {
+      transform: translateY(-1px);
+      border-color: var(--line-strong);
+      box-shadow: 0 12px 26px rgba(15, 23, 42, .08);
     }
     .chart-card::before {
       content: "";
@@ -1021,6 +1087,8 @@ def build_dashboard_v2() -> str:
       color: var(--muted);
       margin: 0 0 10px 0;
       line-height: 1.42;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(148, 163, 184, .14);
     }
     canvas {
       width: 100% !important;
@@ -1285,6 +1353,7 @@ def build_dashboard_v2() -> str:
       background: var(--surface);
       color: var(--ink);
       outline: none;
+      transition: border-color .16s ease, box-shadow .16s ease;
     }
     .table-count {
       font-size: .74rem;
@@ -1302,6 +1371,7 @@ def build_dashboard_v2() -> str:
       border: 1px solid #334155;
       box-shadow: var(--shadow);
     }
+    .exec-decision li + li { margin-top: 8px; }
     .exec-decision h3 {
       margin: 0 0 10px 0;
       font-size: 1rem;
@@ -1441,10 +1511,10 @@ def build_dashboard_v2() -> str:
         <span class="hero-pill">Criterio ejecutivo</span>
       </div>
       <div class="meta">
-        <div class="m"><b>Cobertura temporal</b><br>__COVERAGE_START__ → __COVERAGE_END__</div>
-        <div class="m"><b>Zonas evaluadas</b><br>__N_ZONAS__</div>
-        <div class="m"><b>Subestaciones con señal</b><br>__N_SUBS__</div>
-        <div class="m"><b>Alimentadores perfilados</b><br>__N_FEEDERS__</div>
+        <div class="m"><span class="label">Cobertura temporal</span><strong>__COVERAGE_START__ → __COVERAGE_END__</strong></div>
+        <div class="m"><span class="label">Zonas evaluadas</span><strong>__N_ZONAS__</strong></div>
+        <div class="m"><span class="label">Subestaciones con señal</span><strong>__N_SUBS__</strong></div>
+        <div class="m"><span class="label">Alimentadores perfilados</span><strong>__N_FEEDERS__</strong></div>
       </div>
     </section>
 
