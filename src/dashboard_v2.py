@@ -594,19 +594,25 @@ def build_dashboard_v2() -> str:
     }
     .layout {
       display: grid;
-      grid-template-columns: 320px 1fr;
-      min-height: 100vh;
-      gap: 0;
+      grid-template-columns: 294px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+      max-width: 1760px;
+      margin: 0 auto;
+      padding: 18px;
     }
     .sidebar {
       background: var(--sidebar-bg);
       color: var(--sidebar-ink);
       padding: 20px 18px 22px;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow: auto;
-      border-right: 1px solid rgba(148, 163, 184, .25);
+      position: relative;
+      top: auto;
+      height: auto;
+      overflow: visible;
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-radius: 22px;
+      box-shadow: 0 18px 42px rgba(2, 6, 23, .16);
+      align-self: start;
     }
     .sidebar-head {
       padding-bottom: 12px;
@@ -701,16 +707,17 @@ def build_dashboard_v2() -> str:
     .btn.secondary { background: linear-gradient(135deg, #1d4ed8 0%, #0ea5e9 100%); color: #fff; }
 
     .main {
-      padding: 24px 28px 36px;
-      overflow: auto;
-      max-width: 1800px;
+      padding: 0 0 36px;
+      overflow: visible;
+      min-width: 0;
+      max-width: none;
     }
 
     .hero {
       background: var(--hero-bg);
       color: var(--ink);
       border-radius: 22px;
-      padding: 24px 26px;
+      padding: 20px 22px;
       box-shadow: var(--shadow);
       position: relative;
       overflow: hidden;
@@ -739,18 +746,18 @@ def build_dashboard_v2() -> str:
     }
     .hero h1 {
       margin: 0;
-      font-size: 1.75rem;
-      max-width: 26ch;
-      line-height: 1.12;
+      font-size: 1.58rem;
+      max-width: 34ch;
+      line-height: 1.14;
       position: relative;
       z-index: 1;
       text-shadow: none;
     }
     .hero .subtitle {
-      margin-top: 10px;
+      margin-top: 8px;
       color: var(--ink-soft);
       max-width: 78ch;
-      font-size: .98rem;
+      font-size: .93rem;
       position: relative;
       z-index: 1;
       text-shadow: none;
@@ -759,7 +766,7 @@ def build_dashboard_v2() -> str:
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-top: 14px;
+      margin-top: 10px;
       position: relative;
       z-index: 1;
     }
@@ -770,14 +777,14 @@ def build_dashboard_v2() -> str:
       border-radius: 999px;
       background: var(--hero-pill-bg);
       color: var(--hero-pill-ink);
-      padding: 7px 12px;
-      font-size: .74rem;
+      padding: 6px 10px;
+      font-size: .72rem;
       font-weight: 700;
       border: 1px solid rgba(148, 163, 184, .36);
       backdrop-filter: blur(8px);
     }
     .hero .meta {
-      margin-top: 18px;
+      margin-top: 14px;
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 10px;
@@ -788,8 +795,8 @@ def build_dashboard_v2() -> str:
       background: var(--hero-meta-bg);
       border: 1px solid var(--hero-meta-border);
       border-radius: 14px;
-      padding: 12px;
-      font-size: .78rem;
+      padding: 10px 11px;
+      font-size: .75rem;
       line-height: 1.35;
       color: var(--hero-meta-ink);
       box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
@@ -805,7 +812,7 @@ def build_dashboard_v2() -> str:
     }
     .hero .meta .m strong {
       display: block;
-      font-size: 1rem;
+      font-size: .94rem;
       line-height: 1.25;
       color: var(--hero-meta-ink);
     }
@@ -819,8 +826,8 @@ def build_dashboard_v2() -> str:
     }
 
     .active-filters {
-      margin-top: 14px;
-      padding: 14px 16px;
+      margin-top: 12px;
+      padding: 12px 14px;
       background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
     }
     .active-filters-head {
@@ -838,7 +845,7 @@ def build_dashboard_v2() -> str:
       margin-bottom: 4px;
     }
     .active-filters-title {
-      font-size: .95rem;
+      font-size: .90rem;
       font-weight: 700;
       color: var(--ink);
       line-height: 1.28;
@@ -852,7 +859,7 @@ def build_dashboard_v2() -> str:
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-top: 14px;
+      margin-top: 10px;
     }
     .filter-chip {
       display: inline-flex;
@@ -863,7 +870,7 @@ def build_dashboard_v2() -> str:
       border: 1px solid var(--line);
       background: var(--surface);
       color: var(--ink-soft);
-      font-size: .77rem;
+      font-size: .75rem;
       font-weight: 700;
       line-height: 1.2;
     }
@@ -877,7 +884,7 @@ def build_dashboard_v2() -> str:
     }
 
     .summary-grid {
-      margin-top: 16px;
+      margin-top: 14px;
       display: grid;
       grid-template-columns: 1.2fr 1.2fr 1fr;
       gap: 12px;
@@ -940,7 +947,7 @@ def build_dashboard_v2() -> str:
     }
 
     .kpi-grid {
-      margin-top: 16px;
+      margin-top: 14px;
       display: grid;
       grid-template-columns: repeat(6, minmax(0, 1fr));
       gap: 12px;
@@ -1092,8 +1099,8 @@ def build_dashboard_v2() -> str:
     }
     canvas {
       width: 100% !important;
-      min-height: 260px;
-      max-height: 340px;
+      min-height: 248px;
+      max-height: 320px;
       background: var(--chart-bg);
       border: 1px solid var(--chart-border);
       border-radius: 14px;
@@ -1398,7 +1405,7 @@ def build_dashboard_v2() -> str:
     .span2 { grid-column: 1 / -1; }
 
     #ch_riesgo_territorio {
-      min-height: 300px;
+      min-height: 286px;
     }
 
     body[data-theme="dark"] .alert.red { background: rgba(127, 29, 29, .22); border-color: rgba(248, 113, 113, .38); color: #fecaca; }
@@ -1419,7 +1426,7 @@ def build_dashboard_v2() -> str:
       .table-tools { grid-template-columns: 1fr; }
     }
     @media (max-width: 1200px) {
-      .layout { grid-template-columns: 1fr; }
+      .layout { grid-template-columns: 1fr; padding: 14px; gap: 14px; }
       .sidebar { position: relative; height: auto; }
       .grid2, .grid3, .whatif-grid { grid-template-columns: 1fr; }
       .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -1427,7 +1434,7 @@ def build_dashboard_v2() -> str:
     }
     @media print {
       .sidebar { display: none; }
-      .layout { grid-template-columns: 1fr; }
+      .layout { grid-template-columns: 1fr; padding: 0; max-width: none; }
       body { background: #fff; }
       .main { padding: 0; max-width: none; }
       .hero, .panel, .exec-decision { box-shadow: none; }
