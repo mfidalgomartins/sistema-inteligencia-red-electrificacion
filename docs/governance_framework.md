@@ -4,7 +4,7 @@
 Establecer un contrato operativo único para ejecución, validación y publicación del sistema analítico.
 
 ## 1) Fuente de verdad canónica
-- **Pipeline oficial**: `python -m src` (ejecuta `run_final_assembly_v2`).
+- **Pipeline oficial**: `python -m src` (ejecuta `run_pipeline`).
 - **Reproducibilidad raw**: el pipeline oficial regenera `data/raw` de forma determinista (`generate_synthetic_ecosystem`) antes de SQL/feature/modelado.
 - **SQL oficial**: secuencia `01_staging_core_tables.sql` a `10_validation_queries.sql`.
 - **Tablas canónicas**:
@@ -39,7 +39,11 @@ Regla operativa:
 Los estados se publican en:
 - `outputs/reports/validation_report.md`
 - `outputs/reports/validation_summary.json`
-- `outputs/reports/validation_gate_checks.csv`
+
+Estos diagnósticos son regenerables y no se versionan. Los artefactos públicos versionados son:
+- `outputs/dashboard/grid-electrification-command-center.html`
+- `outputs/reports/informe_analitico_red_electrificacion.pdf`
+- `outputs/graphs/*.png`
 
 ## 3) Política de métricas
 - Definiciones oficiales en:
@@ -59,7 +63,7 @@ Los estados se publican en:
   - entrypoint canónico
   - contratos de scoring (tiers/urgencia)
   - contrato de escenarios
-  - contrato de secuencia SQL v2
+  - contrato de secuencia SQL canónica
   - evaluación de severidad en validación
 - Cualquier PR o release sin `pytest` verde queda bloqueado.
 
@@ -69,12 +73,12 @@ El release queda bloqueado si falla cualquier gate bloqueante:
 2. artefactos core (`intervention_scoring_table`, `intervention_ranking_final`, escenarios) no existen.
 3. inconsistencia entre ranking final y score top.
 4. inconsistencia de agregación de coste entre `scenario_impacts_v2` y `scenario_summary_v2`.
-5. issues `alta` > 0.
+5. todos los escenarios producen el mismo ranking.
+6. issues `alta` > 0.
 
 ## 6) Criterio de publicación
 Antes de publicar:
-1. Ejecutar `python -m src`.
-2. Ejecutar `pytest -q`.
-3. Revisar `outputs/reports/validation_report.md`.
-4. Confirmar que `publish_state` no sea `publish-blocked`.
-5. Confirmar consistencia narrativa en README + memo ejecutivo.
+1. Ejecutar `make release`.
+2. Revisar `outputs/reports/validation_report.md`.
+3. Confirmar que `publish_state` no sea `publish-blocked`.
+4. Confirmar consistencia narrativa entre README, dashboard e informe analítico.

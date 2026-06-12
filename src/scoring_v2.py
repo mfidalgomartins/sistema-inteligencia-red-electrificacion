@@ -28,6 +28,34 @@ def _urgency(score: float) -> str:
     return "monitorizacion"
 
 
+def _apply_intervention_rules(base: pd.DataFrame) -> pd.DataFrame:
+    """Aplica reglas de decisión que evitan recomendaciones tácticas en riesgo estructural."""
+    out = base.copy()
+    intervention_map = {
+        "refuerzo_red": "reforzar_red_local",
+        "flexibilidad": "activar_flexibilidad",
+        "almacenamiento": "desplegar_almacenamiento",
+        "intervencion_operativa": "optimizar_operacion",
+    }
+    out["recommended_intervention"] = out["option"].map(intervention_map)
+
+    out.loc[out["investment_priority_score"] < 45, "recommended_intervention"] = "monitorizar"
+    out.loc[out["asset_exposure_score"] >= 75, "recommended_intervention"] = "sustituir_activos"
+    out.loc[
+        (out["congestion_risk_score"] >= 80)
+        & (out["ratio_flexibilidad_estres"] < 0.15),
+        "recommended_intervention",
+    ] = "reforzar_red_local"
+    out.loc[
+        (out["flexibility_gap_score"] >= 80)
+        & (out["service_impact_score"] >= 65)
+        & (out["storage_efectivo"] < 0.03),
+        "recommended_intervention",
+    ] = "desplegar_almacenamiento"
+    out.loc[out["risk_tier"] == "critico", "recommended_intervention"] = "intervencion_inmediata_prioritaria"
+    return out
+
+
 def run_scoring_v2() -> dict[str, pd.DataFrame]:
     paths = ensure_dirs(get_paths())
     conn = connect_v2(paths)
@@ -123,9 +151,10 @@ def run_scoring_v2() -> dict[str, pd.DataFrame]:
         base["ratio_precursor_interrupcion"] = 0.0
 
     if not forecast.empty:
-        base = base.merge(forecast[["zona_id", "mae", "ratio_nueva_demanda", "decision_forecast"]], on="zona_id", how="left")
+        base = base.merge(forecast[["zona_id", "mae", "nmae", "ratio_nueva_demanda", "decision_forecast"]], on="zona_id", how="left")
     else:
         base["mae"] = 0.0
+        base["nmae"] = 0.0
         base["ratio_nueva_demanda"] = 0.0
         base["decision_forecast"] = "forecast_no_disponible"
 
@@ -173,7 +202,7 @@ def run_scoring_v2() -> dict[str, pd.DataFrame]:
         0.40 * minmax(base["ratio_nueva_demanda"])
         + 0.30 * minmax(base["presion_crecimiento"])
         + 0.20 * minmax(base["nueva_demanda_mwh"])
-        + 0.10 * minmax(base["mae"])
+        + 0.10 * minmax(base["nmae"])
     )
 
     base["economic_priority_score"] = (
@@ -264,17 +293,7 @@ def run_scoring_v2() -> dict[str, pd.DataFrame]:
     base["risk_tier"] = base["investment_priority_score"].map(_tier)
     base["urgency_tier"] = base["investment_priority_score"].map(_urgency)
 
-    intervention_map = {
-        "refuerzo_red": "reforzar_red_local",
-        "flexibilidad": "activar_flexibilidad",
-        "almacenamiento": "desplegar_almacenamiento",
-        "intervencion_operativa": "optimizar_operacion",
-    }
-    base["recommended_intervention"] = base["option"].map(intervention_map)
-
-    base.loc[base["asset_exposure_score"] >= 75, "recommended_intervention"] = "sustituir_activos"
-    base.loc[base["investment_priority_score"] >= 90, "recommended_intervention"] = "intervencion_inmediata_prioritaria"
-    base.loc[base["investment_priority_score"] < 45, "recommended_intervention"] = "monitorizar"
+    base = _apply_intervention_rules(base)
 
     seq_map = {
         "intervencion_inmediata_prioritaria": "0-6m",
@@ -300,7 +319,7 @@ def run_scoring_v2() -> dict[str, pd.DataFrame]:
     ].idxmax(axis=1)
 
     base["confidence_flag"] = np.where(
-        base["mae"] <= base["mae"].median(),
+        base["nmae"] <= 0.035,
         "alta_confianza",
         "media_confianza_requiere_seguimiento",
     )
@@ -352,7 +371,7 @@ def run_scoring_v2() -> dict[str, pd.DataFrame]:
 
     framework_doc = dedent(
         """
-        # Scoring Framework v2
+        # Scoring Framework
 
         ## Scores obligatorios
         1. congestion_risk_score
@@ -365,7 +384,7 @@ def run_scoring_v2() -> dict[str, pd.DataFrame]:
         8. investment_priority_score
 
         ## Principio
-        Framework interpretable, sin black box, combinando criterios técnicos, de servicio, activos, electrificación y economía.
+        Scoring lineal interpretable que combina criterios técnicos, de servicio, activos, electrificación y economía.
 
         ## Fórmulas (resumen)
         - Cada score parcial se construye con combinación lineal ponderada de señales normalizadas (0-100).
@@ -393,7 +412,15 @@ def run_scoring_v2() -> dict[str, pd.DataFrame]:
         ## Tiers y reglas
         - risk_tier: bajo / medio / alto / critico.
         - urgency_tier: monitorizacion / planificada / alta / inmediata.
-        - confidence_flag depende de error de forecasting por zona.
+        - `risk_tier = critico` fuerza `intervencion_inmediata_prioritaria`.
+        - `congestion_risk_score >= 80` y cobertura flexible `< 0.15` fuerza refuerzo local.
+        - brecha de flexibilidad `>= 80`, impacto de servicio `>= 65` y storage efectivo `< 0.03` fuerza almacenamiento.
+        - `asset_exposure_score >= 75` fuerza sustitución de activos salvo intervención crítica inmediata.
+        - `confidence_flag` es alta cuando `NMAE <= 3.5%`.
+
+        ## Escenarios
+        Los factores de escenario se localizan por zona según los drivers de score relevantes.
+        La validación bloquea el release si todos los escenarios producen el mismo ranking.
 
         ## Tipos de intervención finales
         - monitorizar

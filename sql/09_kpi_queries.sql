@@ -26,12 +26,17 @@ CREATE OR REPLACE VIEW kpi_top_subestaciones_congestion_acumulada AS
 SELECT
     nh.zona_id,
     nh.subestacion_id,
-    COUNT(*) AS horas_observadas,
-    SUM(CASE WHEN nh.flag_congestion THEN 1 ELSE 0 END) AS horas_congestion,
+    COUNT(DISTINCT nh.timestamp) AS horas_observadas,
+    COUNT(DISTINCT CASE WHEN nh.flag_congestion THEN nh.timestamp END) AS horas_congestion,
     ROUND(SUM(nh.energia_afectada_hora_mwh), 2) AS energia_afectada_total_mwh,
     ROUND(MAX(nh.carga_relativa), 4) AS carga_relativa_max,
     ROUND(AVG(nh.carga_relativa), 4) AS carga_relativa_media,
-    ROUND(100.0 * SUM(CASE WHEN nh.flag_congestion THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 2) AS pct_horas_congestion
+    ROUND(
+        100.0
+        * COUNT(DISTINCT CASE WHEN nh.flag_congestion THEN nh.timestamp END)
+        / NULLIF(COUNT(DISTINCT nh.timestamp), 0),
+        2
+    ) AS pct_horas_congestion
 FROM mart_node_hour_operational_state nh
 GROUP BY
     nh.zona_id,

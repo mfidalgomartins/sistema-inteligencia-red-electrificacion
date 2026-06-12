@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -35,6 +36,10 @@ REQUIRED_RAW = [
 
 ALLOWED_OVERALL = {"PASS", "WARN", "FAIL"}
 ALLOWED_PUBLISH = {"publish-ready", "publish-with-caveats", "publish-blocked"}
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def run_smoke_checks_v2() -> dict[str, str]:
@@ -89,6 +94,8 @@ def run_smoke_checks_v2() -> dict[str, str]:
         )
         if publish_state not in ALLOWED_PUBLISH:
             errors.append("invalid_publish_state")
+        if publish_state == "publish-blocked":
+            errors.append("release_publish_blocked")
     else:
         summary = {}
 
@@ -99,6 +106,15 @@ def run_smoke_checks_v2() -> dict[str, str]:
             errors.append("manifest_validation_status_mismatch")
         if manifest.get("release_readiness", {}).get("publish_state") != summary.get("release_readiness", {}).get("publish_state"):
             errors.append("manifest_publish_state_mismatch")
+        for artifact_name, metadata in manifest.get("artifacts", {}).items():
+            if not metadata.get("exists"):
+                errors.append(f"manifest_missing_artifact:{artifact_name}")
+                continue
+            artifact_path = paths.root / metadata.get("path", "")
+            if not artifact_path.exists():
+                errors.append(f"manifest_path_missing:{artifact_name}")
+            elif metadata.get("sha256") != _sha256(artifact_path):
+                errors.append(f"manifest_hash_mismatch:{artifact_name}")
     else:
         manifest = {}
 

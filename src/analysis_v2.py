@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from textwrap import dedent
 
 import numpy as np
 import pandas as pd
@@ -89,6 +88,7 @@ def run_advanced_analysis_v2() -> dict[str, pd.DataFrame]:
     b5_electr = (
         zone_day.groupby("zona_id", as_index=False)
         .agg(
+            demanda_total=("demanda_total_mwh", "sum"),
             demanda_ev_total=("demanda_ev_total", "sum"),
             demanda_industrial_total=("demanda_industrial_adicional_total", "sum"),
             curtailment_total=("curtailment_total", "sum"),
@@ -97,9 +97,8 @@ def run_advanced_analysis_v2() -> dict[str, pd.DataFrame]:
     )
     b5_electr["ratio_nueva_demanda"] = (
         b5_electr["demanda_ev_total"] + b5_electr["demanda_industrial_total"]
-    ) / (
-        b5_electr["demanda_ev_total"] + b5_electr["demanda_industrial_total"] + 1.0
-    )
+    ) / b5_electr["demanda_total"].replace(0, np.nan)
+    b5_electr["ratio_nueva_demanda"] = b5_electr["ratio_nueva_demanda"].fillna(0.0)
     b5_electr = b5_electr.sort_values("ratio_nueva_demanda", ascending=False)
     write_df(b5_electr, paths.data_processed / "support_electrificacion_presion.csv")
 
@@ -150,67 +149,7 @@ def run_advanced_analysis_v2() -> dict[str, pd.DataFrame]:
             },
         ]
     )
-    write_df(findings, paths.outputs_reports / "hallazgos_priorizados.csv")
-
-    # Informe narrativo en 6 bloques.
-    report = dedent(
-        f"""
-        # Análisis Avanzado de Red (v2)
-
-        ## 1. Salud operativa general de la red
-        - Insight principal: La red opera con estrés concentrado y persistente en franjas específicas.
-        - Evidencia cuantitativa: carga relativa media global {node_hour['carga_relativa'].mean():.3f}, horas de congestión totales {int(node_hour['flag_congestion'].sum()):,}.
-        - Lectura operativa: conviene reforzar vigilancia en ventanas punta y nodos recurrentes.
-        - Lectura estratégica: la presión no es uniforme; priorización territorial mejora eficiencia de capital.
-        - Caveats: indicadores provienen de datos sintéticos calibrados.
-        - Recomendación: activar panel de alertas por nodo con umbrales dinámicos de carga y congestión.
-
-        ## 2. Congestión y capacidad
-        - Insight principal: pocos nodos explican gran parte de la congestión acumulada.
-        - Evidencia cuantitativa: top 10 nodos acumulan {b2_nodes.head(10)['horas_congestion'].sum():,.0f} horas de congestión.
-        - Lectura operativa: tratar primero alimentadores con carga relativa alta sostenida.
-        - Lectura estratégica: priorizar cartera micro-segmentada evita CAPEX extensivo no necesario.
-        - Caveats: no incluye restricciones topológicas AC completas.
-        - Recomendación: secuencia 0-6m operación/flex, 6-24m refuerzo físico selectivo.
-
-        ## 3. Calidad de servicio y resiliencia
-        - Insight principal: ENS e interrupciones se alinean con zonas de mayor estrés.
-        - Evidencia cuantitativa: ENS total agregada {b3_service['ens_total'].sum():.2f} MWh.
-        - Lectura operativa: riesgo de servicio aumenta cuando coinciden congestión y fragilidad de activos.
-        - Lectura estratégica: resiliencia requiere mezcla de mantenimiento dirigido y automatización.
-        - Caveats: causalidad entre congestión y ENS debe interpretarse con prudencia.
-        - Recomendación: priorizar subestaciones con deterioro operativo y alta criticidad territorial.
-
-        ## 4. Flexibilidad y almacenamiento
-        - Insight principal: la flexibilidad cubre parcialmente demanda crítica, con brecha relevante en zonas concretas.
-        - Evidencia cuantitativa: gap técnico total {b4_flex['gap_tecnico_mw'].sum():.2f} MW.
-        - Lectura operativa: donde ratio flex/estrés < 1 conviene refuerzo o storage adicional.
-        - Lectura estratégica: en zonas con cobertura alta, puede diferirse CAPEX estructural.
-        - Caveats: proxies de coste activación y disponibilidad simplifican dinámica real.
-        - Recomendación: priorizar despliegue flexible donde coste marginal sea menor que ENS evitada.
-
-        ## 5. Nueva demanda por electrificación
-        - Insight principal: EV e industria amplifican incertidumbre y saturación en zonas específicas.
-        - Evidencia cuantitativa: demanda EV total {b5_electr['demanda_ev_total'].sum():.2f} MWh; industrial {b5_electr['demanda_industrial_total'].sum():.2f} MWh.
-        - Lectura operativa: picos simultáneos requieren coordinación con flexibilidad y control de carga.
-        - Lectura estratégica: electrificación exige pipeline de inversión condicionado por previsibilidad.
-        - Caveats: elasticidades reales de demanda pueden variar por regulación/tarifa.
-        - Recomendación: combinar forecast por segmento con reglas de activación preventiva.
-
-        ## 6. Implicaciones económicas y estratégicas
-        - Insight principal: hay margen para diferir parte del CAPEX mediante inteligencia operativa y flexibilidad.
-        - Evidencia cuantitativa: score medio de prioridad {b6_econ['investment_priority_score'].mean():.2f}.
-        - Lectura operativa: no todas las zonas requieren refuerzo inmediato.
-        - Lectura estratégica: CAPEX inevitable debe concentrarse en zonas con tier crítico y baja confianza forecast.
-        - Caveats: coste de no actuar está estimado con proxies.
-        - Recomendación: ejecutar cartera secuencial por urgencia, robustez y tiempo de despliegue.
-
-        ## Hallazgos priorizados
-        {findings.to_markdown(index=False)}
-        """
-    ).strip() + "\n"
-
-    (paths.outputs_reports / "analisis_avanzado.md").write_text(report, encoding="utf-8")
+    write_df(findings, paths.data_processed / "priority_findings.csv")
 
     notebook = {
         "cells": [
@@ -218,9 +157,8 @@ def run_advanced_analysis_v2() -> dict[str, pd.DataFrame]:
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "# Notebook Principal - Inteligencia de Red (v2)\\n",
-                    "Este notebook consolida análisis operativo, riesgo, flexibilidad, electrificación y priorización.\\n",
-                    "Su objetivo es ofrecer una lectura ejecutiva reproducible antes del dashboard.\\n",
+                    "# Notebook Principal - Inteligencia de Red\\n",
+                    "Lectura reproducible de riesgo, flexibilidad, electrificación y priorización.\\n",
                 ],
             },
             {
@@ -228,7 +166,7 @@ def run_advanced_analysis_v2() -> dict[str, pd.DataFrame]:
                 "metadata": {},
                 "source": [
                     "## Carga de artefactos principales\\n",
-                    "Se cargan tablas de soporte generadas en la fase `/analyze`.\\n",
+                    "Se cargan las tablas procesadas por el pipeline canónico.\\n",
                 ],
             },
             {
@@ -239,8 +177,10 @@ def run_advanced_analysis_v2() -> dict[str, pd.DataFrame]:
                 "source": [
                     "import pandas as pd\\n",
                     "from pathlib import Path\\n",
-                    "root = Path('/Users/miguelfidalgo/Documents/sistema-inteligencia-red-electrificacion')\\n",
-                    "findings = pd.read_csv(root / 'outputs' / 'reports' / 'hallazgos_priorizados.csv')\\n",
+                    "root = Path.cwd()\\n",
+                    "if not (root / 'data').exists():\\n",
+                    "    root = root.parent\\n",
+                    "findings = pd.read_csv(root / 'data' / 'processed' / 'priority_findings.csv')\\n",
                     "zone_risk = pd.read_csv(root / 'data' / 'processed' / 'vw_zone_operational_risk.csv')\\n",
                     "scoring = pd.read_csv(root / 'data' / 'processed' / 'intervention_scoring_table.csv')\\n",
                     "scenario_summary = pd.read_csv(root / 'data' / 'processed' / 'scenario_summary_v2.csv')\\n",
@@ -252,7 +192,7 @@ def run_advanced_analysis_v2() -> dict[str, pd.DataFrame]:
                 "metadata": {},
                 "source": [
                     "## Top zonas por riesgo operativo\\n",
-                    "Referencia para comité de priorización territorial.\\n",
+                    "Orden relativo de riesgo operativo territorial.\\n",
                 ],
             },
             {
@@ -302,9 +242,8 @@ def run_advanced_analysis_v2() -> dict[str, pd.DataFrame]:
                 "cell_type": "markdown",
                 "metadata": {},
                 "source": [
-                    "## Informe completo\\n",
-                    "Consultar `/outputs/reports/analisis_avanzado.md` para la narrativa ejecutiva estructurada en 6 bloques.\\n",
-                    "Complementar con `/outputs/dashboard/grid-electrification-command-center.html` para exploración interactiva.\\n",
+                    "## Dashboard\\n",
+                    "Abrir `/outputs/dashboard/grid-electrification-command-center.html` para explorar filtros y escenarios.\\n",
                 ],
             },
         ],
@@ -331,7 +270,7 @@ def run_advanced_analysis_v2() -> dict[str, pd.DataFrame]:
         "support_flexibilidad_storage": b4_flex,
         "support_electrificacion_presion": b5_electr,
         "support_implicaciones_economicas": b6_econ,
-        "hallazgos_priorizados": findings,
+        "priority_findings": findings,
     }
 
 

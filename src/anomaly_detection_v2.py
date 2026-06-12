@@ -1,14 +1,7 @@
 from __future__ import annotations
 
-import os
-from pathlib import Path
 from textwrap import dedent
 
-os.environ.setdefault("MPLCONFIGDIR", str(Path(__file__).resolve().parents[1] / ".mplconfig"))
-
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -23,6 +16,12 @@ def _severity_from_score(score: float) -> str:
     if score >= 2.0:
         return "media"
     return "baja"
+
+
+def _future_window_max(series: pd.Series, window: int) -> pd.Series:
+    """Máximo de las próximas observaciones, excluyendo la fila actual."""
+    reversed_future = series.iloc[::-1].shift(1).rolling(window, min_periods=1).max()
+    return reversed_future.iloc[::-1].fillna(0)
 
 
 def run_anomaly_detection_v2() -> dict[str, pd.DataFrame]:
@@ -176,12 +175,11 @@ def run_anomaly_detection_v2() -> dict[str, pd.DataFrame]:
     node_future = node_future.sort_values(["zona_id", "subestacion_id", "alimentador_id", "timestamp"])
     node_future["flag_congestion_int"] = node_future["flag_congestion"].astype(int)
     node_future["precursor_congestion_48h"] = (
-        node_future.iloc[::-1]
-        .groupby(["zona_id", "subestacion_id", "alimentador_id"]) ["flag_congestion_int"]
-        .rolling(48, min_periods=1)
-        .max()
-        .reset_index(level=[0, 1, 2], drop=True)
-        .iloc[::-1]
+        node_future.groupby(
+            ["zona_id", "subestacion_id", "alimentador_id"],
+            group_keys=False,
+        )["flag_congestion_int"]
+        .apply(lambda s: _future_window_max(s, 48))
     )
 
     anomalies = anomalies.merge(
@@ -207,12 +205,8 @@ def run_anomaly_detection_v2() -> dict[str, pd.DataFrame]:
         .sort_values(["zona_id", "fecha"])
     )
     interruption_daily["precursor_interrupcion_7d"] = (
-        interruption_daily.iloc[::-1]
-        .groupby("zona_id")["hubo_interrupcion"]
-        .rolling(7, min_periods=1)
-        .max()
-        .reset_index(level=0, drop=True)
-        .iloc[::-1]
+        interruption_daily.groupby("zona_id", group_keys=False)["hubo_interrupcion"]
+        .apply(lambda s: _future_window_max(s, 7))
     )
 
     anomalies = anomalies.merge(
@@ -256,68 +250,6 @@ def run_anomaly_detection_v2() -> dict[str, pd.DataFrame]:
         )
         .sort_values("n_eventos", ascending=False)
     )
-
-    # Gráficos de casos relevantes.
-    plt.style.use("seaborn-v0_8-whitegrid")
-
-    fig, ax = plt.subplots(figsize=(11, 5))
-    ts_counts = anomalies.assign(date=anomalies["timestamp"].dt.date).groupby(["date", "anomaly_type"]).size().reset_index(name="n")
-    pivot = ts_counts.pivot(index="date", columns="anomaly_type", values="n").fillna(0)
-    pivot.plot(ax=ax, linewidth=1.2)
-    ax.set_title("Evolución temporal de anomalías detectadas")
-    ax.set_xlabel("Fecha")
-    ax.set_ylabel("Nº anomalías")
-    fig.tight_layout()
-    fig.savefig(paths.outputs_charts / "10_anomalias_evolucion_tiempo.png", dpi=150)
-    plt.close(fig)
-
-    fig, ax = plt.subplots(figsize=(10, 5))
-    type_summary.sort_values("n_eventos", ascending=True).plot.barh(x="anomaly_type", y="n_eventos", ax=ax, color="#7570b3")
-    ax.set_title("Volumen de anomalías por tipo")
-    ax.set_xlabel("Nº eventos")
-    ax.set_ylabel("Tipo de anomalía")
-    fig.tight_layout()
-    fig.savefig(paths.outputs_charts / "11_anomalias_por_tipo.png", dpi=150)
-    plt.close(fig)
-
-    fig, ax = plt.subplots(figsize=(10, 5))
-    top_z = zone_intensity.head(12)
-    ax.scatter(top_z["ratio_precursor_congestion"], top_z["severidad_media"], color="#e7298a")
-    for _, row in top_z.iterrows():
-        ax.annotate(row["zona_id"], (row["ratio_precursor_congestion"], row["severidad_media"]), fontsize=8)
-    ax.set_title("Severidad de anomalías vs potencial precursor de congestión")
-    ax.set_xlabel("Ratio precursor congestión 48h")
-    ax.set_ylabel("Severidad media")
-    fig.tight_layout()
-    fig.savefig(paths.outputs_charts / "12_anomalias_precursor_congestion.png", dpi=150)
-    plt.close(fig)
-
-    report = dedent(
-        f"""
-        # Anomaly Detection Report (v2)
-
-        ## Cobertura
-        - demanda inesperada
-        - carga relativa anormal
-        - curtailment anormal
-        - ENS atípica por zona
-        - deterioro operativo por subestación
-        - desviaciones frente a patrón esperado
-
-        ## Resumen por tipo
-        {type_summary.to_markdown(index=False)}
-
-        ## Utilidad operativa
-        - Las anomalías con `precursor_congestion_48h=1` priorizan monitorización y alivio preventivo.
-        - Las anomalías `ens_atipica` y `deterioro_operativo_subestacion` elevan prioridad de inspección y resiliencia.
-
-        ## Recomendación de monitorización
-        - Activar vigilancia intradía en zonas con mayor `severidad_media` y `ratio_precursor_congestion`.
-        - Integrar `n_anomalias` y `anomalias_criticas` en el scoring de prioridad de inversión.
-        """
-    ).strip() + "\n"
-
-    (paths.outputs_reports / "anomaly_detection_report.md").write_text(report, encoding="utf-8")
 
     write_df(anomalies, paths.data_processed / "anomalies_detected.csv")
     write_df(type_summary, paths.data_processed / "anomalies_summary_by_type.csv")

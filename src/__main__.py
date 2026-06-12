@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import argparse
 
-from .final_assembly_v2 import run_final_assembly_v2
+from .pipeline import run_pipeline
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Entrypoint oficial del proyecto (pipeline canónico)."
+        description="Entrypoint oficial del proyecto."
     )
     parser.parse_args()
-    outputs = run_final_assembly_v2()
+    outputs = run_pipeline()
     for key, value in outputs.items():
         print(f"{key}: {value}")
 

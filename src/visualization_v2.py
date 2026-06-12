@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from textwrap import dedent
+from tempfile import gettempdir
 
-os.environ.setdefault("MPLCONFIGDIR", str(Path(__file__).resolve().parents[1] / ".mplconfig"))
+plot_cache_dir = Path(gettempdir()) / "grid-electrification-plot-cache"
+plot_cache_dir.mkdir(parents=True, exist_ok=True)
+os.environ.setdefault("MPLCONFIGDIR", str(plot_cache_dir / "matplotlib"))
+os.environ.setdefault("XDG_CACHE_HOME", str(plot_cache_dir / "xdg"))
 
 import matplotlib
 matplotlib.use("Agg")
@@ -55,7 +58,7 @@ def run_visualization_v2() -> list[str]:
     ax.set_ylabel("Carga relativa")
     ax.tick_params(axis="x", rotation=45)
     fig.tight_layout()
-    p = paths.outputs_charts / "v2_01_tendencia_carga_relativa.png"
+    p = paths.outputs_charts / "01_tendencia_carga_relativa.png"
     fig.savefig(p, dpi=150)
     plt.close(fig)
     chart_paths.append(str(p))
@@ -69,13 +72,18 @@ def run_visualization_v2() -> list[str]:
     ax.set_ylabel("Horas")
     ax.tick_params(axis="x", rotation=60)
     fig.tight_layout()
-    p = paths.outputs_charts / "v2_02_horas_congestion_zona.png"
+    p = paths.outputs_charts / "02_horas_congestion_zona.png"
     fig.savefig(p, dpi=150)
     plt.close(fig)
     chart_paths.append(str(p))
 
     # 3) Heatmap de congestión por hora y territorio.
-    c3 = node.assign(hour=pd.to_datetime(node["timestamp"]).dt.hour).groupby(["zona_id", "hour"], as_index=False)["flag_congestion"].sum()
+    zone_hour = (
+        node.assign(hour=pd.to_datetime(node["timestamp"]).dt.hour)
+        .groupby(["zona_id", "timestamp", "hour"], as_index=False)["flag_congestion"]
+        .max()
+    )
+    c3 = zone_hour.groupby(["zona_id", "hour"], as_index=False)["flag_congestion"].sum()
     heat = c3.pivot(index="zona_id", columns="hour", values="flag_congestion").fillna(0.0)
     fig, ax = plt.subplots(figsize=(12, 6))
     im = ax.imshow(heat.values, aspect="auto", cmap="Reds")
@@ -87,15 +95,17 @@ def run_visualization_v2() -> list[str]:
     ax.set_yticklabels(heat.index)
     fig.colorbar(im, ax=ax, label="Horas de congestión")
     fig.tight_layout()
-    p = paths.outputs_charts / "v2_03_heatmap_congestion_hora_territorio.png"
+    p = paths.outputs_charts / "03_heatmap_congestion_hora_territorio.png"
     fig.savefig(p, dpi=150)
     plt.close(fig)
     chart_paths.append(str(p))
 
     # 4) Top subestaciones por exposición.
     c4 = (
-        node.groupby("subestacion_id", as_index=False)
-        .agg(horas_congestion=("flag_congestion", "sum"), carga_relativa_max=("carga_relativa", "max"))
+        node.groupby(["subestacion_id", "timestamp"], as_index=False)
+        .agg(flag_congestion=("flag_congestion", "max"), carga_relativa_max=("carga_relativa", "max"))
+        .groupby("subestacion_id", as_index=False)
+        .agg(horas_congestion=("flag_congestion", "sum"), carga_relativa_max=("carga_relativa_max", "max"))
         .sort_values("horas_congestion", ascending=False)
         .head(15)
     )
@@ -105,7 +115,7 @@ def run_visualization_v2() -> list[str]:
     ax.set_xlabel("Horas de congestión")
     ax.set_ylabel("Subestación")
     fig.tight_layout()
-    p = paths.outputs_charts / "v2_04_top_subestaciones_exposicion.png"
+    p = paths.outputs_charts / "04_top_subestaciones_exposicion.png"
     fig.savefig(p, dpi=150)
     plt.close(fig)
     chart_paths.append(str(p))
@@ -124,7 +134,7 @@ def run_visualization_v2() -> list[str]:
     ax.set_ylabel("Criticidad media")
     ax.tick_params(axis="x", rotation=70)
     fig.tight_layout()
-    p = paths.outputs_charts / "v2_05_top_alimentadores_criticidad.png"
+    p = paths.outputs_charts / "05_top_alimentadores_criticidad.png"
     fig.savefig(p, dpi=150)
     plt.close(fig)
     chart_paths.append(str(p))
@@ -138,7 +148,7 @@ def run_visualization_v2() -> list[str]:
     ax.set_ylabel("ENS (MWh)")
     ax.tick_params(axis="x", rotation=60)
     fig.tight_layout()
-    p = paths.outputs_charts / "v2_06_ens_por_zona.png"
+    p = paths.outputs_charts / "06_ens_por_zona.png"
     fig.savefig(p, dpi=150)
     plt.close(fig)
     chart_paths.append(str(p))
@@ -152,12 +162,12 @@ def run_visualization_v2() -> list[str]:
     ax.set_xlabel("Cobertura flexible total (MW)")
     ax.set_ylabel("Demanda crítica (MW)")
     fig.tight_layout()
-    p = paths.outputs_charts / "v2_07_flexibilidad_vs_necesidad.png"
+    p = paths.outputs_charts / "07_flexibilidad_vs_necesidad.png"
     fig.savefig(p, dpi=150)
     plt.close(fig)
     chart_paths.append(str(p))
 
-    # 8) Storage capability vs stress.
+    # 8) Potencia de almacenamiento frente a estrés.
     fig, ax = plt.subplots(figsize=(10, 6))
     ax.scatter(flex_gap["storage_potencia_total_mw"], flex_gap["riesgo_operativo_score"], s=70, color="#1f78b4")
     for _, row in flex_gap.nlargest(10, "riesgo_operativo_score").iterrows():
@@ -166,7 +176,7 @@ def run_visualization_v2() -> list[str]:
     ax.set_xlabel("Storage potencia total (MW)")
     ax.set_ylabel("Riesgo operativo score")
     fig.tight_layout()
-    p = paths.outputs_charts / "v2_08_storage_vs_stress.png"
+    p = paths.outputs_charts / "08_storage_vs_stress.png"
     fig.savefig(p, dpi=150)
     plt.close(fig)
     chart_paths.append(str(p))
@@ -181,7 +191,7 @@ def run_visualization_v2() -> list[str]:
     ax.set_xlabel("Demanda EV total")
     ax.set_ylabel("Percentil de carga")
     fig.tight_layout()
-    p = paths.outputs_charts / "v2_09_impacto_ev_carga_critica.png"
+    p = paths.outputs_charts / "09_impacto_ev_carga_critica.png"
     fig.savefig(p, dpi=150)
     plt.close(fig)
     chart_paths.append(str(p))
@@ -196,7 +206,7 @@ def run_visualization_v2() -> list[str]:
     ax.set_xlabel("Demanda industrial adicional total")
     ax.set_ylabel("Horas de congestión")
     fig.tight_layout()
-    p = paths.outputs_charts / "v2_10_impacto_industrial.png"
+    p = paths.outputs_charts / "10_impacto_industrial.png"
     fig.savefig(p, dpi=150)
     plt.close(fig)
     chart_paths.append(str(p))
@@ -210,7 +220,7 @@ def run_visualization_v2() -> list[str]:
     ax.set_ylabel("Curtailment total")
     ax.tick_params(axis="x", rotation=60)
     fig.tight_layout()
-    p = paths.outputs_charts / "v2_11_curtailment_territorio.png"
+    p = paths.outputs_charts / "11_curtailment_territorio.png"
     fig.savefig(p, dpi=150)
     plt.close(fig)
     chart_paths.append(str(p))
@@ -224,7 +234,7 @@ def run_visualization_v2() -> list[str]:
     ax.set_xlabel("Congestion risk score")
     ax.set_ylabel("Economic priority score")
     fig.tight_layout()
-    p = paths.outputs_charts / "v2_12_riesgo_tecnico_vs_economico.png"
+    p = paths.outputs_charts / "12_riesgo_tecnico_vs_economico.png"
     fig.savefig(p, dpi=150)
     plt.close(fig)
     chart_paths.append(str(p))
@@ -238,7 +248,7 @@ def run_visualization_v2() -> list[str]:
     ax.set_ylabel("Investment priority score")
     ax.tick_params(axis="x", rotation=60)
     fig.tight_layout()
-    p = paths.outputs_charts / "v2_13_ranking_prioridades.png"
+    p = paths.outputs_charts / "13_ranking_prioridades.png"
     fig.savefig(p, dpi=150)
     plt.close(fig)
     chart_paths.append(str(p))
@@ -261,7 +271,7 @@ def run_visualization_v2() -> list[str]:
     ax.tick_params(axis="x", rotation=25)
     ax.legend()
     fig.tight_layout()
-    p = paths.outputs_charts / "v2_14_comparacion_escenarios.png"
+    p = paths.outputs_charts / "14_comparacion_escenarios.png"
     fig.savefig(p, dpi=150)
     plt.close(fig)
     chart_paths.append(str(p))
@@ -292,12 +302,12 @@ def run_visualization_v2() -> list[str]:
     ax.set_xticklabels(c15["zona_id"], rotation=60)
     ax.legend(ncol=2, fontsize=8)
     fig.tight_layout()
-    p = paths.outputs_charts / "v2_15_drivers_score_por_zona.png"
+    p = paths.outputs_charts / "15_drivers_score_por_zona.png"
     fig.savefig(p, dpi=150)
     plt.close(fig)
     chart_paths.append(str(p))
 
-    index_lines = ["# Índice de Visualizaciones (v2)", ""]
+    index_lines = ["# Índice de Visualizaciones", ""]
     explanations = [
         "1. Tendencia temporal de carga relativa: evolución mensual de saturación operativa.",
         "2. Horas de congestión por zona: concentración territorial de presión.",
@@ -306,7 +316,7 @@ def run_visualization_v2() -> list[str]:
         "5. Top alimentadores por criticidad: activos lineales con mayor riesgo.",
         "6. ENS por zona: impacto de continuidad de servicio.",
         "7. Flexibilidad disponible vs necesidad: brecha técnica de cobertura.",
-        "8. Storage capability vs stress: alineación entre soporte y riesgo.",
+        "8. Almacenamiento frente a estrés: alineación entre soporte y riesgo.",
         "9. Impacto EV sobre carga crítica: presión EV vs percentil de carga.",
         "10. Impacto industrial: electrificación industrial frente a congestión.",
         "11. Curtailment por territorio: zonas con mayor recorte de GD.",
@@ -317,9 +327,9 @@ def run_visualization_v2() -> list[str]:
     ]
 
     for exp, path in zip(explanations, chart_paths):
-        index_lines.append(f"- {exp} -> `{path}`")
+        index_lines.append(f"- {exp} -> `{Path(path).name}`")
 
-    (paths.outputs_charts / "index_visualizaciones_v2.md").write_text("\n".join(index_lines) + "\n", encoding="utf-8")
+    (paths.outputs_charts / "index_visualizaciones.md").write_text("\n".join(index_lines) + "\n", encoding="utf-8")
 
     conn.close()
     return chart_paths

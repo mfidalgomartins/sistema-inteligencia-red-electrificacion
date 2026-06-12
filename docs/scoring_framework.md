@@ -1,4 +1,4 @@
-# Scoring Framework v2
+# Scoring Framework
 
 ## Scores obligatorios
 1. congestion_risk_score
@@ -11,7 +11,7 @@
 8. investment_priority_score
 
 ## Principio
-Framework interpretable, sin black box, combinando criterios técnicos, de servicio, activos, electrificación y economía.
+Scoring lineal interpretable que combina criterios técnicos, de servicio, activos, electrificación y economía.
 
 ## Fórmulas (resumen)
 - Cada score parcial se construye con combinación lineal ponderada de señales normalizadas (0-100).
@@ -39,7 +39,15 @@ Criterios:
 ## Tiers y reglas
 - risk_tier: bajo / medio / alto / critico.
 - urgency_tier: monitorizacion / planificada / alta / inmediata.
-- confidence_flag depende de error de forecasting por zona.
+- `risk_tier = critico` fuerza `intervencion_inmediata_prioritaria`.
+- `congestion_risk_score >= 80` y cobertura flexible `< 0.15` fuerza refuerzo local.
+- brecha de flexibilidad `>= 80`, impacto de servicio `>= 65` y storage efectivo `< 0.03` fuerza almacenamiento.
+- `asset_exposure_score >= 75` fuerza sustitución de activos salvo intervención crítica inmediata.
+- `confidence_flag` es alta cuando `NMAE <= 3.5%`.
+
+## Escenarios
+Los factores de escenario se localizan por zona según los drivers de score relevantes.
+La validación bloquea el release si todos los escenarios producen el mismo ranking.
 
 ## Tipos de intervención finales
 - monitorizar

@@ -58,15 +58,6 @@ def run_sql_layer_v2() -> Dict[str, pd.DataFrame]:
         outputs[db_object] = df
         write_df(df, paths.data_processed / out_name)
 
-    # Resumen de ejecución para trazabilidad.
-    summary_df = pd.DataFrame(
-        [
-            {"script": script, "status": "ok"}
-            for script in SQL_SEQUENCE_V2
-        ]
-    )
-    write_df(summary_df, paths.outputs_reports / "sql_v2_execution_log.csv")
-
     conn.close()
     return outputs
 

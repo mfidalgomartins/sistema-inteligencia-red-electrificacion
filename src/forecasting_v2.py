@@ -1,15 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-import os
-from pathlib import Path
 from textwrap import dedent
 
-os.environ.setdefault("MPLCONFIGDIR", str(Path(__file__).resolve().parents[1] / ".mplconfig"))
-
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -290,6 +283,8 @@ def run_forecasting_v2() -> dict[str, pd.DataFrame]:
         )
         .sort_values("mae", ascending=False)
     )
+    error_by_zone["nmae"] = error_by_zone["mae"] / error_by_zone["demanda_media"].replace(0, np.nan)
+    error_by_zone["nmae"] = error_by_zone["nmae"].fillna(0.0)
 
     error_by_tipo = (
         dz_best.groupby("tipo_zona", as_index=False)
@@ -373,119 +368,16 @@ def run_forecasting_v2() -> dict[str, pd.DataFrame]:
     predictability["ratio_nueva_demanda"] = (predictability["presion_ev"] + predictability["presion_industrial"]) / predictability[
         "demanda_media"
     ].replace(0, np.nan)
+    predictability["nmae"] = predictability["mae"] / predictability["demanda_media"].replace(0, np.nan)
     predictability = predictability.fillna(0.0)
 
-    # Clasificación operativa para diferir inversión según error de forecast.
-    threshold = float(predictability["mae"].median())
+    # Umbral comparable entre zonas: error absoluto normalizado por demanda media.
+    threshold = 0.035
     predictability["decision_forecast"] = np.where(
-        predictability["mae"] <= threshold,
+        predictability["nmae"] <= threshold,
         "forecast_suficiente_para_diferir_capex",
         "forecast_insuficiente_requiere_refuerzo_o_flex",
     )
-
-    # Gráficos principales.
-    plt.style.use("seaborn-v0_8-whitegrid")
-
-    bench_plot = benchmark[benchmark["task"].isin(["demanda_zona", "demanda_subestacion", "demanda_ev_zona", "demanda_industrial_zona"])]
-    fig, ax = plt.subplots(figsize=(12, 6))
-    for i, task in enumerate(sorted(bench_plot["task"].unique())):
-        sub = bench_plot[bench_plot["task"] == task].sort_values("mae")
-        ax.plot(sub["model"], sub["mae"], marker="o", label=task)
-    ax.set_title("Benchmark de MAE por modelo y objetivo de forecasting")
-    ax.set_xlabel("Modelo")
-    ax.set_ylabel("MAE")
-    ax.legend()
-    fig.tight_layout()
-    fig.savefig(paths.outputs_charts / "06_forecast_benchmark_mae.png", dpi=150)
-    plt.close(fig)
-
-    top_bad = error_by_zone.head(3)["zona_id"].tolist()
-    top_good = error_by_zone.tail(2)["zona_id"].tolist()
-    sample_zones = top_bad + top_good
-    sample_df = dz_best[dz_best["zona_id"].isin(sample_zones)].sort_values("fecha")
-    fig, ax = plt.subplots(figsize=(12, 6))
-    for z in sample_zones:
-        g = sample_df[sample_df["zona_id"] == z]
-        ax.plot(g["fecha"], g["actual"], linewidth=1.5, label=f"{z} actual")
-        ax.plot(g["fecha"], g["pred"], linestyle="--", linewidth=1.2, label=f"{z} forecast")
-    ax.set_title(f"Forecast vs actual (modelo ganador demanda_zona: {best_model_dz})")
-    ax.set_xlabel("Fecha")
-    ax.set_ylabel("Demanda (MWh)")
-    ax.legend(ncol=2, fontsize=8)
-    fig.tight_layout()
-    fig.savefig(paths.outputs_charts / "07_forecast_vs_actual_zonas.png", dpi=150)
-    plt.close(fig)
-
-    fig, ax = plt.subplots(figsize=(10, 5))
-    err_tipo = error_by_tipo.sort_values("mae", ascending=False)
-    ax.bar(err_tipo["tipo_zona"], err_tipo["mae"], color="#d95f02")
-    ax.set_title("Error MAE por tipo de zona (demanda_zona)")
-    ax.set_xlabel("Tipo de zona")
-    ax.set_ylabel("MAE")
-    fig.tight_layout()
-    fig.savefig(paths.outputs_charts / "08_forecast_error_tipo_zona.png", dpi=150)
-    plt.close(fig)
-
-    fig, ax = plt.subplots(figsize=(10, 5))
-    ax.scatter(predictability["ratio_nueva_demanda"], predictability["mae"], color="#1b9e77")
-    for _, row in predictability.nlargest(6, "mae").iterrows():
-        ax.annotate(row["zona_id"], (row["ratio_nueva_demanda"], row["mae"]), fontsize=8)
-    ax.set_title("Previsibilidad vs presión EV+industrial")
-    ax.set_xlabel("Ratio de nueva demanda sobre demanda total")
-    ax.set_ylabel("MAE forecast demanda_zona")
-    fig.tight_layout()
-    fig.savefig(paths.outputs_charts / "09_forecast_presion_electrificacion_vs_error.png", dpi=150)
-    plt.close(fig)
-
-    # Reporte narrativo.
-    best_per_task = benchmark.sort_values("mae").groupby("task", as_index=False).first()
-    high_uncertainty = predictability.sort_values("mae", ascending=False).head(5)
-    low_uncertainty = predictability.sort_values("mae", ascending=True).head(5)
-
-    report = dedent(
-        f"""
-        # Forecasting Report (v2)
-
-        ## Enfoque
-        - Split temporal holdout estricto: últimos 90 días para series diarias y últimas 3 semanas para series horarias.
-        - Backtesting walk-forward con modelos interpretables: naive, seasonal naive, moving average, linear trend y exponential smoothing.
-
-        ## Cobertura de forecasting
-        - Demanda por zona.
-        - Demanda por subestación.
-        - Carga relativa por zona.
-        - Demanda EV por zona.
-        - Demanda de electrificación industrial por zona.
-
-        ## Modelo ganador por objetivo (MAE)
-        {best_per_task.to_markdown(index=False)}
-
-        ## Error por tipo de zona
-        {error_by_tipo.to_markdown(index=False)}
-
-        ## Error en horas punta (demanda horaria por zona)
-        {error_peak.to_markdown(index=False)}
-
-        ## EV e industrial vs previsibilidad
-        Las zonas con mayor ratio de nueva demanda (EV + industrial) muestran mayor MAE en demanda agregada.
-
-        Zonas con peor previsibilidad:
-        {high_uncertainty[['zona_id','mae','ratio_nueva_demanda','decision_forecast']].to_markdown(index=False)}
-
-        Zonas con previsibilidad suficiente para diferir inversión:
-        {low_uncertainty[['zona_id','mae','ratio_nueva_demanda','decision_forecast']].to_markdown(index=False)}
-
-        ## Lectura operativa
-        - Donde el error en horas punta es persistentemente alto, conviene reforzar margen operativo y monitorización intradía.
-        - Donde el error es bajo y estable, existe fundamento para diferir CAPEX con gestión activa y flexibilidad.
-
-        ## Lectura de planificación
-        - La electrificación acelera la incertidumbre en zonas con alta presión EV+industrial.
-        - En esos nodos, la decisión de diferir inversión requiere banderas de confianza más conservadoras.
-        """
-    ).strip() + "\n"
-
-    (paths.outputs_reports / "forecasting_report.md").write_text(report, encoding="utf-8")
 
     write_df(forecast_all, paths.data_processed / "forecast_actual_vs_pred.csv")
     write_df(benchmark, paths.data_processed / "forecast_model_benchmark.csv")

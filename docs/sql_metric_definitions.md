@@ -11,7 +11,7 @@
 - `carga_relativa` = `demanda_mw / capacidad_mw`
 - `carga_relativa_neta` = `net_load_mw / capacidad_mw`
 - `overload_mw` = `max(demanda_mw - capacidad_mw, 0)`
-- `demanda_critica_mw` = `demanda_mw + demanda_ev_asignada_mw + demanda_industrial_asignada_mw`
+- `demanda_critica_mw` = `demanda_mw`. La demanda horaria sintética ya incorpora EV e industrial.
 
 ### Integración de electrificación y generación distribuida
 - `demanda_ev_asignada_mw`: carga EV asignada al nodo por share de demanda zonal.
@@ -34,12 +34,12 @@
 ## Métricas de riesgo por zona (`vw_zone_operational_risk`)
 
 ### Métricas base
-- `horas_congestion`: suma de horas con congestión en el horizonte analizado.
+- `horas_congestion`: suma de horas zona con al menos un nodo congestionado; una hora se cuenta una sola vez por zona.
 - `severidad_media_congestion`: media de `severidad_score` de eventos de congestión.
 - `energia_afectada_congestion_mwh`: energía afectada agregada en horas de congestión.
 - `ens_total_mwh`: energía no suministrada acumulada.
 - `clientes_afectados_total`: clientes afectados acumulados.
-- `carga_punta_mw`: máximo de carga diaria observada en zona.
+- `carga_punta_mw`: máximo horario de la demanda agregada de todos los nodos de la zona.
 - `presion_electrificacion_media` = media de `(demanda_ev_mwh + demanda_industrial_mwh) / demanda_total_mwh`.
 - `brecha_flex_media` = media de `gap_flex_tecnico_mwh / demanda_total_mwh`.
 
@@ -63,7 +63,7 @@ Ponderaciones usadas:
 - 9% tensión de demanda
 
 ## Métricas de exposición de activos (`vw_assets_exposure`)
-- `exposicion_activo_score`: score compuesto por edad, salud, criticidad, horas de estrés y probabilidad de fallo base.
+- `exposicion_activo_score`: score `0-100` compuesto por edad, salud normalizada, criticidad, horas de estrés y probabilidad de fallo base.
 - `probabilidad_fallo_ajustada_proxy`: ajuste multiplicativo de `probabilidad_fallo_proxy` por exposición operativa observada.
 - `energia_congestion_expuesta_mwh`: energía de congestión en el nodo donde opera el activo.
 

@@ -2,12 +2,12 @@
 
 ## Dialecto elegido
 Se utiliza **DuckDB SQL** por tres motivos operativos:
-1. Lectura directa de `CSV` con `read_csv_auto`, ideal para portfolio reproducible sin servidor.
+1. Lectura directa de `CSV` con `read_csv_auto`, sin dependencia de un servidor externo.
 2. Buen rendimiento analítico para tablas horarias de millones de filas.
 3. Sintaxis compatible con patrones de modelado SQL profesional (CTEs, ventanas, vistas, tablas analíticas).
 
 ## Objetivo de la capa SQL
-Construir una capa visible, auditable y defendible en entrevista para:
+Construir una capa visible y auditable para:
 - normalización de datos (`staging`)
 - integración técnico-operativa de red (`integration`)
 - construcción de marts analíticos (`analytical marts`)
@@ -146,7 +146,9 @@ Ejemplo de ejecución secuencial desde shell:
 from pathlib import Path
 import duckdb
 
-root = Path('/Users/miguelfidalgo/Documents/sistema-inteligencia-red-electrificacion')
+root = Path.cwd()
+if not (root / 'sql').exists():
+    root = root.parent
 raw_path = str(root / 'data' / 'raw').replace("'", "''")
 conn = duckdb.connect()
 
@@ -170,4 +172,3 @@ for sql_name in sequence:
 print(conn.execute('SELECT COUNT(*) AS n_checks, SUM(1-passed) AS checks_fallidos FROM validation_checks').fetchdf())
 PY
 ```
-

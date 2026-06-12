@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from textwrap import dedent
 
@@ -22,6 +23,12 @@ def _safe_read_json(path) -> dict:
         return {}
 
 
+def _sha256(path) -> str:
+    if not path.exists():
+        return "N/A"
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 def build_final_docs_v2() -> dict[str, str]:
     """
     Genera solo snapshot técnico de release.
@@ -33,7 +40,6 @@ def build_final_docs_v2() -> dict[str, str]:
     zone_risk = _safe_read_csv(paths.data_processed / "vw_zone_operational_risk.csv")
     scenario_summary = _safe_read_csv(paths.data_processed / "scenario_summary_v2.csv")
     validation_summary = _safe_read_json(paths.outputs_reports / "validation_summary.json")
-    manifest = _safe_read_json(paths.outputs_reports / "release_manifest.json")
 
     n_zonas = int(zone_risk["zona_id"].nunique()) if "zona_id" in zone_risk.columns else 0
     horas_cong = float(zone_risk["horas_congestion"].sum()) if "horas_congestion" in zone_risk.columns else 0.0
@@ -67,8 +73,8 @@ def build_final_docs_v2() -> dict[str, str]:
         - Escenario con menor coste de riesgo: {top_scenario}
 
         ## Integridad de artefactos
-        - dashboard_sha256: {manifest.get('artifacts', {}).get('dashboard', {}).get('sha256', 'N/A')}
-        - scoring_rows: {manifest.get('n_scoring_rows', 'N/A')}
+        - dashboard_sha256: {_sha256(paths.outputs_dashboard / 'grid-electrification-command-center.html')}
+        - scoring_rows: {len(scoring)}
         """
     ).strip() + "\n"
 

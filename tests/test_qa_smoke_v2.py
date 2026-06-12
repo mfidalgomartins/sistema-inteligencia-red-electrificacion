@@ -114,3 +114,30 @@ def test_smoke_fails_on_manifest_summary_mismatch(monkeypatch, tmp_path):
 
     assert out["status"] == "error"
     assert "manifest_validation_status_mismatch" in out["errors"]
+
+
+def test_smoke_fails_on_manifest_hash_mismatch(monkeypatch, tmp_path):
+    paths = _write_minimal_fixture(tmp_path)
+    monkeypatch.setattr("src.qa_smoke_v2.get_paths", lambda: paths)
+    (paths.outputs_reports / "release_manifest.json").write_text(
+        json.dumps(
+            {
+                "validation_status": "WARN",
+                "release_readiness": {"publish_state": "publish-with-caveats"},
+                "artifacts": {
+                    "dashboard": {
+                        "exists": True,
+                        "path": "outputs/dashboard/grid-electrification-command-center.html",
+                        "sha256": "incorrect",
+                    }
+                },
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    out = run_smoke_checks_v2()
+
+    assert out["status"] == "error"
+    assert "manifest_hash_mismatch:dashboard" in out["errors"]

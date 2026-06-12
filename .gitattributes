@@ -1,0 +1,5 @@
+*.pdf binary
+*.png binary
+
+outputs/dashboard/*.html linguist-generated=true
+outputs/graphs/*.png linguist-generated=true

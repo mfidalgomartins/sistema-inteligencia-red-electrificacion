@@ -236,6 +236,7 @@ def build_features_v2(force_sql_refresh: bool = False) -> dict[str, pd.DataFrame
                 QUANTILE_CONT(z.carga_relativa_max, 0.95) OVER (PARTITION BY z.zona_id) AS percentil_carga,
                 z.gap_flex_tecnico_mwh AS gap_flexibilidad,
                 COALESCE(a.exposicion_activos, 0.0) AS exposicion_activos,
+                z.demanda_total_mwh,
                 z.demanda_ev_mwh AS demanda_ev_total,
                 z.demanda_industrial_mwh AS demanda_industrial_adicional_total,
                 z.curtailment_mwh AS curtailment_total,
@@ -423,7 +424,7 @@ def build_features_v2(force_sql_refresh: bool = False) -> dict[str, pd.DataFrame
 
     feature_dictionary = dedent(
         """
-        # Feature Dictionary (v2)
+        # Feature Dictionary
 
         ## Principio de diseño
         - **Observadas**: señales directamente medidas en operación o eventos.
@@ -453,13 +454,14 @@ def build_features_v2(force_sql_refresh: bool = False) -> dict[str, pd.DataFrame
         - `riesgo_climatico` (observada): vulnerabilidad climática territorial.
 
         ## zone_day_features (granularidad zona-día)
-        - `horas_congestion` (observada agregada): total de horas con congestión.
+        - `horas_congestion` (observada agregada): horas zona-día con al menos un nodo congestionado.
         - `severidad_media` (derivada): severidad media diaria de eventos.
         - `ens` (observada agregada): energía no suministrada diaria.
         - `clientes_afectados` (observada agregada): afectados diarios.
-        - `percentil_carga` (derivada): percentil 95 de carga relativa diaria por zona.
+        - `percentil_carga` (derivada): percentil 95 histórico de la carga relativa máxima diaria por zona.
         - `gap_flexibilidad` (derivada): brecha técnica flexible diaria.
         - `exposicion_activos` (derivada): exposición media de activos en la zona.
+        - `demanda_total_mwh` (observada agregada): demanda total diaria de la zona.
         - `demanda_ev_total` (observada agregada): energía EV diaria.
         - `demanda_industrial_adicional_total` (observada agregada): energía industrial adicional diaria.
         - `curtailment_total` (observada agregada): energía recortada diaria.

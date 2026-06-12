@@ -18,15 +18,21 @@ WITH zone_peak_demand AS (
     ) d
     GROUP BY d.zona_id
 ),
-zone_capacity AS (
+feeder_capacity AS (
     SELECT
         s.zona_id,
-        SUM(a.capacidad_mw) AS capacidad_total_alimentadores_mw,
-        SUM(s.capacidad_mw) AS capacidad_total_subestaciones_mw,
-        SUM(s.capacidad_firme_mw) AS capacidad_firme_subestaciones_mw
+        SUM(a.capacidad_mw) AS capacidad_total_alimentadores_mw
     FROM stg_subestaciones s
     INNER JOIN stg_alimentadores a
         ON s.subestacion_id = a.subestacion_id
+    GROUP BY s.zona_id
+),
+substation_capacity AS (
+    SELECT
+        s.zona_id,
+        SUM(s.capacidad_mw) AS capacidad_total_subestaciones_mw,
+        SUM(s.capacidad_firme_mw) AS capacidad_firme_subestaciones_mw
+    FROM stg_subestaciones s
     GROUP BY s.zona_id
 ),
 flex AS (
@@ -83,9 +89,9 @@ SELECT
     z.tension_crecimiento_demanda,
     COALESCE(zpd.peak_demand_zona_mw, 0.0) AS peak_demand_zona_mw,
     COALESCE(zpd.avg_demand_zona_mw, 0.0) AS avg_demand_zona_mw,
-    COALESCE(zc.capacidad_total_alimentadores_mw, 0.0) AS capacidad_total_alimentadores_mw,
-    COALESCE(zc.capacidad_total_subestaciones_mw, 0.0) AS capacidad_total_subestaciones_mw,
-    COALESCE(zc.capacidad_firme_subestaciones_mw, 0.0) AS capacidad_firme_subestaciones_mw,
+    COALESCE(fc.capacidad_total_alimentadores_mw, 0.0) AS capacidad_total_alimentadores_mw,
+    COALESCE(sc.capacidad_total_subestaciones_mw, 0.0) AS capacidad_total_subestaciones_mw,
+    COALESCE(sc.capacidad_firme_subestaciones_mw, 0.0) AS capacidad_firme_subestaciones_mw,
     COALESCE(f.capacidad_flexible_mw, 0.0) AS capacidad_flexible_mw,
     COALESCE(f.coste_activacion_ponderado_eur_mwh, 0.0) AS coste_activacion_ponderado_eur_mwh,
     COALESCE(f.tiempo_respuesta_medio_min, 0.0) AS tiempo_respuesta_medio_min,
@@ -111,8 +117,10 @@ SELECT
 FROM stg_zonas_red z
 LEFT JOIN zone_peak_demand zpd
     ON z.zona_id = zpd.zona_id
-LEFT JOIN zone_capacity zc
-    ON z.zona_id = zc.zona_id
+LEFT JOIN feeder_capacity fc
+    ON z.zona_id = fc.zona_id
+LEFT JOIN substation_capacity sc
+    ON z.zona_id = sc.zona_id
 LEFT JOIN flex f
     ON z.zona_id = f.zona_id
 LEFT JOIN storage s

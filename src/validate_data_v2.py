@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone
-from textwrap import dedent
 
 import pandas as pd
 
-from .common_v2 import connect_v2, ensure_dirs, get_paths, write_df
+from .common_v2 import connect_v2, ensure_dirs, get_paths, project_relative
 
 
 def compute_validation_assessment(issues_df: pd.DataFrame) -> dict[str, int | str]:
@@ -107,6 +106,17 @@ def run_validate_data_v2() -> dict[str, pd.DataFrame]:
                 "expected": expected,
                 "fix_applied_or_recommended": fix,
             }
+        )
+
+    sql_failures = conn.execute("SELECT * FROM vw_validation_failures").df()
+    for row in sql_failures.itertuples(index=False):
+        add_issue(
+            "sql",
+            str(row.check_name),
+            str(row.severity),
+            float(row.observed_value),
+            f"<= {row.threshold_value}",
+            str(row.details),
         )
 
     # 1) Row counts razonables.
@@ -262,6 +272,43 @@ def run_validate_data_v2() -> dict[str, pd.DataFrame]:
     if int(score_bounds) > 0:
         add_issue("scoring", "scores_fuera_rango_0_100", "alta", int(score_bounds), "0", "normalizar y acotar scores en capa scoring")
 
+    asset_score_bounds = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM vw_assets_exposure
+        WHERE exposicion_activo_score NOT BETWEEN 0 AND 100
+        """
+    ).fetchone()[0]
+    if int(asset_score_bounds) > 0:
+        add_issue("scoring", "exposicion_activo_fuera_rango_0_100", "alta", int(asset_score_bounds), "0", "normalizar estado_salud antes de calcular exposición")
+
+    invalid_zone_hours = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM mart_zone_day_operational
+        WHERE horas_congestion NOT BETWEEN 0 AND 24
+           OR horas_carga_alta NOT BETWEEN 0 AND 24
+           OR horas_estres_operativo NOT BETWEEN 0 AND 24
+        """
+    ).fetchone()[0]
+    if int(invalid_zone_hours) > 0:
+        add_issue("metricas", "horas_zona_dia_fuera_rango", "alta", int(invalid_zone_hours), "0", "agregar flags a granularidad zona-hora antes de sumar")
+
+    peak_mismatch = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM mart_zone_day_operational z
+        JOIN (
+            SELECT zona_id, fecha, MAX(demanda_total_zona_mw) AS carga_punta_esperada
+            FROM mart_node_hour_operational_state
+            GROUP BY zona_id, fecha
+        ) n USING (zona_id, fecha)
+        WHERE ABS(z.carga_punta_mw - n.carga_punta_esperada) > 1e-6
+        """
+    ).fetchone()[0]
+    if int(peak_mismatch) > 0:
+        add_issue("metricas", "carga_punta_zonal_inconsistente", "alta", int(peak_mismatch), "0", "usar pico de demanda agregada da zona")
+
     tier_mismatch = conn.execute(
         """
         SELECT COUNT(*) AS n_bad
@@ -291,11 +338,34 @@ def run_validate_data_v2() -> dict[str, pd.DataFrame]:
         SELECT COUNT(*)
         FROM intervention_scoring_table
         WHERE risk_tier = 'critico'
-          AND recommended_intervention IN ('monitorizar')
+          AND recommended_intervention <> 'intervencion_inmediata_prioritaria'
         """
     ).fetchone()[0]
     if int(decision_critica_sin_accion) > 0:
-        add_issue("decision", "critico_sin_accion_fuerte", "alta", int(decision_critica_sin_accion), "0", "forzar regla de intervención fuerte en tier crítico")
+        add_issue("decision", "tier_critico_sin_intervencion_inmediata", "alta", int(decision_critica_sin_accion), "0", "alinear acción recomendada con tier crítico")
+
+    structural_mismatch = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM intervention_scoring_table
+        WHERE congestion_risk_score >= 80
+          AND ratio_flexibilidad_estres < 0.15
+          AND recommended_intervention NOT IN ('reforzar_red_local', 'intervencion_inmediata_prioritaria')
+        """
+    ).fetchone()[0]
+    if int(structural_mismatch) > 0:
+        add_issue("decision", "estres_estructural_sin_refuerzo", "alta", int(structural_mismatch), "0", "forzar refuerzo en congestión estructural con baja cobertura flexible")
+
+    asset_mismatch = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM intervention_scoring_table
+        WHERE asset_exposure_score >= 75
+          AND recommended_intervention NOT IN ('sustituir_activos', 'intervencion_inmediata_prioritaria')
+        """
+    ).fetchone()[0]
+    if int(asset_mismatch) > 0:
+        add_issue("decision", "exposicion_activos_sin_sustitucion", "alta", int(asset_mismatch), "0", "priorizar sustitución de activos expuestos")
 
     issues_df = pd.DataFrame(issues)
     if issues_df.empty:
@@ -314,13 +384,11 @@ def run_validate_data_v2() -> dict[str, pd.DataFrame]:
     issues_df["severity_rank"] = issues_df["severity"].map(severity_order).fillna(5)
     issues_df = issues_df.sort_values(["severity_rank", "area", "check"]).drop(columns=["severity_rank"])
 
-    fixes_applied = [
-        "Se implementó capa SQL validada con controles formales (10_validation_queries.sql).",
-        "Se incorporó feature engineering con contratos explícitos por granularidad.",
-        "Se añadió benchmark de forecasting interpretable con métricas por segmento.",
-        "Se incorporó detector de anomalías con señales precursoras.",
-        "Se implementó scoring multicriterio con sensibilidad de pesos.",
-        "Se añadió scenario engine con 8 escenarios comparables.",
+    controls = [
+        "Integridad de claves, relaciones y dominios técnicos.",
+        "Reconciliación de agregados entre raw, marts y outputs.",
+        "Rangos y reglas de decisión para scoring.",
+        "Consistencia de ranking, escenarios, anomalías y manifest de release.",
     ]
 
     caveats = [
@@ -376,7 +444,7 @@ def run_validate_data_v2() -> dict[str, pd.DataFrame]:
     sensitivity_path = paths.data_processed / "scoring_sensitivity_analysis.csv"
     forecast_benchmark_path = paths.data_processed / "forecast_model_benchmark.csv"
 
-    add_gate("official_dashboard_exists", dashboard_file.exists(), True, str(dashboard_file))
+    add_gate("official_dashboard_exists", dashboard_file.exists(), True, project_relative(dashboard_file, paths))
     add_gate("official_dashboard_singleton", not (paths.outputs_dashboard / "dashboard_inteligencia_red_premium.html").exists(), False, "Solo grid-electrification-command-center.html debe ser oficial")
     add_gate("core_scoring_files_exist", score_path.exists() and ranking_path.exists(), True, "scoring_table + ranking_final")
     add_gate("scenario_files_exist", scenario_impacts_path.exists() and scenario_summary_path.exists(), True, "scenario_impacts_v2 + scenario_summary_v2")
@@ -401,6 +469,13 @@ def run_validate_data_v2() -> dict[str, pd.DataFrame]:
             if not merged.empty:
                 max_abs_diff = (merged["coste_riesgo_total"] - merged["coste_riesgo_scenario"]).abs().max()
                 add_gate("scenario_cost_consistency", bool(max_abs_diff <= 1e-6), True, f"max_abs_diff={max_abs_diff}")
+            ranking_variants = (
+                impacts.sort_values(["scenario", "priority_rank_scenario"])
+                .groupby("scenario")["zona_id"]
+                .apply(tuple)
+                .nunique()
+            )
+            add_gate("scenario_rankings_are_distinct", bool(ranking_variants >= 2), True, f"distinct_rankings={ranking_variants}")
 
     if anomalies_path.exists() and anomalies_summary_path.exists():
         anom = pd.read_csv(anomalies_path)
@@ -448,54 +523,46 @@ def run_validate_data_v2() -> dict[str, pd.DataFrame]:
     if overall_status == "FAIL":
         checklist.loc[:, "status"] = checklist["status"].replace({"ok": "warning"})
 
-    report = dedent(
-        f"""
-        # Validation Report v2
-
-        ## Objetivo
-        Validar coherencia end-to-end del proyecto: datos, SQL, features, forecasting, anomalías, scoring, escenarios, visuales y dashboard.
-
-        ## Row counts clave
-        {pd.DataFrame([counts]).to_markdown(index=False)}
-
-        ## Issues encontrados
-        {issues_df.to_markdown(index=False)}
-
-        ## Fixes applied
-        {pd.DataFrame({'fix': fixes_applied}).to_markdown(index=False)}
-
-        ## Caveats obligatorios
-        {pd.DataFrame({'caveat': caveats}).to_markdown(index=False)}
-
-        ## Overall confidence assessment
-        - Estado global: {overall_status}
-        - Nivel: {confidence}
-        - Issues alta severidad: {n_high}
-        - Issues media severidad: {n_med}
-
-        ## Release readiness classification
-        - Technical: {release['technical_state']}
-        - Analytical: {release['analytical_state']}
-        - Decision: {release['decision_state']}
-        - Committee: {release['committee_state']}
-        - Publish: {release['publish_state']}
-
-        ## Checklist final
-        {checklist.to_markdown(index=False)}
-
-        ## Gate checks (hard blockers / warnings)
-        {gate_checks.to_markdown(index=False)}
-
-        ## Claims que deben matizarse
-        - El sistema orienta decisiones de priorización, pero no sustituye estudios de red de ingeniería detallada.
-        - La cuantificación económica es proxy para comparación relativa, no presupuesto definitivo.
-        """
-    ).strip() + "\n"
+    report = "\n\n".join(
+        [
+            "# Validation Report",
+            "## Objetivo\nValidar coherencia end-to-end del proyecto: datos, SQL, features, forecasting, anomalías, scoring, escenarios, visuales y dashboard.",
+            f"## Row counts clave\n{pd.DataFrame([counts]).to_markdown(index=False)}",
+            f"## Issues encontrados\n{issues_df.to_markdown(index=False)}",
+            f"## Controles ejecutados\n{pd.DataFrame({'control': controls}).to_markdown(index=False)}",
+            f"## Caveats obligatorios\n{pd.DataFrame({'caveat': caveats}).to_markdown(index=False)}",
+            "\n".join(
+                [
+                    "## Overall confidence assessment",
+                    f"- Estado global: {overall_status}",
+                    f"- Nivel: {confidence}",
+                    f"- Issues alta severidad: {n_high}",
+                    f"- Issues media severidad: {n_med}",
+                ]
+            ),
+            "\n".join(
+                [
+                    "## Release readiness classification",
+                    f"- Technical: {release['technical_state']}",
+                    f"- Analytical: {release['analytical_state']}",
+                    f"- Decision: {release['decision_state']}",
+                    f"- Committee: {release['committee_state']}",
+                    f"- Publish: {release['publish_state']}",
+                ]
+            ),
+            f"## Checklist final\n{checklist.to_markdown(index=False)}",
+            f"## Gate checks (hard blockers / warnings)\n{gate_checks.to_markdown(index=False)}",
+            "\n".join(
+                [
+                    "## Claims que deben matizarse",
+                    "- El sistema orienta decisiones de priorización, pero no sustituye estudios de red de ingeniería detallada.",
+                    "- La cuantificación económica es proxy para comparación relativa, no presupuesto definitivo.",
+                ]
+            ),
+        ]
+    ) + "\n"
 
     (paths.outputs_reports / "validation_report.md").write_text(report, encoding="utf-8")
-    write_df(issues_df, paths.outputs_reports / "issues_found.csv")
-    write_df(checklist, paths.outputs_reports / "validation_checklist_final.csv")
-    write_df(gate_checks, paths.outputs_reports / "validation_gate_checks.csv")
     summary = {
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "overall_status": overall_status,
@@ -517,7 +584,7 @@ def run_validate_data_v2() -> dict[str, pd.DataFrame]:
 
     return {
         "issues_found": issues_df,
-        "validation_checklist_final": checklist,
+        "validation_checklist": checklist,
         "validation_gate_checks": gate_checks,
     }
 

@@ -3,29 +3,54 @@
 -- Objetivo: consolidar riesgo operativo diario por zona y exposición de activos.
 
 CREATE OR REPLACE TABLE mart_zone_day_operational AS
-WITH node_day AS (
+WITH zone_hour AS (
     SELECT
+        nh.timestamp,
         nh.fecha,
         nh.zona_id,
         SUM(nh.demanda_mw) AS demanda_total_mwh,
         SUM(nh.net_load_mw) AS net_load_total_mwh,
-        MAX(nh.demanda_mw) AS carga_punta_mw,
         MAX(nh.carga_relativa) AS carga_relativa_max,
-        SUM(CASE WHEN nh.flag_carga_alta THEN 1 ELSE 0 END) AS horas_carga_alta,
-        SUM(CASE WHEN nh.flag_congestion THEN 1 ELSE 0 END) AS horas_congestion,
-        SUM(CASE WHEN nh.flag_estres_operativo THEN 1 ELSE 0 END) AS horas_estres_operativo,
+        MAX(CASE WHEN nh.flag_carga_alta THEN 1 ELSE 0 END) AS flag_carga_alta,
+        MAX(CASE WHEN nh.flag_congestion THEN 1 ELSE 0 END) AS flag_congestion,
+        MAX(CASE WHEN nh.flag_estres_operativo THEN 1 ELSE 0 END) AS flag_estres_operativo,
         SUM(nh.energia_afectada_hora_mwh) AS energia_afectada_congestion_mwh,
         SUM(nh.curtailment_asignado_mw) AS curtailment_mwh,
         SUM(nh.demanda_ev_asignada_mw) AS demanda_ev_mwh,
         SUM(nh.demanda_industrial_asignada_mw) AS demanda_industrial_mwh,
-        AVG(nh.flexibilidad_cobertura_mw) AS flexibilidad_cobertura_media_mw,
-        AVG(nh.storage_support_proxy_mw) AS storage_support_medio_mw,
+        SUM(nh.flexibilidad_cobertura_mw) AS flexibilidad_cobertura_mw,
+        SUM(nh.storage_support_proxy_mw) AS storage_support_mw,
         SUM(GREATEST(nh.demanda_critica_mw - nh.flexibilidad_cobertura_mw, 0.0)) AS gap_flex_tecnico_mwh,
         AVG(nh.coste_activacion_ponderado_eur_mwh) AS coste_flex_medio_eur_mwh
     FROM mart_node_hour_operational_state nh
     GROUP BY
+        nh.timestamp,
         nh.fecha,
         nh.zona_id
+),
+node_day AS (
+    SELECT
+        zh.fecha,
+        zh.zona_id,
+        SUM(zh.demanda_total_mwh) AS demanda_total_mwh,
+        SUM(zh.net_load_total_mwh) AS net_load_total_mwh,
+        MAX(zh.demanda_total_mwh) AS carga_punta_mw,
+        MAX(zh.carga_relativa_max) AS carga_relativa_max,
+        SUM(zh.flag_carga_alta) AS horas_carga_alta,
+        SUM(zh.flag_congestion) AS horas_congestion,
+        SUM(zh.flag_estres_operativo) AS horas_estres_operativo,
+        SUM(zh.energia_afectada_congestion_mwh) AS energia_afectada_congestion_mwh,
+        SUM(zh.curtailment_mwh) AS curtailment_mwh,
+        SUM(zh.demanda_ev_mwh) AS demanda_ev_mwh,
+        SUM(zh.demanda_industrial_mwh) AS demanda_industrial_mwh,
+        AVG(zh.flexibilidad_cobertura_mw) AS flexibilidad_cobertura_media_mw,
+        AVG(zh.storage_support_mw) AS storage_support_medio_mw,
+        SUM(zh.gap_flex_tecnico_mwh) AS gap_flex_tecnico_mwh,
+        AVG(zh.coste_flex_medio_eur_mwh) AS coste_flex_medio_eur_mwh
+    FROM zone_hour zh
+    GROUP BY
+        zh.fecha,
+        zh.zona_id
 ),
 service_day AS (
     SELECT
@@ -209,7 +234,7 @@ SELECT
     COALESCE(sse.interrupciones_subestacion, 0) AS interrupciones_subestacion,
     (
         0.26 * (100.0 * (a.edad_anios / NULLIF(MAX(a.edad_anios) OVER (), 0.0)))
-        + 0.18 * (100.0 * (1.0 - a.estado_salud))
+        + 0.18 * (100.0 * (1.0 - a.estado_salud / 100.0))
         + 0.16 * (100.0 * a.criticidad)
         + 0.20 * (100.0 * (COALESCE(nse.horas_estres_operativo, 0) / NULLIF(COALESCE(nse.horas_observadas, 0), 0.0)))
         + 0.20 * (100.0 * a.probabilidad_fallo_proxy)

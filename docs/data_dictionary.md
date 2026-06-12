@@ -93,5 +93,4 @@
 - `zone_day_features.csv`
 - `zone_month_features.csv`
 - `intervention_scoring_table.csv`
-- `scenario_impacts_v2.csv`
-
+- `scenario_impacts_v2.csv` (salida técnica de escenarios)

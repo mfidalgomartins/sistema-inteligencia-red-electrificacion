@@ -2,15 +2,15 @@
 
 ## Estado de documento
 - **Activo**: sí
-- **Ámbito**: capa SQL v2 + scoring v2 + validación v2
+- **Ámbito**: capa SQL, scoring y validación canónica
 - **Referencia técnica principal**: `docs/sql_metric_definitions.md`
 
 ## 1) Métricas operativas de red
 - `carga_relativa`: demanda/capacidad por nodo-hora.
 - `flag_congestion`: congestión por regla técnica u ocurrencia de evento.
-- `horas_congestion`: acumulado temporal de horas con congestión.
+- `horas_congestion`: acumulado de horas distintas con al menos un nodo congestionado en la entidad agregada.
 - `energia_afectada_congestion_mwh`: energía afectada por eventos de congestión.
-- `carga_punta_mw`: pico de carga observado por zona.
+- `carga_punta_mw`: pico horario de demanda agregada observado por zona.
 
 ## 2) Métricas de calidad de servicio y resiliencia
 - `ens_total_mwh`: energía no suministrada agregada.
@@ -42,5 +42,4 @@
 - `urgency_tier`: monitorizacion / planificada / alta / inmediata.
 - `main_risk_driver`: driver dominante del score.
 - `recommended_intervention`: intervención recomendada final.
-- `confidence_flag`: confianza de recomendación condicionada por forecast.
-
+- `confidence_flag`: confianza alta cuando el NMAE de demanda zonal es `<= 3,5%`.

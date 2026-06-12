@@ -49,6 +49,14 @@ def get_paths() -> V2Paths:
     return V2Paths(root=Path(__file__).resolve().parents[1])
 
 
+def project_relative(path: Path, paths: V2Paths | None = None) -> str:
+    p = paths or get_paths()
+    try:
+        return path.resolve().relative_to(p.root.resolve()).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
 def ensure_dirs(paths: V2Paths | None = None) -> V2Paths:
     p = paths or get_paths()
     for d in [

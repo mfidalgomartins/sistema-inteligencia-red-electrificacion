@@ -1,21 +1,21 @@
-# Diseno del Generador Sintetico de Red
+# Diseño del Generador Sintético de Red
 
 ## Objetivo
-Crear un ecosistema de datos realista para analitica avanzada de utility: SQL complejo, forecast, deteccion de anomalias, escenarios, scoring y dashboard.
+Crear datos coherentes y reproducibles para probar la capa SQL, forecasting, anomalías, escenarios, scoring y dashboard.
 
-## Principios de simulacion
+## Principios de simulación
 - Reproducibilidad total con seed global fija.
-- Horizonte minimo de 2 anios con granularidad horaria.
-- Coherencia jerarquica: zona -> subestacion -> alimentador.
-- Correlaciones estructurales entre demanda, EV, electrificacion industrial, congestion, estado de activos e interrupciones.
-- Diferenciacion territorial por tipo de zona y region operativa.
+- Horizonte de dos años con granularidad horaria.
+- Coherencia jerárquica: zona -> subestación -> alimentador.
+- Correlaciones estructurales entre demanda, EV, electrificación industrial, congestión, estado de activos e interrupciones.
+- Diferenciación territorial por tipo de zona y región operativa.
 
 ## Dominios modulares
-- `entities.py`: topologia y activos.
+- `entities.py`: topología y activos.
 - `macro.py`: escenario macro y drivers de crecimiento.
 - `demand.py`: demanda horaria, EV e industrial.
-- `generation.py`: GD por tecnologia, autoconsumo, vertido y curtailment.
-- `operations.py`: congestion, interrupciones, flexibilidad, almacenamiento, intervenciones e inversiones.
+- `generation.py`: GD por tecnología, autoconsumo, vertido y curtailment.
+- `operations.py`: congestión, interrupciones, flexibilidad, almacenamiento, intervenciones e inversiones.
 - `validation.py`: checks de plausibilidad y cardinalidades.
 
 ## Salidas

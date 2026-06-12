@@ -1,4 +1,4 @@
-# Feature Dictionary (v2)
+# Feature Dictionary
 
 ## Principio de diseño
 - **Observadas**: señales directamente medidas en operación o eventos.
@@ -28,13 +28,14 @@
 - `riesgo_climatico` (observada): vulnerabilidad climática territorial.
 
 ## zone_day_features (granularidad zona-día)
-- `horas_congestion` (observada agregada): total de horas con congestión.
+- `horas_congestion` (observada agregada): horas zona-día con al menos un nodo congestionado.
 - `severidad_media` (derivada): severidad media diaria de eventos.
 - `ens` (observada agregada): energía no suministrada diaria.
 - `clientes_afectados` (observada agregada): afectados diarios.
-- `percentil_carga` (derivada): percentil 95 de carga relativa diaria por zona.
+- `percentil_carga` (derivada): percentil 95 histórico de la carga relativa máxima diaria por zona.
 - `gap_flexibilidad` (derivada): brecha técnica flexible diaria.
 - `exposicion_activos` (derivada): exposición media de activos en la zona.
+- `demanda_total_mwh` (observada agregada): demanda total diaria de la zona.
 - `demanda_ev_total` (observada agregada): energía EV diaria.
 - `demanda_industrial_adicional_total` (observada agregada): energía industrial adicional diaria.
 - `curtailment_total` (observada agregada): energía recortada diaria.

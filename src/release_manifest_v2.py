@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from .common_v2 import ensure_dirs, get_paths
+from .common_v2 import ensure_dirs, get_paths, project_relative
 
 
 ARTIFACTS = {
@@ -52,7 +52,7 @@ def build_release_manifest_v2() -> dict:
 
     artifacts = {
         key: {
-            "path": str(resolver(paths)),
+            "path": project_relative(resolver(paths), paths),
             **_file_meta(resolver(paths)),
         }
         for key, resolver in ARTIFACTS.items()

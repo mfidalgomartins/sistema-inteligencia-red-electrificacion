@@ -90,7 +90,13 @@ def generate_eventos_congestion(
     zone_flex = recursos_flexibilidad.groupby("zona_id", as_index=False)["capacidad_flexible_mw"].sum()
     zone_storage = almacenamiento_distribuido.groupby("zona_id", as_index=False)["capacidad_potencia_mw"].sum()
 
-    zone_peak_demand = demanda_horaria.groupby("zona_id", as_index=False)["demanda_mw"].max().rename(columns={"demanda_mw": "peak_zona_mw"})
+    zone_peak_demand = (
+        demanda_horaria.groupby(["zona_id", "timestamp"], as_index=False)["demanda_mw"]
+        .sum()
+        .groupby("zona_id", as_index=False)["demanda_mw"]
+        .max()
+        .rename(columns={"demanda_mw": "peak_zona_mw"})
+    )
     flex_cov = (
         zone_peak_demand.merge(zone_flex, on="zona_id", how="left")
         .merge(zone_storage, on="zona_id", how="left")

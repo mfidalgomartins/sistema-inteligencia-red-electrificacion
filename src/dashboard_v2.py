@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
-from textwrap import dedent
 
 import pandas as pd
 
@@ -44,56 +43,6 @@ def _fmt_zone_list(df: pd.DataFrame, col: str = "zona_id", top_n: int = 3) -> st
         return "N/A"
     vals = df[col].head(top_n).tolist()
     return ", ".join(vals)
-
-
-def _build_audit_report(
-    paths,
-    score_level: str,
-    level_percibido: str,
-    adecuacion: str,
-    problemas_visuales: list[str],
-    problemas_contenido: list[str],
-    problemas_funcionales: list[str],
-    mejoras_criticas: list[str],
-    mejoras_importantes: list[str],
-    mejoras_acabado: list[str],
-) -> None:
-    text = dedent(
-        f"""
-        # Auditoría Exigente de Dashboards HTML
-
-        ## 1. Veredicto general
-        {score_level}
-
-        ## 2. Nivel percibido del dashboard
-        {level_percibido}
-
-        ## 3. Adecuación al caso de red eléctrica
-        {adecuacion}
-
-        ## 4. Problemas visuales
-        {pd.DataFrame({'problema_visual': problemas_visuales}).to_markdown(index=False)}
-
-        ## 5. Problemas de contenido
-        {pd.DataFrame({'problema_contenido': problemas_contenido}).to_markdown(index=False)}
-
-        ## 6. Problemas funcionales
-        {pd.DataFrame({'problema_funcional': problemas_funcionales}).to_markdown(index=False)}
-
-        ## 7. Mejoras críticas ejecutadas
-        {pd.DataFrame({'mejora_critica': mejoras_criticas}).to_markdown(index=False)}
-
-        ## 8. Mejoras importantes ejecutadas
-        {pd.DataFrame({'mejora_importante': mejoras_importantes}).to_markdown(index=False)}
-
-        ## 9. Mejoras de acabado ejecutadas
-        {pd.DataFrame({'mejora_acabado': mejoras_acabado}).to_markdown(index=False)}
-
-        ## 10. Criterio de evaluación
-        Se evaluó el dashboard como herramienta de decisión para red eléctrica, no como visualización genérica.
-        """
-    ).strip() + "\n"
-    (paths.outputs_reports / "dashboard_auditoria_html.md").write_text(text, encoding="utf-8")
 
 
 def build_dashboard_v2() -> str:
@@ -176,7 +125,7 @@ def build_dashboard_v2() -> str:
             alimentador_id,
             MAX(tipo_activo) AS tipo_activo_dominante,
             COUNT(*) AS activos_en_alimentador,
-            AVG(ABS(exposicion_activo_score)) AS exposicion_media_abs,
+            AVG(exposicion_activo_score) AS exposicion_media,
             AVG(probabilidad_fallo_ajustada_proxy) AS probabilidad_fallo_ajustada_media,
             SUM(ens_subestacion_mwh) AS ens_asociada_mwh
         FROM vw_assets_exposure
@@ -322,7 +271,7 @@ def build_dashboard_v2() -> str:
         feeders["criticidad_feeder_score"] = (
             0.45 * _norm(feeders["probabilidad_fallo_ajustada_media"]) +
             0.35 * _norm(feeders["ens_asociada_mwh"]) +
-            0.20 * _norm(feeders["exposicion_media_abs"])
+            0.20 * _norm(feeders["exposicion_media"])
         )
         feeders = feeders.sort_values("criticidad_feeder_score", ascending=False).reset_index(drop=True)
 
@@ -498,7 +447,7 @@ def build_dashboard_v2() -> str:
 
     chart_asset = paths.root / "src" / "assets" / "chart.umd.min.js"
     if chart_asset.exists():
-        chartjs_script = "<script>\n" + chart_asset.read_text(encoding="utf-8") + "\n</script>"
+        chartjs_script = '<script src="../../src/assets/chart.umd.min.js" defer></script>'
     else:
         chartjs_script = '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>'
 
@@ -526,8 +475,8 @@ def build_dashboard_v2() -> str:
       --green: #166534;
       --line: #d7e1eb;
       --line-strong: #c1cedd;
-      --shadow: 0 22px 52px rgba(15, 23, 42, 0.10);
-      --shadow-soft: 0 8px 24px rgba(15, 23, 42, 0.06);
+      --shadow: 0 18px 42px rgba(15, 23, 42, 0.09);
+      --shadow-soft: 0 7px 18px rgba(15, 23, 42, 0.055);
       --sidebar-bg: linear-gradient(180deg, #071425 0%, #0b1e34 100%);
       --sidebar-ink: #dbeafe;
       --sidebar-hint: #93c5fd;
@@ -545,8 +494,12 @@ def build_dashboard_v2() -> str:
       --hero-meta-ink: #000000;
       --hero-pill-bg: rgba(255, 255, 255, .62);
       --hero-pill-ink: #0f172a;
-      --bg-grad-1: rgba(15,118,110,.22);
-      --bg-grad-2: rgba(30,64,175,.20);
+      --risk-critical-bg: #fef2f2;
+      --risk-critical-ink: #7f1d1d;
+      --risk-watch-bg: #fffbeb;
+      --risk-watch-ink: #78350f;
+      --risk-ok-bg: #f0fdf4;
+      --risk-ok-ink: #14532d;
     }
     body[data-theme="dark"] {
       --bg: #0b1220;
@@ -577,20 +530,39 @@ def build_dashboard_v2() -> str:
       --hero-meta-ink: #f8fafc;
       --hero-pill-bg: rgba(15, 23, 42, .32);
       --hero-pill-ink: #e2e8f0;
-      --bg-grad-1: rgba(15,118,110,.10);
-      --bg-grad-2: rgba(30,64,175,.08);
+      --risk-critical-bg: rgba(127, 29, 29, .24);
+      --risk-critical-ink: #fecaca;
+      --risk-watch-bg: rgba(146, 64, 14, .24);
+      --risk-watch-ink: #fde68a;
+      --risk-ok-bg: rgba(20, 83, 45, .26);
+      --risk-ok-ink: #bbf7d0;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: "Avenir Next", "IBM Plex Sans", "Source Sans 3", "Segoe UI", "Trebuchet MS", sans-serif;
       color: var(--ink);
-      background:
-        radial-gradient(1200px 450px at 85% -120px, var(--bg-grad-1), transparent 60%),
-        radial-gradient(900px 360px at -10% -80px, var(--bg-grad-2), transparent 55%),
-        var(--bg);
+      background: var(--bg);
       line-height: 1.45;
       transition: background-color .24s ease, color .24s ease;
+    }
+    .skip-link {
+      position: absolute;
+      left: 14px;
+      top: -48px;
+      z-index: 1000;
+      background: #ffffff;
+      color: #0f172a;
+      border: 2px solid #0f766e;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-weight: 800;
+      transition: top .16s ease;
+    }
+    .skip-link:focus { top: 12px; }
+    :focus-visible {
+      outline: 3px solid rgba(14, 165, 233, .70);
+      outline-offset: 3px;
     }
     .layout {
       display: grid;
@@ -722,16 +694,6 @@ def build_dashboard_v2() -> str:
       position: relative;
       overflow: hidden;
       border: 1px solid rgba(193, 206, 221, .75);
-    }
-    .hero::after {
-      content: "";
-      position: absolute;
-      width: 320px;
-      height: 320px;
-      right: -80px;
-      top: -100px;
-      background: radial-gradient(circle, rgba(148,163,184,.36) 0%, rgba(148,163,184,0) 70%);
-      pointer-events: none;
     }
     .hero-kicker {
       position: relative;
@@ -889,6 +851,59 @@ def build_dashboard_v2() -> str:
       grid-template-columns: 1.2fr 1.2fr 1fr;
       gap: 12px;
     }
+    .decision-grid {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1.25fr 1fr 1fr 1fr;
+      gap: 12px;
+    }
+    .decision-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: var(--shadow-soft);
+      min-width: 0;
+    }
+    .decision-card.primary {
+      background: linear-gradient(180deg, var(--risk-critical-bg) 0%, var(--surface) 100%);
+      border-color: rgba(185, 28, 28, .28);
+    }
+    .decision-card.watch {
+      background: linear-gradient(180deg, var(--risk-watch-bg) 0%, var(--surface) 100%);
+      border-color: rgba(180, 83, 9, .30);
+    }
+    .decision-card.ok {
+      background: linear-gradient(180deg, var(--risk-ok-bg) 0%, var(--surface) 100%);
+      border-color: rgba(22, 101, 52, .26);
+    }
+    .decision-card .eyebrow {
+      font-size: .64rem;
+      text-transform: uppercase;
+      letter-spacing: .13em;
+      color: var(--muted);
+      font-weight: 800;
+      margin-bottom: 7px;
+    }
+    .decision-card h3 {
+      margin: 0;
+      font-size: .96rem;
+      line-height: 1.25;
+    }
+    .decision-card .metric {
+      margin-top: 8px;
+      font-size: 1.45rem;
+      font-weight: 850;
+      line-height: 1.05;
+      font-variant-numeric: tabular-nums;
+    }
+    .decision-card p {
+      margin: 8px 0 0;
+      font-size: .80rem;
+      line-height: 1.42;
+      color: var(--muted);
+    }
+    .decision-card strong { color: var(--ink); }
     .summary-card {
       padding: 16px 16px 15px;
       position: relative;
@@ -1026,6 +1041,29 @@ def build_dashboard_v2() -> str:
       color: var(--muted);
       line-height: 1.35;
     }
+    .kpi .interpretation {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(148, 163, 184, .18);
+      font-size: .72rem;
+      color: var(--ink-soft);
+      line-height: 1.34;
+    }
+    .kpi .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 3px 8px;
+      margin-bottom: 6px;
+      font-size: .64rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .kpi .status.bad { background: var(--risk-critical-bg); color: var(--risk-critical-ink); }
+    .kpi .status.watch { background: var(--risk-watch-bg); color: var(--risk-watch-ink); }
+    .kpi .status.ok { background: var(--risk-ok-bg); color: var(--risk-ok-ink); }
 
     .section {
       margin-top: 14px;
@@ -1096,6 +1134,16 @@ def build_dashboard_v2() -> str:
       line-height: 1.42;
       padding-bottom: 10px;
       border-bottom: 1px solid rgba(148, 163, 184, .14);
+    }
+    .chart-question {
+      display: block;
+      margin: 0 0 8px;
+      color: var(--teal);
+      font-size: .70rem;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      line-height: 1.35;
     }
     canvas {
       width: 100% !important;
@@ -1346,6 +1394,17 @@ def build_dashboard_v2() -> str:
       color: var(--muted);
       background: var(--surface-2);
     }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
     .table-tools {
       display: grid;
       grid-template-columns: 1fr auto auto;
@@ -1419,6 +1478,7 @@ def build_dashboard_v2() -> str:
     @media (max-width: 1450px) {
       .hero .meta { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .active-filters-head { grid-template-columns: 1fr; }
+      .decision-grid { grid-template-columns: 1fr 1fr; }
       .kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
       .summary-grid { grid-template-columns: 1fr; }
       .alerts { grid-template-columns: 1fr; }
@@ -1429,6 +1489,7 @@ def build_dashboard_v2() -> str:
       .layout { grid-template-columns: 1fr; padding: 14px; gap: 14px; }
       .sidebar { position: relative; height: auto; }
       .grid2, .grid3, .whatif-grid { grid-template-columns: 1fr; }
+      .decision-grid { grid-template-columns: 1fr; }
       .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .hero .meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
@@ -1442,6 +1503,7 @@ def build_dashboard_v2() -> str:
   </style>
 </head>
 <body>
+<a class="skip-link" href="#main_content">Saltar al contenido principal</a>
 <div class="layout">
   <aside class="sidebar">
     <div class="sidebar-head">
@@ -1504,7 +1566,7 @@ def build_dashboard_v2() -> str:
     </div>
   </aside>
 
-  <main class="main">
+  <main class="main" id="main_content">
     <section class="hero panel">
       <div class="hero-kicker">Command center ejecutivo de red</div>
       <h1>Centro de Decisión de Red: Congestión, Resiliencia, Flexibilidad y Priorización de Inversiones</h1>
@@ -1534,6 +1596,33 @@ def build_dashboard_v2() -> str:
         <div class="active-filters-note">Usa esta banda para validar rápido si una decisión aplica al sistema completo o a un foco concreto.</div>
       </div>
       <div class="filter-pills" id="filter_pills"></div>
+    </section>
+
+    <section class="decision-grid" aria-labelledby="decision_title">
+      <article class="decision-card primary">
+        <div class="eyebrow">Decisión ahora</div>
+        <h3 id="decision_title">Qué requiere acción</h3>
+        <div class="metric" id="exec_action_focus">--</div>
+        <p id="exec_action_text"></p>
+      </article>
+      <article class="decision-card watch">
+        <div class="eyebrow">Bottleneck</div>
+        <h3>Driver que explica el riesgo</h3>
+        <div class="metric" id="exec_bottleneck">--</div>
+        <p id="exec_bottleneck_text"></p>
+      </article>
+      <article class="decision-card">
+        <div class="eyebrow">Impacto operativo</div>
+        <h3>Coste de no actuar</h3>
+        <div class="metric" id="exec_operational_impact">--</div>
+        <p id="exec_operational_impact_text"></p>
+      </article>
+      <article class="decision-card ok">
+        <div class="eyebrow">Capital</div>
+        <h3>Qué se puede diferir</h3>
+        <div class="metric" id="exec_capex_release">--</div>
+        <p id="exec_capex_release_text"></p>
+      </article>
     </section>
 
     <section class="summary-grid">
@@ -1570,10 +1659,12 @@ def build_dashboard_v2() -> str:
       <p class="intro">Síntesis de lectura para comité: señales clave, cumplimiento de umbrales y focos que requieren escalado inmediato.</p>
       <div class="grid2">
         <div class="chart-card">
+          <span class="chart-question">¿Qué señales cambian la decisión del comité?</span>
           <p class="chart-title">Insights prioritarios del perímetro filtrado</p>
           <ul id="auto_insights" class="insight-list"></ul>
         </div>
         <div class="chart-card">
+          <span class="chart-question">¿Qué umbrales están fuera de tolerancia?</span>
           <p class="chart-title">Benchmark contra umbrales de operación y resiliencia</p>
           <div id="bench_grid" class="bench-grid"></div>
         </div>
@@ -1585,11 +1676,13 @@ def build_dashboard_v2() -> str:
       <p class="intro">Lectura operativa: dónde y cuándo se produce tensión de capacidad, y en qué territorios conviene escalar intervención estructural frente a mitigación táctica.</p>
       <div class="grid2">
         <div class="chart-card">
+          <span class="chart-question">¿Cuándo supera la red el límite operativo?</span>
           <p class="chart-title">La carga relativa supera el umbral deseable en meses de punta estacional</p>
           <p class="chart-sub">Línea de umbral 1.00 para identificar riesgo de sobrecarga sistemática.</p>
           <canvas id="ch_carga"></canvas>
         </div>
         <div class="chart-card">
+          <span class="chart-question">¿Dónde se concentra la congestión accionable?</span>
           <p class="chart-title">La congestión no es homogénea: concentración en un subconjunto de zonas</p>
           <p class="chart-sub">Ranking territorial para priorizar foco operativo inmediato.</p>
           <canvas id="ch_congestion_zona"></canvas>
@@ -1597,11 +1690,13 @@ def build_dashboard_v2() -> str:
       </div>
       <div class="grid2" style="margin-top:10px;">
         <div class="chart-card span2">
+          <span class="chart-question">¿En qué ventanas horarias se acumula estrés?</span>
           <p class="chart-title">Heatmap horario de estrés por región operativa</p>
           <p class="chart-sub">Proxy combinado de carga relativa y ratio de congestión para detectar ventanas críticas.</p>
           <div class="heatmap-wrap" id="heatmap_container"></div>
         </div>
         <div class="chart-card span2">
+          <span class="chart-question">¿Qué zonas combinan riesgo técnico e impacto territorial?</span>
           <p class="chart-title">Riesgo operativo vs criticidad territorial por zona</p>
           <p class="chart-sub">Detecta territorios donde la presión técnica coincide con impacto territorial alto.</p>
           <canvas id="ch_riesgo_territorio"></canvas>
@@ -1614,14 +1709,17 @@ def build_dashboard_v2() -> str:
       <p class="intro">Lectura de continuidad: ENS, interrupciones y clientes afectados para discriminar entre ajuste operativo y necesidad de refuerzo o renovación de activos.</p>
       <div class="grid3">
         <div class="chart-card">
+          <span class="chart-question">¿Dónde la energía no suministrada exige escalado?</span>
           <p class="chart-title">ENS concentrada en zonas con mayor estrés estructural</p>
           <canvas id="ch_ens"></canvas>
         </div>
         <div class="chart-card">
+          <span class="chart-question">¿Qué zonas combinan frecuencia e intensidad de fallo?</span>
           <p class="chart-title">Interrupciones por zona: frecuencia e intensidad</p>
           <canvas id="ch_interruptions"></canvas>
         </div>
         <div class="chart-card">
+          <span class="chart-question">¿Qué subestaciones concentran exposición de servicio?</span>
           <p class="chart-title">Top subestaciones con exposición de servicio</p>
           <canvas id="ch_substations"></canvas>
         </div>
@@ -1633,11 +1731,13 @@ def build_dashboard_v2() -> str:
       <p class="intro">El objetivo no es maximizar CAPEX, sino elegir palanca óptima según urgencia, coste, robustez y tiempo de despliegue.</p>
       <div class="grid2">
         <div class="chart-card">
+          <span class="chart-question">¿Dónde falta flexibilidad antes de construir?</span>
           <p class="chart-title">Brecha flexible vs ratio flexibilidad/estrés</p>
           <p class="chart-sub">Cuadrante superior izquierdo: presión alta y cobertura baja, prioridad para flexibilidad/storage.</p>
           <canvas id="ch_flex_gap"></canvas>
         </div>
         <div class="chart-card">
+          <span class="chart-question">¿Qué palanca ofrece mejor respuesta coste-plazo-robustez?</span>
           <p class="chart-title">Comparador multicriterio: refuerzo vs flexibilidad vs storage vs operación</p>
           <p class="chart-sub">Score de alternativa = impacto + coste (inverso) + tiempo (inverso) + robustez + urgencia.</p>
           <canvas id="ch_tradeoff"></canvas>
@@ -1645,10 +1745,12 @@ def build_dashboard_v2() -> str:
       </div>
       <div class="grid2" style="margin-top:10px;">
         <div class="chart-card">
+          <span class="chart-question">¿Dónde storage reduce presión de punta y curtailment?</span>
           <p class="chart-title">Soporte de almacenamiento en zonas de mayor riesgo</p>
           <canvas id="ch_storage"></canvas>
         </div>
         <div class="chart-card">
+          <span class="chart-question">¿Qué CAPEX puede diferirse sin perder control operativo?</span>
           <p class="chart-title">CAPEX refuerzo vs CAPEX diferible por flexibilidad</p>
           <canvas id="ch_capex_def"></canvas>
         </div>
@@ -1660,14 +1762,17 @@ def build_dashboard_v2() -> str:
       <p class="intro">Lectura de presión futura: EV, electrificación industrial y curtailment para anticipar saturación y definir secuencia de intervención.</p>
       <div class="grid3">
         <div class="chart-card">
+          <span class="chart-question">¿Qué zonas absorben más presión EV?</span>
           <p class="chart-title">Impacto EV en zonas de presión alta</p>
           <canvas id="ch_ev"></canvas>
         </div>
         <div class="chart-card">
+          <span class="chart-question">¿Qué zonas cargan el riesgo industrial futuro?</span>
           <p class="chart-title">Impacto electrificación industrial</p>
           <canvas id="ch_ind"></canvas>
         </div>
         <div class="chart-card">
+          <span class="chart-question">¿Cuándo se pierde energía renovable por restricción?</span>
           <p class="chart-title">Curtailment acumulado por mes</p>
           <canvas id="ch_curt"></canvas>
         </div>
@@ -1679,14 +1784,17 @@ def build_dashboard_v2() -> str:
       <p class="intro">La priorización debe ser defendible: score total, driver principal, urgencia y alternativa recomendada por zona, subestación y alimentador.</p>
       <div class="grid3">
         <div class="chart-card">
+          <span class="chart-question">¿Qué zonas entran primero al backlog ejecutivo?</span>
           <p class="chart-title">Ranking de zonas por prioridad de intervención</p>
           <canvas id="ch_priority"></canvas>
         </div>
         <div class="chart-card">
+          <span class="chart-question">¿Dónde coincide presión técnica con valor económico?</span>
           <p class="chart-title">Riesgo técnico vs prioridad económica</p>
           <canvas id="ch_risk_econ"></canvas>
         </div>
         <div class="chart-card">
+          <span class="chart-question">¿Qué alimentadores son cuello de botella operativo?</span>
           <p class="chart-title">Top alimentadores por criticidad compuesta</p>
           <canvas id="ch_feeders"></canvas>
         </div>
@@ -1698,10 +1806,12 @@ def build_dashboard_v2() -> str:
       <p class="intro">Comparación de escenarios para cuantificar impacto de no actuar y beneficio relativo de combinar CAPEX, flexibilidad y almacenamiento.</p>
       <div class="grid2">
         <div class="chart-card">
+          <span class="chart-question">¿Qué escenario reduce coste de riesgo por euro invertido?</span>
           <p class="chart-title">Escenario base vs alternativos: coste de riesgo e inversión requerida</p>
           <canvas id="ch_scenarios"></canvas>
         </div>
         <div class="chart-card">
+          <span class="chart-question">¿Qué zonas empeoran y deben pre-autorizarse?</span>
           <p class="chart-title">Top zonas que empeoran bajo el escenario seleccionado</p>
           <div class="tbl-wrap" style="max-height:302px;" id="scenario_top_table"></div>
         </div>
@@ -1763,6 +1873,7 @@ def build_dashboard_v2() -> str:
       <p class="intro">Convierte priorización en secuencia temporal ejecutable y permite analizar una zona de referencia con sus alternativas de intervención.</p>
       <div class="grid2">
         <div class="chart-card">
+          <span class="chart-question">¿Qué trabajo entra en cada ventana de ejecución?</span>
           <p class="chart-title">Backlog de intervención por secuencia recomendada</p>
           <p class="chart-sub">Distribución 0-3m, 0-6m, 3-12m, 6-24m y revisión trimestral.</p>
           <canvas id="ch_horizon"></canvas>
@@ -1798,6 +1909,14 @@ function byId(id) { return document.getElementById(id); }
 function num(v) { const x = Number(v); return Number.isFinite(x) ? x : 0; }
 function fmt(v, d = 0) { return num(v).toLocaleString('es-ES', { maximumFractionDigits: d, minimumFractionDigits: d }); }
 function uniq(arr) { return Array.from(new Set(arr)).filter(v => v !== undefined && v !== null && v !== ""); }
+function esc(v) {
+  return String(v ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
 function getTheme() {
   return document.body.getAttribute("data-theme") || "light";
@@ -1843,9 +1962,9 @@ function destroyChart(id) {
 function paintRiskBadge(v) {
   const key = String(v || "").toLowerCase();
   if (["critico", "alto", "medio", "bajo"].includes(key)) {
-    return `<span class="badge ${key}">${key}</span>`;
+    return `<span class="badge ${key}">${esc(key)}</span>`;
   }
-  return String(v || "");
+  return esc(v || "");
 }
 
 function getZoneMap() {
@@ -2046,8 +2165,46 @@ function updateExecutiveSummary(fd) {
   byId("sum_decision_text").textContent = "La recomendación debe cerrarse contra coste, plazo y robustez para evitar CAPEX homogéneo sin criterio territorial.";
 }
 
+function updateTopDecision(fd) {
+  const top = [...fd.scoring].sort((a,b) => num(b.investment_priority_score) - num(a.investment_priority_score));
+  const topZones = top.slice(0, 3);
+  const topIds = topZones.map(z => z.zona_id).join(", ") || "N/A";
+  const critical = fd.scoring.filter(r => ["critico", "alto"].includes(String(r.risk_tier || "").toLowerCase()));
+  const immediate = fd.scoring.filter(r => ["inmediata", "alta"].includes(String(r.urgency_tier || "").toLowerCase()));
+
+  const driverCount = {};
+  fd.scoring.forEach(s => {
+    const key = String(s.main_risk_driver || "sin_driver");
+    driverCount[key] = (driverCount[key] || 0) + 1;
+  });
+  const topDriver = Object.entries(driverCount).sort((a,b) => b[1] - a[1])[0] || ["Sin señal", 0];
+
+  const costRisk = fd.scoring.reduce((s,r) => s + num(r.coste_riesgo_proxy), 0);
+  const ens = fd.zoneRisk.reduce((s,z) => s + num(z.ens_total_mwh), 0);
+  const capex = fd.scoring.reduce((s,r) => s + num(r.capex_total), 0);
+  const capexDif = fd.capexDef.reduce((s,c) => s + num(c.capex_diferible_proxy_eur), 0);
+  const capexDifPct = capex ? 100 * capexDif / capex : 0;
+
+  const firstAction = top[0]?.recommended_intervention || "monitorizar";
+  byId("exec_action_focus").textContent = topIds;
+  byId("exec_action_text").innerHTML =
+    `<strong>${fmt(critical.length,0)} zonas alto/crítico</strong> y ${fmt(immediate.length,0)} urgencias inmediatas/altas. Acción dominante: <strong>${esc(firstAction)}</strong>.`;
+
+  byId("exec_bottleneck").textContent = topDriver[0];
+  byId("exec_bottleneck_text").innerHTML =
+    `Explica ${fmt(topDriver[1],0)} zonas del perímetro. Validar si el driver requiere CAPEX estructural o mitigación operativa.`;
+
+  byId("exec_operational_impact").textContent = `${fmt(ens,1)} MWh`;
+  byId("exec_operational_impact_text").innerHTML =
+    `ENS filtrada con coste de riesgo proxy de <strong>${fmt(costRisk,0)} EUR</strong>. Usar para ordenar la respuesta semanal.`;
+
+  byId("exec_capex_release").textContent = `${fmt(capexDifPct,1)}%`;
+  byId("exec_capex_release_text").innerHTML =
+    `CAPEX potencialmente diferible: <strong>${fmt(capexDif,0)} EUR</strong>. Diferir sólo donde forecast y tier permiten monitorización.`;
+}
+
 function buildFilterChip(label, value, muted = false) {
-  return `<span class="filter-chip ${muted ? "muted" : ""}"><span class="k">${label}</span>${value}</span>`;
+  return `<span class="filter-chip ${muted ? "muted" : ""}"><span class="k">${esc(label)}</span>${esc(value)}</span>`;
 }
 
 function updateFilterSummary(fd) {
@@ -2098,30 +2255,40 @@ function classifyKpi(title, detail) {
   return { cls: "official", eyebrow: "KPI oficial" };
 }
 
-function buildKpiCard(title, value, detail) {
+function kpiStatus(text) {
+  const t = String(text || "").toLowerCase();
+  if (t.includes("crítico") || t.includes("critico") || t.includes(">1.0") || t.includes("no sustituye")) return { cls: "bad", txt: "Revisar" };
+  if (t.includes("proxy") || t.includes("exploratorio") || t.includes("diferible") || t.includes("forecast")) return { cls: "watch", txt: "Condicionado" };
+  return { cls: "ok", txt: "Gobernado" };
+}
+
+function buildKpiCard(title, value, detail, interpretation) {
   const meta = classifyKpi(title, detail);
+  const st = kpiStatus(`${title} ${detail} ${interpretation}`);
   return `
     <article class="kpi ${meta.cls}">
       <div class="eyebrow">${meta.eyebrow}</div>
-      <div class="t">${title}</div>
-      <div class="v">${value}</div>
-      <div class="d">${detail}</div>
+      <div class="status ${st.cls}">${st.txt}</div>
+      <div class="t">${esc(title)}</div>
+      <div class="v">${esc(value)}</div>
+      <div class="d">${esc(detail)}</div>
+      <div class="interpretation">${esc(interpretation || "Interpretación: usar como señal contextual, no como decisión aislada.")}</div>
     </article>
   `;
 }
 
 function updateKpis(fd) {
   const official = [
-    buildKpiCard("Horas de congestión", fmt(KPI_STATIC.horas_congestion,0), "KPI oficial gobernado"),
-    buildKpiCard("Zonas críticas", fmt(KPI_STATIC.zonas_criticas,0), `${fmt(KPI_STATIC.pct_zonas_criticas,1)}% del total`),
-    buildKpiCard("ENS total (MWh)", fmt(KPI_STATIC.ens_total,1), "KPI oficial gobernado"),
-    buildKpiCard("Clientes afectados", fmt(KPI_STATIC.clientes_afectados,0), "KPI oficial gobernado"),
-    buildKpiCard("Carga relativa media", fmt(KPI_STATIC.carga_media,3), `Zonas >1.0: ${fmt(KPI_STATIC.utilizacion_excesiva_pct,1)}%`),
-    buildKpiCard("Resiliencia índice", fmt(KPI_STATIC.resiliencia_indice,1), "KPI oficial gobernado"),
-    buildKpiCard("Coste de riesgo (EUR)", fmt(KPI_STATIC.coste_riesgo,0), "Proxy económico oficial"),
-    buildKpiCard("CAPEX diferible", fmt(KPI_STATIC.capex_diferible,0), `${fmt(KPI_STATIC.capex_diferible_pct,1)}% vs CAPEX total`),
-    buildKpiCard("SAIDI proxy (min)", fmt(KPI_STATIC.saidi_proxy,1), "KPI oficial gobernado"),
-    buildKpiCard("Decisiones diferibles", fmt(KPI_STATIC.decisiones_diferibles,0), "Según policy de forecast"),
+    buildKpiCard("Horas de congestión", fmt(KPI_STATIC.horas_congestion,0), "KPI oficial gobernado", "Más horas elevan la urgencia de operación avanzada y refuerzo localizado."),
+    buildKpiCard("Zonas críticas", fmt(KPI_STATIC.zonas_criticas,0), `${fmt(KPI_STATIC.pct_zonas_criticas,1)}% del total`, "Si supera 10% del parque, la priorización debe pasar de táctica a programa territorial."),
+    buildKpiCard("ENS total (MWh)", fmt(KPI_STATIC.ens_total,1), "KPI oficial gobernado", "Mide impacto real de continuidad; prioriza zonas con daño de servicio, no sólo congestión."),
+    buildKpiCard("Clientes afectados", fmt(KPI_STATIC.clientes_afectados,0), "KPI oficial gobernado", "Convierte el riesgo técnico en exposición reputacional y regulatoria."),
+    buildKpiCard("Carga relativa media", fmt(KPI_STATIC.carga_media,3), `Zonas >1.0: ${fmt(KPI_STATIC.utilizacion_excesiva_pct,1)}%`, "Valores cerca o por encima de 1.0 indican saturación estructural o ventana de punta no cubierta."),
+    buildKpiCard("Resiliencia índice", fmt(KPI_STATIC.resiliencia_indice,1), "KPI oficial gobernado", "Lectura inversa de fragilidad: cuanto menor, más probable que la congestión derive en interrupción."),
+    buildKpiCard("Coste de riesgo (EUR)", fmt(KPI_STATIC.coste_riesgo,0), "Proxy económico oficial", "Ordena el coste de inacción; no sustituye presupuesto regulatorio."),
+    buildKpiCard("CAPEX diferible", fmt(KPI_STATIC.capex_diferible,0), `${fmt(KPI_STATIC.capex_diferible_pct,1)}% vs CAPEX total`, "Cuantifica margen para flexibilidad/storage antes de construir activo físico."),
+    buildKpiCard("SAIDI proxy (min)", fmt(KPI_STATIC.saidi_proxy,1), "KPI oficial gobernado", "Duraciones altas refuerzan prioridad de resiliencia y renovación de activos."),
+    buildKpiCard("Decisiones diferibles", fmt(KPI_STATIC.decisiones_diferibles,0), "Según policy de forecast", "Sólo son diferibles si el tier es bajo/medio y la señal predictiva permite monitorización."),
   ].join("");
 
   const zoneCount = fd.zoneRisk.length;
@@ -2152,17 +2319,17 @@ function updateKpis(fd) {
   const diffDecisions = fd.scoring.filter(r => String(r.decision_forecast || "").toLowerCase().includes("diferir") && ["bajo", "medio"].includes(String(r.risk_tier))).length;
 
   const exploratory = [
-    buildKpiCard("Perímetro filtrado", fmt(zoneCount,0), "Lectura exploratoria del filtro activo"),
-    buildKpiCard("Horas congestión filtradas", fmt(horasCong,0), "No sustituye KPI oficial"),
-    buildKpiCard("ENS filtrada (MWh)", fmt(ens,1), "No sustituye KPI oficial"),
-    buildKpiCard("Carga media filtrada", fmt(cargaMedia,3), `Zonas >1.0: ${fmt(overPct,1)}%`),
-    buildKpiCard("Resiliencia filtrada", fmt(resiliencia,1), "Cálculo exploratorio"),
-    buildKpiCard("Coste riesgo filtrado (EUR)", fmt(costeRiesgo,0), "Proxy exploratorio"),
-    buildKpiCard("CAPEX filtrado (EUR)", fmt(capex,0), `${fmt(capexDifPct,1)}% diferible en el perímetro`),
-    buildKpiCard("Clientes filtrados", fmt(clientes,0), `SAIDI: ${fmt(saidi,1)} min · SAIFI: ${fmt(saifi,3)}`),
-    buildKpiCard("Demanda nueva filtrada", fmt(evTotal + indTotal,0), `EV ${fmt(evTotal,0)} · industria ${fmt(indTotal,0)} · ratio ${fmt(100*ratioNueva,1)}%`),
-    buildKpiCard("Decisiones diferibles filtradas", fmt(diffDecisions,0), "Exploratorio"),
-    buildKpiCard("Flex gap medio", fmt(fd.flexGap.length ? fd.flexGap.reduce((s,f) => s + num(f.gap_tecnico_mw), 0) / fd.flexGap.length : 0,2), "Brecha técnica por zona"),
+    buildKpiCard("Perímetro filtrado", fmt(zoneCount,0), "Lectura exploratoria del filtro activo", "Define si la decisión es sistémica, territorial o puntual."),
+    buildKpiCard("Horas congestión filtradas", fmt(horasCong,0), "No sustituye KPI oficial", "Aísla el foco operativo que consume capacidad en el filtro activo."),
+    buildKpiCard("ENS filtrada (MWh)", fmt(ens,1), "No sustituye KPI oficial", "Si concentra ENS, el filtro debe subir prioridad aunque tenga pocas zonas."),
+    buildKpiCard("Carga media filtrada", fmt(cargaMedia,3), `Zonas >1.0: ${fmt(overPct,1)}%`, "Por encima del umbral exige contención o refuerzo en ventanas de punta."),
+    buildKpiCard("Resiliencia filtrada", fmt(resiliencia,1), "Cálculo exploratorio", "Permite comparar fragilidad relativa entre territorios seleccionados."),
+    buildKpiCard("Coste riesgo filtrado (EUR)", fmt(costeRiesgo,0), "Proxy exploratorio", "Usar para ranking relativo dentro del filtro, no para presupuesto final."),
+    buildKpiCard("CAPEX filtrado (EUR)", fmt(capex,0), `${fmt(capexDifPct,1)}% diferible en el perímetro`, "Mide cuánto capital puede re-secuenciarse si flexibilidad cubre el estrés."),
+    buildKpiCard("Clientes filtrados", fmt(clientes,0), `SAIDI: ${fmt(saidi,1)} min · SAIFI: ${fmt(saifi,3)}`, "Traduce el filtro a exposición de cliente y continuidad."),
+    buildKpiCard("Demanda nueva filtrada", fmt(evTotal + indTotal,0), `EV ${fmt(evTotal,0)} · industria ${fmt(indTotal,0)} · ratio ${fmt(100*ratioNueva,1)}%`, "Señal de presión futura; aumenta prioridad si coincide con baja flexibilidad."),
+    buildKpiCard("Decisiones diferibles filtradas", fmt(diffDecisions,0), "Exploratorio", "Identifica zonas donde monitorizar evita sobreejecutar CAPEX."),
+    buildKpiCard("Flex gap medio", fmt(fd.flexGap.length ? fd.flexGap.reduce((s,f) => s + num(f.gap_tecnico_mw), 0) / fd.flexGap.length : 0,2), "Brecha técnica por zona", "Gap positivo sostenido indica déficit de flexibilidad gestionable."),
   ].join("");
 
   byId("kpi_grid").innerHTML =
@@ -2204,7 +2371,7 @@ function renderAutoInsights(fd) {
   if (topScenario) dyn.push(`Escenario más eficiente por coste de riesgo: ${topScenario.scenario}.`);
   dyn.push(`El filtro activo conserva ${fmt(fd.zoneIds.length,0)} zonas y ${fmt(fd.substations.length,0)} subestaciones con señal analítica.`);
 
-  byId("auto_insights").innerHTML = [...base.slice(0,4), ...dyn].map(t => `<li>${t}</li>`).join("");
+  byId("auto_insights").innerHTML = [...base.slice(0,4), ...dyn].map(t => `<li>${esc(t)}</li>`).join("");
 }
 
 function _benchStatus(v, target, dir = "le") {
@@ -2497,7 +2664,7 @@ function renderHeatmap(fd) {
       const color = bg(m.carga, m.cong);
       return `<td title="${title}" style="background:${color};color:#000000;">${fmt(m.carga,2)}</td>`;
     }).join("");
-    return `<tr><td>${region}</td>${cells}</tr>`;
+    return `<tr><td>${esc(region)}</td>${cells}</tr>`;
   }).join("");
 
   byId("heatmap_container").innerHTML = `<table class="heatmap"><thead>${header}</thead><tbody>${body}</tbody></table>`;
@@ -2524,8 +2691,8 @@ function renderScenarioTopTable(fd) {
       <tbody>
         ${rows.map(r => `
           <tr>
-            <td>${r.scenario}</td>
-            <td>${r.zona_id}</td>
+            <td>${esc(r.scenario)}</td>
+            <td>${esc(r.zona_id)}</td>
             <td>${fmt(r.investment_priority_score_scenario,1)}</td>
             <td>${fmt(r.horas_congestion_scenario,0)}</td>
             <td>${fmt(r.ens_scenario,2)}</td>
@@ -2544,7 +2711,7 @@ function renderCharts(fd) {
       if (parent && !parent.querySelector(".chart-fallback")) {
         const msg = document.createElement("div");
         msg.className = "chart-fallback";
-        msg.textContent = "Não foi possível carregar Chart.js neste contexto. KPIs e tabela continuam funcionais.";
+        msg.textContent = "No fue posible cargar Chart.js en este contexto. Los KPIs y la tabla siguen disponibles.";
         parent.appendChild(msg);
       }
     });
@@ -2729,15 +2896,15 @@ function renderPriorityTable(fd) {
 
   tbody.innerHTML = rows.map(r => `
     <tr>
-      <td><button class="zone-link" data-zone="${r.zona_id}">${r.zona_id}</button></td>
+      <td><button class="zone-link" data-zone="${esc(r.zona_id)}" aria-label="Filtrar zona ${esc(r.zona_id)}">${esc(r.zona_id)}</button></td>
       <td>${fmt(r.investment_priority_score,2)}</td>
       <td>${paintRiskBadge(r.risk_tier)}</td>
-      <td>${r.urgency_tier || ""}</td>
-      <td>${r.main_risk_driver || ""}</td>
-      <td>${r.recommended_intervention || ""}</td>
-      <td>${r.recommended_sequence || ""}</td>
-      <td>${r.decision_forecast || ""}</td>
-      <td>${justification(r)}</td>
+      <td>${esc(r.urgency_tier || "")}</td>
+      <td>${esc(r.main_risk_driver || "")}</td>
+      <td>${esc(r.recommended_intervention || "")}</td>
+      <td>${esc(r.recommended_sequence || "")}</td>
+      <td>${esc(r.decision_forecast || "")}</td>
+      <td>${esc(justification(r))}</td>
     </tr>
   `).join("");
 
@@ -2783,16 +2950,16 @@ function renderDrillDown(fd) {
     .slice(0,4);
 
   const optionsHtml = options.length
-    ? `<ul class="insight-list">${options.map(o => `<li><b>${o.option}</b>: score ${fmt(o.option_score,1)}, impacto ${fmt(o.impact,1)}, coste ${fmt(o.cost_proxy,0)}</li>`).join("")}</ul>`
+    ? `<ul class="insight-list">${options.map(o => `<li><b>${esc(o.option)}</b>: score ${fmt(o.option_score,1)}, impacto ${fmt(o.impact,1)}, coste ${fmt(o.cost_proxy,0)}</li>`).join("")}</ul>`
     : "<p class='small-note'>Sin alternativas multicriterio disponibles para esta zona.</p>";
 
   byId("drill_zone_panel").innerHTML = `
-    <h4>Drill-down zona ${zone.zona_id} · ${zone.zona_nombre || ""}</h4>
+    <h4>Drill-down zona ${esc(zone.zona_id)} · ${esc(zone.zona_nombre || "")}</h4>
     <div class="drill-metric">
       <div class="k">Score prioridad</div><div class="v">${fmt(zone.investment_priority_score,1)}</div>
       <div class="k">Tier riesgo</div><div class="v">${paintRiskBadge(zone.risk_tier)}</div>
-      <div class="k">Intervención recomendada</div><div class="v">${zone.recommended_intervention || "N/A"}</div>
-      <div class="k">Secuencia</div><div class="v">${zone.recommended_sequence || "N/A"}</div>
+      <div class="k">Intervención recomendada</div><div class="v">${esc(zone.recommended_intervention || "N/A")}</div>
+      <div class="k">Secuencia</div><div class="v">${esc(zone.recommended_sequence || "N/A")}</div>
       <div class="k">ENS (MWh)</div><div class="v">${fmt(zone.ens_total_mwh,1)}</div>
       <div class="k">Horas congestión</div><div class="v">${fmt(zone.horas_congestion,0)}</div>
       <div class="k">Carga relativa max media</div><div class="v">${fmt(zone.carga_relativa_max_media,3)}</div>
@@ -2802,7 +2969,7 @@ function renderDrillDown(fd) {
     </div>
     <b>Alternativas multicriterio para la zona</b>
     ${optionsHtml}
-    <div class="inline-meta">Driver principal: ${zone.main_risk_driver || "N/A"} · Forecast: ${zone.decision_forecast || "N/A"} · Confianza: ${zone.confidence_flag || "N/A"}</div>
+    <div class="inline-meta">Driver principal: ${esc(zone.main_risk_driver || "N/A")} · Forecast: ${esc(zone.decision_forecast || "N/A")} · Confianza: ${esc(zone.confidence_flag || "N/A")}</div>
   `;
 }
 
@@ -2864,7 +3031,7 @@ function updateDecisionList(fd) {
     `En el perímetro filtrado, score medio ${fmt(riskMean,1)} y CAPEX agregado ${fmt(capex,0)} EUR; la secuencia debe evitar ejecutar CAPEX homogéneo sin discriminación territorial.`,
   ];
 
-  list.innerHTML = items.map(x => `<li>${x}</li>`).join("");
+  list.innerHTML = items.map(x => `<li>${esc(x)}</li>`).join("");
 }
 
 function updateWhatIf(fd) {
@@ -2907,6 +3074,7 @@ function updateWhatIf(fd) {
 function applyAll() {
   const fd = getFilteredData();
   updateFilterSummary(fd);
+  updateTopDecision(fd);
   updateExecutiveSummary(fd);
   updateKpis(fd);
   updateAlerts(fd);
@@ -2972,11 +3140,22 @@ function bindEvents() {
 function bootstrap() {
   initTheme();
   initFilters();
+  document.querySelectorAll("canvas").forEach((canvas) => {
+    const card = canvas.closest(".chart-card");
+    const title = card ? card.querySelector(".chart-title")?.textContent : "";
+    const question = card ? card.querySelector(".chart-question")?.textContent : "";
+    canvas.setAttribute("role", "img");
+    canvas.setAttribute("aria-label", `${question || "Gráfico"}: ${title || canvas.id}`);
+  });
   bindEvents();
   applyAll();
 }
 
-bootstrap();
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", bootstrap);
+} else {
+  bootstrap();
+}
 </script>
 </body>
 </html>
@@ -3011,100 +3190,6 @@ bootstrap();
     legacy_duplicate = paths.outputs_dashboard / "dashboard_inteligencia_red_premium.html"
     if legacy_duplicate.exists():
         legacy_duplicate.unlink()
-
-    score_level = "El dashboard pasa de correcto/plano a una versión de alto estándar: analítica, ejecutiva, territorial y claramente orientada a decisión utility."
-    level_percibido = "Senior alto, cercano a estándar principal/lead para producto analítico industrial."
-    adecuacion = "Muy alta tras upgrades finales: cobertura integral de congestión, resiliencia, flexibilidad, electrificación, trade-offs CAPEX y secuenciación operativa."
-
-    problemas_visuales = [
-        "Jerarquía anterior demasiado uniforme; faltaba contraste entre señales críticas y contexto.",
-        "Tipografía y ritmo visual no comunicaban criticidad operacional.",
-        "Gráficos sin títulos de insight y con semántica cromática insuficiente para riesgo.",
-        "Densidad visual irregular: áreas saturadas y otras sin valor decisional.",
-    ]
-    problemas_contenido = [
-        "Foco excesivo en reporting y poco cierre hacia recomendación accionable.",
-        "Trade-offs refuerzo/flex/storage no eran explícitos ni comparables en una vista.",
-        "Escenarios presentes pero sin lectura inmediata de impacto por zona.",
-        "Tabla final sin justificación ejecutiva por fila.",
-    ]
-    problemas_funcionales = [
-        "Filtros globales con efecto parcial sobre narrativa y lectura de decisión.",
-        "Ausencia de simulador táctico para sensibilidad rápida.",
-        "Escasa integración entre filtros y módulos de escenarios/priorización.",
-        "Manejo limitado de lectura temporal (ventana) en la versión previa.",
-    ]
-
-    mejoras_criticas = [
-        "Rediseño total de arquitectura de dashboard orientada a pregunta de negocio.",
-        "Panel ejecutivo en 20 segundos: qué pasa, por qué pasa, qué decisión tomar.",
-        "Comparador multicriterio de alternativas de intervención incorporado.",
-        "Tabla accionable con justificación ejecutiva automática por zona.",
-        "Plan de acción por horizonte (0-24m) y drill-down territorial con alternativas por zona.",
-        "Unificación visual y analítica de versiones previas en un único dashboard oficial.",
-    ]
-    mejoras_importantes = [
-        "Heatmap horario por región para tensión operativa real.",
-        "Panel de alertas críticas, trade-off y decisiones diferibles.",
-        "Módulo de escenarios con top zonas impactadas por escenario seleccionado.",
-        "Simulador what-if de sensibilidad EV/industrial/flex/storage.",
-        "Benchmark de umbrales operativos y de resiliencia con semáforo de estado.",
-        "Export CSV de priorización filtrada para uso en comité de inversión/operación.",
-        "KPIs ampliados con resiliencia, SAIDI/SAIFI proxy, CAPEX diferible y presión de electrificación.",
-    ]
-    mejoras_acabado = [
-        "Mejor legibilidad en desktop y móvil con rejillas adaptativas.",
-        "Semántica de color por criticidad y badges por tiers.",
-        "Narrativa de títulos orientada a insight y acción, no descripción neutra.",
-        "Notas metodológicas y límites para aumentar credibilidad ejecutiva.",
-    ]
-
-    _build_audit_report(
-        paths,
-        score_level=score_level,
-        level_percibido=level_percibido,
-        adecuacion=adecuacion,
-        problemas_visuales=problemas_visuales,
-        problemas_contenido=problemas_contenido,
-        problemas_funcionales=problemas_funcionales,
-        mejoras_criticas=mejoras_criticas,
-        mejoras_importantes=mejoras_importantes,
-        mejoras_acabado=mejoras_acabado,
-    )
-
-    architecture = dedent(
-        """
-        # Arquitectura del Dashboard Ejecutivo
-
-        ## Objetivo
-        Convertir el HTML en una herramienta de decisión para utility: diagnóstico + priorización + trade-offs + escenarios.
-
-        ## Principios
-        - Lectura en 20 segundos para dirección.
-        - Trazabilidad dato → insight → intervención.
-        - Filtros globales con impacto real en KPIs, gráficos, escenarios y tabla final.
-        - Narrativa especializada en red eléctrica (congestión, ENS, resiliencia, flexibilidad, electrificación y CAPEX).
-
-        ## Módulos
-        1. Header ejecutivo y contexto metodológico.
-        2. Executive summary (qué pasa / por qué / qué decisión).
-        3. KPI cards con foco operativo y económico.
-        4. Estado de red y congestión (incluye heatmap horario por región).
-        5. Resiliencia y calidad de servicio.
-        6. Flexibilidad, almacenamiento y comparador multicriterio.
-        7. Electrificación y curtailment.
-        8. Priorización y criticidad por zona/subestación/alimentador.
-        9. Escenarios y simulador what-if táctico.
-        10. Benchmark de umbrales con semáforos.
-        11. Plan por horizonte y drill-down territorial.
-        12. Tabla accionable con export de priorización.
-
-        ## Consistencia de producto
-        - Dashboard oficial único: `grid-electrification-command-center.html`.
-        - Se elimina duplicidad de artefactos para evitar divergencia en comités.
-        """
-    ).strip() + "\n"
-    (paths.docs / "dashboard_architecture.md").write_text(architecture, encoding="utf-8")
 
     out_official.write_text(html, encoding="utf-8")
 

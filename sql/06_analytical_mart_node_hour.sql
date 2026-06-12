@@ -127,7 +127,8 @@ SELECT
     COALESCE(nb.storage_potencia_total_mw, 0.0)
         * COALESCE(nb.storage_disponibilidad_media, 0.0)
         * (nb.demanda_mw / NULLIF(nb.demanda_total_zona_mw, 0.0)) AS storage_support_proxy_mw,
-    nb.demanda_mw + nb.demanda_ev_asignada_mw + nb.demanda_industrial_asignada_mw AS demanda_critica_mw,
+    -- demanda_mw ya incorpora EV e industrial en el generador sintético.
+    nb.demanda_mw AS demanda_critica_mw,
     nb.eventos_congestion_hora,
     nb.max_severidad_congestion_hora,
     nb.energia_afectada_hora_mwh,

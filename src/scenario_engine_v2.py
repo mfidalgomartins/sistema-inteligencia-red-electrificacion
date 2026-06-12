@@ -1,14 +1,5 @@
 from __future__ import annotations
 
-import os
-from pathlib import Path
-from textwrap import dedent
-
-os.environ.setdefault("MPLCONFIGDIR", str(Path(__file__).resolve().parents[1] / ".mplconfig"))
-
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -99,6 +90,28 @@ SCENARIOS = {
 }
 
 
+SCENARIO_DRIVERS = {
+    "crecimiento_acelerado_ev": ("electrification_pressure_score", "congestion_risk_score"),
+    "electrificacion_industrial_intensiva": ("electrification_pressure_score", "economic_priority_score"),
+    "mayor_penetracion_gd": ("flexibility_gap_score", "electrification_pressure_score"),
+    "retraso_capex": ("economic_priority_score", "congestion_risk_score"),
+    "despliegue_adicional_flexibilidad": ("flexibility_gap_score", "congestion_risk_score"),
+    "despliegue_adicional_storage": ("flexibility_gap_score", "service_impact_score"),
+    "capex_mas_flexibilidad": ("congestion_risk_score", "flexibility_gap_score"),
+    "evento_degradacion_activos": ("asset_exposure_score", "resilience_risk_score"),
+}
+
+
+def _scenario_exposure(base: pd.DataFrame, scenario: str) -> pd.Series:
+    primary, secondary = SCENARIO_DRIVERS[scenario]
+    return (0.65 * base[primary] + 0.35 * base[secondary]).clip(0, 100) / 100.0
+
+
+def _localized_factor(base_factor: float, exposure: pd.Series) -> pd.Series:
+    factor = 1.0 + (base_factor - 1.0) * (0.55 + 0.90 * exposure)
+    return factor.clip(lower=0.25)
+
+
 def run_scenario_engine_v2() -> dict[str, pd.DataFrame]:
     paths = ensure_dirs(get_paths())
     conn = connect_v2(paths)
@@ -127,21 +140,26 @@ def run_scenario_engine_v2() -> dict[str, pd.DataFrame]:
             base[col] = base[col].fillna("no_disponible")
 
     rows = []
-    load_col = "carga_relativa_avg" if "carga_relativa_avg" in base.columns else ("carga_punta_avg" if "carga_punta_avg" in base.columns else "carga_punta_base")
     for scenario, params in SCENARIOS.items():
         sdf = base.copy()
         sdf["scenario"] = scenario
-        sdf["carga_relativa_scenario"] = sdf[load_col] * params["load_factor"]
-        sdf["horas_congestion_scenario"] = sdf["horas_congestion_avg"] * params["congestion_factor"]
-        sdf["ens_scenario"] = sdf["ens_avg"] * params["ens_factor"]
-        sdf["curtailment_scenario"] = sdf["curtailment_base"] * params["curtailment_factor"]
-        sdf["flexibility_gap_scenario"] = sdf["gap_flexibilidad"] * params["flex_gap_factor"]
-        sdf["coste_riesgo_scenario"] = sdf["coste_riesgo_proxy"] * params["risk_cost_factor"]
+        sdf["scenario_exposure"] = _scenario_exposure(sdf, scenario)
+        sdf["carga_punta_scenario_mw"] = sdf["carga_punta_base"] * _localized_factor(params["load_factor"], sdf["scenario_exposure"])
+        sdf["horas_congestion_scenario"] = sdf["horas_congestion_avg"] * _localized_factor(params["congestion_factor"], sdf["scenario_exposure"])
+        sdf["ens_scenario"] = sdf["ens_avg"] * _localized_factor(params["ens_factor"], sdf["scenario_exposure"])
+        sdf["curtailment_scenario"] = sdf["curtailment_base"] * _localized_factor(params["curtailment_factor"], sdf["scenario_exposure"])
+        sdf["flexibility_gap_scenario"] = sdf["gap_flexibilidad"] * _localized_factor(params["flex_gap_factor"], sdf["scenario_exposure"])
+        sdf["coste_riesgo_scenario"] = sdf["coste_riesgo_proxy"] * _localized_factor(params["risk_cost_factor"], sdf["scenario_exposure"])
         sdf["inversion_requerida_scenario"] = (
-            sdf["capex_total"] * params["capex_factor"]
-            + 0.20 * sdf["intensidad_capex_base"] * max(params["flex_gap_factor"], 1.0)
+            sdf["capex_total"] * _localized_factor(params["capex_factor"], sdf["scenario_exposure"])
+            + 0.20
+            * sdf["intensidad_capex_base"]
+            * _localized_factor(max(params["flex_gap_factor"], 1.0), sdf["scenario_exposure"])
         )
-        sdf["investment_priority_score_scenario"] = (sdf["investment_priority_score"] * params["priority_factor"]).clip(0, 100)
+        sdf["investment_priority_score_scenario"] = (
+            sdf["investment_priority_score"]
+            * _localized_factor(params["priority_factor"], sdf["scenario_exposure"])
+        ).clip(0, 100)
         sdf = sdf.sort_values("investment_priority_score_scenario", ascending=False).reset_index(drop=True)
         sdf["priority_rank_scenario"] = np.arange(1, len(sdf) + 1)
 
@@ -152,7 +170,8 @@ def run_scenario_engine_v2() -> dict[str, pd.DataFrame]:
                     "zona_id",
                     "risk_tier",
                     "recommended_intervention",
-                    "carga_relativa_scenario",
+                    "scenario_exposure",
+                    "carga_punta_scenario_mw",
                     "horas_congestion_scenario",
                     "ens_scenario",
                     "curtailment_scenario",
@@ -170,7 +189,7 @@ def run_scenario_engine_v2() -> dict[str, pd.DataFrame]:
     summary = (
         scenario_impacts.groupby("scenario", as_index=False)
         .agg(
-            carga_relativa_media=("carga_relativa_scenario", "mean"),
+            carga_punta_media_mw=("carga_punta_scenario_mw", "mean"),
             congestion_total=("horas_congestion_scenario", "sum"),
             ens_total=("ens_scenario", "sum"),
             curtailment_total=("curtailment_scenario", "sum"),
@@ -183,46 +202,6 @@ def run_scenario_engine_v2() -> dict[str, pd.DataFrame]:
     )
 
     priority = scenario_impacts.sort_values(["scenario", "priority_rank_scenario"]).groupby("scenario", as_index=False).head(15)
-
-    # Gráfico comparativo base vs alternativos.
-    plt.style.use("seaborn-v0_8-whitegrid")
-    fig, ax = plt.subplots(figsize=(12, 6))
-    ax.bar(summary["scenario"], summary["coste_riesgo_total"], color="#1f78b4", alpha=0.8, label="Coste de riesgo")
-    ax.plot(summary["scenario"], summary["inversion_requerida_total"], color="#e31a1c", marker="o", linewidth=2.0, label="Inversión requerida")
-    ax.set_title("Escenarios: coste de riesgo vs inversión requerida")
-    ax.set_xlabel("Escenario")
-    ax.set_ylabel("EUR (proxy)")
-    ax.tick_params(axis="x", rotation=25)
-    ax.legend()
-    fig.tight_layout()
-    fig.savefig(paths.outputs_charts / "13_escenarios_riesgo_vs_inversion.png", dpi=150)
-    plt.close(fig)
-
-    # Recomendaciones ejecutivas por escenario.
-    best = summary.sort_values("coste_riesgo_total", ascending=True).head(3)
-    worst = summary.sort_values("coste_riesgo_total", ascending=False).head(3)
-
-    rec = dedent(
-        f"""
-        # Scenario Recommendations (v2)
-
-        ## Escenarios evaluados
-        {pd.DataFrame({'scenario': list(SCENARIOS.keys())}).to_markdown(index=False)}
-
-        ## Mejores escenarios por coste de riesgo
-        {best[['scenario','coste_riesgo_total','inversion_requerida_total','prioridad_media']].to_markdown(index=False)}
-
-        ## Escenarios más exigentes
-        {worst[['scenario','coste_riesgo_total','inversion_requerida_total','prioridad_media']].to_markdown(index=False)}
-
-        ## Lectura ejecutiva
-        - `capex_mas_flexibilidad`, `despliegue_adicional_flexibilidad` y `despliegue_adicional_storage` son los escenarios con mejor balance riesgo/urgencia.
-        - `evento_degradacion_activos` y `retraso_capex` son los más severos y deben disparar planes de contingencia.
-        - `crecimiento_acelerado_ev` y `electrificacion_industrial_intensiva` exigen acelerar preparación territorial en zonas ya estresadas.
-        """
-    ).strip() + "\n"
-
-    (paths.outputs_reports / "scenario_recommendations.md").write_text(rec, encoding="utf-8")
 
     write_df(scenario_impacts, paths.data_processed / "scenario_impacts_v2.csv")
     write_df(summary, paths.data_processed / "scenario_summary_v2.csv")
