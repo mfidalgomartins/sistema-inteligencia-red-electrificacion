@@ -14,7 +14,8 @@ dependencies = [
     "matplotlib==3.10.8",
     "numpy==2.4.3",
     "pandas==3.0.1",
-    "reportlab==4.4.10",
+    "pyarrow==23.0.1",
+    "reportlab==4.5.1",
     "tabulate==0.10.0",
 ]
 
