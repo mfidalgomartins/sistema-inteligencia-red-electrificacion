@@ -2,7 +2,7 @@
 
 Sistema reproduzível de apoio à decisão para priorizar intervenções em redes de distribuição sob pressão de eletrificação.
 
-**[Abrir dashboard interativo](https://mfidalgomartins.github.io/sistema-inteligencia-red-electrificacion/)** · **[Ler relatório analítico em PDF](outputs/reports/informe_analitico_red_electrificacion.pdf)**
+**[Abrir dashboard interativo](https://mfidalgomartins.github.io/sistema-inteligencia-red-electrificacion/)** · **[Relatório analítico PDF](https://mfidalgomartins.github.io/sistema-inteligencia-red-electrificacion/outputs/reports/informe_analitico_red_electrificacion.pdf)**
 
 ![Ranking de prioridade das zonas](outputs/graphs/04_ranking_prioridad_zonas.png)
 

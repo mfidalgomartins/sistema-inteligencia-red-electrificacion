@@ -1399,7 +1399,7 @@ def build_report_big4() -> Path:
     doc = ReportDocTemplate(
         str(pdf_path), pagesize=A4, rightMargin=1.7 * cm, leftMargin=1.7 * cm,
         topMargin=1.55 * cm, bottomMargin=1.35 * cm,
-        title="Cartera priorizada de red y electrificación | Versión 2.0",
+        title="Cartera priorizada de red y electrificación",
         subject="Soporte a decisión para priorización de intervenciones de red",
         author="Sistema de Inteligencia de Red",
     )
@@ -1416,17 +1416,13 @@ def build_report_big4() -> Path:
         Paragraph("Riesgo operativo, flexibilidad y secuencia de intervención a 24 meses", styles["CoverSubtitleB4"]),
         HRFlowable(width="100%", thickness=0.8, color=colors.HexColor(GRID), spaceBefore=4, spaceAfter=18),
     ])
-    cover_meta = [
-        ["HORIZONTE", "24 meses", "ALCANCE", f"24 zonas | {len(nodes)} alimentadores"],
-        ["VERSIÓN", "2.0", "ESTADO", "Soporte a decisión; no autoriza CAPEX"],
-    ]
-    story.append(big4_table(cover_meta, [2.2 * cm, 4.2 * cm, 2.2 * cm, 9.0 * cm], styles))
     story.extend([
-        Spacer(1, 5.7 * cm),
-        Paragraph("Decisión requerida", styles["KickerB4"]),
+        Spacer(1, 0.6 * cm),
+        Paragraph(f"24 zonas · {len(nodes)} alimentadores · secuencia 0-24 meses", styles["SmallB4"]),
+        Spacer(1, 5.6 * cm),
         Paragraph("Autorizar la primera vaga de diagnóstico y mitigación, y financiar los estudios que determinan qué refuerzos avanzan a aprobación.", styles["StandfirstB4"]),
         Spacer(1, 0.8 * cm),
-        Paragraph("Base analítica sintética. Los importes económicos son referencias relativas y requieren validación antes de cualquier compromiso de capital.", styles["SmallB4"]),
+        Paragraph("Los importes económicos son referencias relativas y requieren validación antes de cualquier compromiso de capital.", styles["SmallB4"]),
         PageBreak(),
     ])
 
