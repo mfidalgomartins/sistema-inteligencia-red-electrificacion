@@ -2,14 +2,23 @@ VENV_PY := .venv/bin/python
 VENV_PIP := .venv/bin/pip
 PYTEST := .venv/bin/pytest
 
-.PHONY: setup test run publication manifest validate smoke verify-publication release clean-cache
+.PHONY: setup lint format test coverage run publication manifest validate smoke verify-publication release clean-cache
 
 setup:
 	python3 -m venv .venv
 	$(VENV_PIP) install -e ".[dev]"
 
+lint:
+	$(VENV_PY) -m ruff check .
+
+format:
+	$(VENV_PY) -m ruff format .
+
 test:
 	$(PYTEST) -q
+
+coverage:
+	$(VENV_PY) -m pytest -q --cov=src --cov-report=term-missing
 
 run:
 	$(VENV_PY) -m src
@@ -29,7 +38,7 @@ smoke:
 verify-publication:
 	$(PYTEST) -q tests/test_public_artifacts.py
 
-release: test run publication manifest smoke verify-publication
+release: lint test run publication manifest smoke verify-publication
 
 clean-cache:
 	rm -rf .pytest_cache .mplconfig

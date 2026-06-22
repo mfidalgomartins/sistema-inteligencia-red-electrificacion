@@ -3,13 +3,12 @@ from __future__ import annotations
 import hashlib
 import json
 import platform
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pandas as pd
 
 from .common_v2 import ensure_dirs, get_paths, project_relative
-
 
 ARTIFACTS = {
     "dashboard": lambda p: p.outputs_dashboard / "grid-electrification-command-center.html",
@@ -43,7 +42,7 @@ def _file_meta(path: Path) -> dict:
         "exists": True,
         "size_bytes": int(stat.st_size),
         "sha256": _sha256(path),
-        "updated_utc": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat(),
+        "updated_utc": datetime.fromtimestamp(stat.st_mtime, tz=UTC).isoformat(),
     }
 
 
@@ -81,7 +80,7 @@ def build_release_manifest_v2() -> dict:
 
     manifest = {
         "manifest_version": "1.0",
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "generated_at_utc": datetime.now(UTC).isoformat(),
         "python_version": platform.python_version(),
         "platform": platform.platform(),
         "release_readiness": validation_summary.get("release_readiness", {}),

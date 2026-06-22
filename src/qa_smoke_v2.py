@@ -2,13 +2,12 @@ from __future__ import annotations
 
 import hashlib
 import json
-from pathlib import Path
 import re
+from pathlib import Path
 
 import pandas as pd
 
 from .common_v2 import ensure_dirs, get_paths
-
 
 REQUIRED_PROCESSED = [
     "intervention_scoring_table.csv",

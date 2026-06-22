@@ -1,12 +1,9 @@
 from __future__ import annotations
 
-from typing import Tuple
-
 import numpy as np
 import pandas as pd
 
 from .config import SyntheticDataConfig
-
 
 GEOGRAFIA_BASE = [
     ("Andalucia", "Sevilla", "Sur"),
@@ -200,7 +197,6 @@ def generate_activos_red(
 ) -> pd.DataFrame:
     rng = np.random.default_rng(seed + 43)
 
-    sub_zone = subestaciones.set_index("subestacion_id")["zona_id"].to_dict()
     zone_info = zonas_red.set_index("zona_id")
 
     rows = []

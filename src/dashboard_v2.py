@@ -437,12 +437,12 @@ def build_dashboard_v2() -> str:
     }
 
     executive_insights = [
-        f"La presión de red se concentra en {zonas_criticas} zonas críticas ({pct_zonas_criticas:.1f}% del total), con foco en {_fmt_zone_list(top_risk, 'zona_id', 3)}.",
-        f"Los drivers dominantes del riesgo son: {driver_mix_txt}.",
-        f"La tensión por electrificación se concentra en {_fmt_zone_list(top_pressure, 'zona_id', 3)}; la ENS más severa se observa en {_fmt_zone_list(top_ens, 'zona_id', 3)}.",
-        f"El mix de intervención recomendado no es uniforme: {intervention_mix_txt}.",
-        f"CAPEX diferible estimado: €{capex_diferible:,.0f} ({capex_diferible_pct:.1f}% del CAPEX evaluado).",
-        f"Ahorro potencial de coste de riesgo frente a base: €{ahorro_potencial:,.0f}, condicionado a ejecución selectiva de flexibilidad/storage.",
+        f"La red no requiere una respuesta homogénea: {zonas_criticas} zonas críticas ({pct_zonas_criticas:.1f}% del total) concentran la decisión inmediata, con {_fmt_zone_list(top_risk, 'zona_id', 3)} como primer perímetro de comité.",
+        f"El diagnóstico es explicable: los drivers dominantes del score son {driver_mix_txt}; cualquier expediente debe demostrar que la palanca propuesta ataca el driver principal, no sólo el síntoma.",
+        f"La presión futura no sustituye al riesgo actual: electrificación tensiona {_fmt_zone_list(top_pressure, 'zona_id', 3)}, mientras que la ENS obliga a proteger {_fmt_zone_list(top_ens, 'zona_id', 3)} aunque no siempre lideren congestión.",
+        f"El mix de intervención obliga a gestión de cartera: {intervention_mix_txt}; refuerzo, flexibilidad, operación, storage y monitorización deben gobernarse con umbrales distintos.",
+        f"CAPEX diferible estimado: €{capex_diferible:,.0f} ({capex_diferible_pct:.1f}% del CAPEX evaluado), válido sólo donde el tier, el forecast y la cobertura flexible soportan diferimiento.",
+        f"Ahorro potencial de coste de riesgo frente a base: €{ahorro_potencial:,.0f}; depende de ejecutar selectivamente flexibilidad/storage y no debe leerse como presupuesto aprobado.",
     ]
 
     chart_asset = paths.root / "src" / "assets" / "chart.umd.min.js"
@@ -461,45 +461,50 @@ def build_dashboard_v2() -> str:
   __CHARTJS_SCRIPT__
   <style>
     :root {
-      --bg: #edf2f7;
+      --bg: #f5f5f7;
       --surface: #ffffff;
-      --surface-2: #f6f9fc;
-      --surface-3: #eef4f9;
-      --ink: #0f172a;
-      --ink-soft: #1e293b;
-      --muted: #526277;
-      --teal: #0f766e;
+      --surface-2: #fbfbfd;
+      --surface-3: #f5f5f7;
+      --ink: #1d1d1f;
+      --ink-soft: #2c2c2e;
+      --muted: #6e6e73;
+      --teal: #0b6e75;
+      --accent-text: #0b6e75;
       --blue: #1d4ed8;
       --amber: #b45309;
       --red: #b91c1c;
       --green: #166534;
-      --line: #d7e1eb;
-      --line-strong: #c1cedd;
-      --shadow: 0 18px 42px rgba(15, 23, 42, 0.09);
-      --shadow-soft: 0 7px 18px rgba(15, 23, 42, 0.055);
-      --sidebar-bg: linear-gradient(180deg, #071425 0%, #0b1e34 100%);
-      --sidebar-ink: #dbeafe;
-      --sidebar-hint: #93c5fd;
-      --sidebar-label: #cbd5e1;
-      --sidebar-input-bg: #0f172a;
-      --sidebar-input-border: #334155;
-      --sidebar-input-ink: #f8fafc;
+      --line: #e4e4e7;
+      --line-strong: #d2d2d7;
+      --focus: rgba(11, 110, 117, 0.45);
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 32px rgba(0, 0, 0, 0.06);
+      --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.04), 0 6px 18px rgba(0, 0, 0, 0.04);
+      --radius: 18px;
+      --radius-lg: 22px;
+      --radius-sm: 12px;
+      --sidebar-bg: #1d1d1f;
+      --sidebar-ink: #f5f5f7;
+      --sidebar-hint: #a1a1a6;
+      --sidebar-label: #d1d1d6;
+      --sidebar-input-bg: #2c2c2e;
+      --sidebar-input-border: #3a3a3c;
+      --sidebar-input-ink: #f5f5f7;
       --chart-bg: #ffffff;
-      --chart-border: #e2e8f0;
-      --chart-tick: #334155;
-      --chart-grid: rgba(148, 163, 184, .20);
-      --hero-bg: linear-gradient(135deg, #dcecff 0%, #d7f3ef 42%, #eef3fb 100%);
-      --hero-meta-bg: rgba(255, 255, 255, .72);
-      --hero-meta-border: rgba(148, 163, 184, .55);
-      --hero-meta-ink: #000000;
-      --hero-pill-bg: rgba(255, 255, 255, .62);
-      --hero-pill-ink: #0f172a;
-      --risk-critical-bg: #fef2f2;
-      --risk-critical-ink: #7f1d1d;
-      --risk-watch-bg: #fffbeb;
-      --risk-watch-ink: #78350f;
-      --risk-ok-bg: #f0fdf4;
-      --risk-ok-ink: #14532d;
+      --chart-border: #ececee;
+      --chart-tick: #3a3a3c;
+      --chart-grid: rgba(60, 60, 67, .12);
+      --hero-bg: linear-gradient(165deg, #ffffff 0%, #f0f4f4 58%, #f5f5f7 100%);
+      --hero-meta-bg: rgba(255, 255, 255, .68);
+      --hero-meta-border: rgba(0, 0, 0, .07);
+      --hero-meta-ink: #1d1d1f;
+      --hero-pill-bg: rgba(255, 255, 255, .60);
+      --hero-pill-ink: #1d1d1f;
+      --risk-critical-bg: #fdf0ee;
+      --risk-critical-ink: #8a2018;
+      --risk-watch-bg: #fdf6ea;
+      --risk-watch-ink: #7a4711;
+      --risk-ok-bg: #eef7f0;
+      --risk-ok-ink: #1c5a32;
     }
     body[data-theme="dark"] {
       --bg: #0b1220;
@@ -509,12 +514,14 @@ def build_dashboard_v2() -> str:
       --ink: #f8fafc;
       --ink-soft: #e2e8f0;
       --muted: #b7c4d5;
-      --line: #334155;
-      --line-strong: #475569;
-      --shadow: 0 18px 42px rgba(2, 6, 23, 0.58);
-      --shadow-soft: 0 8px 20px rgba(2, 6, 23, 0.38);
-      --sidebar-bg: linear-gradient(180deg, #020617 0%, #0b1220 100%);
-      --sidebar-ink: #e2e8f0;
+      --accent-text: #3fb8ac;
+      --line: #2c2c2e;
+      --line-strong: #3a3a3c;
+      --focus: rgba(94, 200, 190, 0.55);
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 16px 40px rgba(0, 0, 0, 0.5);
+      --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 22px rgba(0, 0, 0, 0.34);
+      --sidebar-bg: #050505;
+      --sidebar-ink: #f5f5f7;
       --sidebar-hint: #bfdbfe;
       --sidebar-label: #cbd5e1;
       --sidebar-input-bg: #0b1220;
@@ -540,12 +547,16 @@ def build_dashboard_v2() -> str:
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: "Avenir Next", "IBM Plex Sans", "Source Sans 3", "Segoe UI", "Trebuchet MS", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Inter", system-ui, sans-serif;
       color: var(--ink);
       background: var(--bg);
-      line-height: 1.45;
-      transition: background-color .24s ease, color .24s ease;
+      line-height: 1.47;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      transition: background-color .3s ease, color .3s ease;
     }
+    h1, h2, h3 { font-weight: 600; letter-spacing: -0.021em; }
     .skip-link {
       position: absolute;
       left: 14px;
@@ -561,17 +572,17 @@ def build_dashboard_v2() -> str:
     }
     .skip-link:focus { top: 12px; }
     :focus-visible {
-      outline: 3px solid rgba(14, 165, 233, .70);
+      outline: 3px solid var(--focus);
       outline-offset: 3px;
     }
     .layout {
       display: grid;
-      grid-template-columns: 294px minmax(0, 1fr);
-      gap: 18px;
+      grid-template-columns: 300px minmax(0, 1fr);
+      gap: 24px;
       align-items: start;
-      max-width: 1760px;
+      max-width: 1720px;
       margin: 0 auto;
-      padding: 18px;
+      padding: 26px;
     }
     .sidebar {
       background: var(--sidebar-bg);
@@ -581,9 +592,9 @@ def build_dashboard_v2() -> str:
       top: auto;
       height: auto;
       overflow: visible;
-      border: 1px solid rgba(148, 163, 184, .18);
-      border-radius: 22px;
-      box-shadow: 0 18px 42px rgba(2, 6, 23, .16);
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
       align-self: start;
     }
     .sidebar-head {
@@ -595,9 +606,9 @@ def build_dashboard_v2() -> str:
       font-size: .68rem;
       text-transform: uppercase;
       letter-spacing: .16em;
-      color: #7dd3fc;
+      color: var(--sidebar-hint);
       margin-bottom: 6px;
-      font-weight: 800;
+      font-weight: 700;
     }
     .sidebar h2 {
       margin: 0 0 6px 0;
@@ -660,23 +671,24 @@ def build_dashboard_v2() -> str:
     .sidebar select:focus,
     .sidebar input[type="text"]:focus,
     .table-tools input:focus {
-      border-color: rgba(14, 165, 233, .8);
-      box-shadow: 0 0 0 3px rgba(14,165,233,.16);
+      border-color: var(--accent-text);
+      box-shadow: 0 0 0 3px var(--focus);
     }
     .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
     .btn {
       border: 0;
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-weight: 700;
+      border-radius: 980px;
+      padding: 10px 14px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
       cursor: pointer;
-      transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+      transition: transform .18s cubic-bezier(.4,0,.2,1), filter .18s ease, opacity .18s ease;
     }
-    .btn:active { transform: translateY(1px); }
-    .btn:hover { box-shadow: 0 8px 20px rgba(15, 23, 42, .16); }
-    .btn.primary { background: linear-gradient(135deg, #0f766e 0%, #0b8b80 100%); color: #fff; }
-    .btn.ghost { background: #1e293b; color: #dbeafe; }
-    .btn.secondary { background: linear-gradient(135deg, #1d4ed8 0%, #0ea5e9 100%); color: #fff; }
+    .btn:active { transform: scale(.97); }
+    .btn:hover { filter: brightness(1.06); }
+    .btn.primary { background: var(--teal); color: #fff; }
+    .btn.ghost { background: rgba(255, 255, 255, .10); color: var(--sidebar-ink); border: 1px solid rgba(255,255,255,.14); }
+    .btn.secondary { background: var(--blue); color: #fff; }
 
     .main {
       padding: 0 0 36px;
@@ -688,38 +700,41 @@ def build_dashboard_v2() -> str:
     .hero {
       background: var(--hero-bg);
       color: var(--ink);
-      border-radius: 22px;
-      padding: 20px 22px;
-      box-shadow: var(--shadow);
+      border-radius: var(--radius-lg);
+      padding: 34px 36px;
+      box-shadow: var(--shadow-soft);
       position: relative;
       overflow: hidden;
-      border: 1px solid rgba(193, 206, 221, .75);
+      border: 1px solid var(--line);
     }
     .hero-kicker {
       position: relative;
       z-index: 1;
       font-size: .70rem;
       text-transform: uppercase;
-      letter-spacing: .16em;
-      color: var(--ink-soft);
-      margin-bottom: 10px;
-      font-weight: 800;
-      opacity: .86;
+      letter-spacing: .15em;
+      color: var(--accent-text);
+      margin-bottom: 14px;
+      font-weight: 700;
     }
     .hero h1 {
       margin: 0;
-      font-size: 1.58rem;
-      max-width: 34ch;
-      line-height: 1.14;
+      font-size: 2.15rem;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      max-width: 24ch;
+      line-height: 1.08;
       position: relative;
       z-index: 1;
       text-shadow: none;
     }
     .hero .subtitle {
-      margin-top: 8px;
-      color: var(--ink-soft);
-      max-width: 78ch;
-      font-size: .93rem;
+      margin-top: 14px;
+      color: var(--muted);
+      max-width: 70ch;
+      font-size: 1.0rem;
+      line-height: 1.5;
+      letter-spacing: -0.006em;
       position: relative;
       z-index: 1;
       text-shadow: none;
@@ -802,7 +817,7 @@ def build_dashboard_v2() -> str:
       font-size: .68rem;
       text-transform: uppercase;
       letter-spacing: .14em;
-      color: var(--teal);
+      color: var(--accent-text);
       font-weight: 800;
       margin-bottom: 4px;
     }
@@ -852,30 +867,30 @@ def build_dashboard_v2() -> str:
       gap: 12px;
     }
     .decision-grid {
-      margin-top: 14px;
+      margin-top: 16px;
       display: grid;
       grid-template-columns: 1.25fr 1fr 1fr 1fr;
-      gap: 12px;
+      gap: 16px;
     }
     .decision-card {
       background: var(--surface);
       border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 14px;
+      border-radius: var(--radius);
+      padding: 18px;
       box-shadow: var(--shadow-soft);
       min-width: 0;
     }
     .decision-card.primary {
-      background: linear-gradient(180deg, var(--risk-critical-bg) 0%, var(--surface) 100%);
-      border-color: rgba(185, 28, 28, .28);
+      background: var(--risk-critical-bg);
+      border-color: transparent;
     }
     .decision-card.watch {
-      background: linear-gradient(180deg, var(--risk-watch-bg) 0%, var(--surface) 100%);
-      border-color: rgba(180, 83, 9, .30);
+      background: var(--risk-watch-bg);
+      border-color: transparent;
     }
     .decision-card.ok {
-      background: linear-gradient(180deg, var(--risk-ok-bg) 0%, var(--surface) 100%);
-      border-color: rgba(22, 101, 52, .26);
+      background: var(--risk-ok-bg);
+      border-color: transparent;
     }
     .decision-card .eyebrow {
       font-size: .64rem;
@@ -936,7 +951,7 @@ def build_dashboard_v2() -> str:
       font-size: .66rem;
       text-transform: uppercase;
       letter-spacing: .14em;
-      color: var(--teal);
+      color: var(--accent-text);
       font-weight: 800;
       margin-bottom: 8px;
     }
@@ -962,10 +977,10 @@ def build_dashboard_v2() -> str:
     }
 
     .kpi-grid {
-      margin-top: 14px;
+      margin-top: 16px;
       display: grid;
       grid-template-columns: repeat(6, minmax(0, 1fr));
-      gap: 12px;
+      gap: 16px;
     }
     .kpi-group-head {
       grid-column: 1 / -1;
@@ -990,29 +1005,29 @@ def build_dashboard_v2() -> str:
     .kpi {
       background: var(--surface);
       border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 12px 12px 13px;
+      border-radius: var(--radius);
+      padding: 16px 16px 17px;
       box-shadow: var(--shadow-soft);
       position: relative;
       overflow: hidden;
-      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+      transition: transform .22s cubic-bezier(.4,0,.2,1), box-shadow .22s ease, border-color .22s ease;
     }
     .kpi:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 12px 26px rgba(15, 23, 42, .08);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
       border-color: var(--line-strong);
     }
     .kpi::before {
       content: "";
       position: absolute;
       inset: 0 auto 0 0;
-      width: 4px;
+      width: 3px;
       background: var(--line-strong);
     }
-    .kpi.official::before { background: linear-gradient(180deg, #0f766e 0%, #14b8a6 100%); }
-    .kpi.exploratory::before { background: linear-gradient(180deg, #1d4ed8 0%, #60a5fa 100%); }
-    .kpi.warning::before { background: linear-gradient(180deg, #b45309 0%, #f59e0b 100%); }
-    .kpi.finance::before { background: linear-gradient(180deg, #166534 0%, #22c55e 100%); }
+    .kpi.official::before { background: var(--teal); }
+    .kpi.exploratory::before { background: var(--blue); }
+    .kpi.warning::before { background: var(--amber); }
+    .kpi.finance::before { background: var(--green); }
     .kpi .eyebrow {
       font-size: .63rem;
       text-transform: uppercase;
@@ -1066,65 +1081,59 @@ def build_dashboard_v2() -> str:
     .kpi .status.ok { background: var(--risk-ok-bg); color: var(--risk-ok-ink); }
 
     .section {
-      margin-top: 14px;
-      padding: 14px 16px 16px;
+      margin-top: 20px;
+      padding: 24px 26px 26px;
     }
     .section h2 {
-      margin: 2px 0 4px;
-      font-size: 1.08rem;
-      line-height: 1.25;
+      margin: 0 0 6px;
+      font-size: 1.32rem;
+      font-weight: 600;
+      letter-spacing: -0.022em;
+      line-height: 1.2;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 11px;
     }
     .section h2::before {
       content: "";
-      width: 10px;
-      height: 10px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      background: linear-gradient(135deg, rgba(15,118,110,.95) 0%, rgba(29,78,216,.78) 100%);
-      box-shadow: 0 0 0 5px rgba(15,118,110,.08);
+      background: var(--teal);
       flex: 0 0 auto;
     }
     .section .intro {
-      margin: 0 0 12px 0;
-      font-size: .84rem;
+      margin: 0 0 16px 0;
+      font-size: .92rem;
       color: var(--muted);
-      line-height: 1.46;
-      max-width: 92ch;
+      line-height: 1.5;
+      max-width: 88ch;
     }
-    .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-    .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
     .grid2 > *, .grid3 > * { min-width: 0; }
 
     .chart-card {
-      background: linear-gradient(180deg, var(--surface-2) 0%, var(--surface) 100%);
+      background: var(--surface);
       border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 14px;
+      border-radius: var(--radius);
+      padding: 18px;
       min-width: 0;
       position: relative;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
-      transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+      box-shadow: var(--shadow-soft);
+      transition: transform .22s cubic-bezier(.4,0,.2,1), border-color .22s ease, box-shadow .22s ease;
     }
     .chart-card:hover {
-      transform: translateY(-1px);
+      transform: translateY(-2px);
       border-color: var(--line-strong);
-      box-shadow: 0 12px 26px rgba(15, 23, 42, .08);
-    }
-    .chart-card::before {
-      content: "";
-      position: absolute;
-      inset: 0 0 auto 0;
-      height: 3px;
-      border-radius: 16px 16px 0 0;
-      background: linear-gradient(90deg, rgba(15,118,110,.92) 0%, rgba(29,78,216,.82) 100%);
+      box-shadow: var(--shadow);
     }
     .chart-title {
-      font-size: .88rem;
+      font-size: .96rem;
       color: var(--ink);
       margin: 0 0 6px 0;
-      font-weight: 700;
+      font-weight: 600;
+      letter-spacing: -0.01em;
       line-height: 1.3;
     }
     .chart-sub {
@@ -1138,7 +1147,7 @@ def build_dashboard_v2() -> str:
     .chart-question {
       display: block;
       margin: 0 0 8px;
-      color: var(--teal);
+      color: var(--accent-text);
       font-size: .70rem;
       font-weight: 850;
       text-transform: uppercase;
@@ -1151,8 +1160,8 @@ def build_dashboard_v2() -> str:
       max-height: 320px;
       background: var(--chart-bg);
       border: 1px solid var(--chart-border);
-      border-radius: 14px;
-      padding: 10px;
+      border-radius: var(--radius-sm);
+      padding: 12px;
     }
 
     .heatmap-wrap {
@@ -1313,7 +1322,7 @@ def build_dashboard_v2() -> str:
     .zone-link {
       border: 0;
       background: transparent;
-      color: var(--teal);
+      color: var(--accent-text);
       font-weight: 700;
       cursor: pointer;
       padding: 0;
@@ -1345,18 +1354,18 @@ def build_dashboard_v2() -> str:
     }
     .whatif-result {
       margin-top: 9px;
-      background: linear-gradient(135deg, #0b1e34 0%, #1f2937 100%);
-      color: #e2e8f0;
-      border-radius: 12px;
-      padding: 11px 12px;
+      background: #1d1d1f;
+      color: #e8e8ed;
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
       font-size: .79rem;
       line-height: 1.45;
     }
     .drill-card {
-      background: linear-gradient(180deg, var(--surface-2) 0%, var(--surface) 100%);
+      background: var(--surface-2);
       border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 14px;
+      border-radius: var(--radius);
+      padding: 16px;
       font-size: .79rem;
       color: var(--ink);
       line-height: 1.4;
@@ -1429,19 +1438,21 @@ def build_dashboard_v2() -> str:
     }
 
     .exec-decision {
-      margin-top: 14px;
-      background: linear-gradient(135deg, #0b1e34 0%, #1f2937 100%);
-      color: #e2e8f0;
-      border-radius: 18px;
-      padding: 16px 18px;
-      border: 1px solid #334155;
+      margin-top: 20px;
+      background: #1d1d1f;
+      color: #e8e8ed;
+      border-radius: var(--radius);
+      padding: 26px 28px;
+      border: 1px solid rgba(255,255,255,.08);
       box-shadow: var(--shadow);
     }
-    .exec-decision li + li { margin-top: 8px; }
+    .exec-decision li + li { margin-top: 9px; }
     .exec-decision h3 {
-      margin: 0 0 10px 0;
-      font-size: 1rem;
-      color: #e0f2fe;
+      margin: 0 0 12px 0;
+      font-size: 1.18rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #ffffff;
     }
     .exec-decision ul {
       margin: 0;
@@ -1476,22 +1487,35 @@ def build_dashboard_v2() -> str:
     body[data-theme="dark"] .bajo { background: rgba(20, 83, 45, .28); color: #bbf7d0; }
 
     @media (max-width: 1450px) {
-      .hero .meta { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .active-filters-head { grid-template-columns: 1fr; }
       .decision-grid { grid-template-columns: 1fr 1fr; }
-      .kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .summary-grid { grid-template-columns: 1fr; }
       .alerts { grid-template-columns: 1fr; }
       .bench-grid { grid-template-columns: 1fr; }
-      .table-tools { grid-template-columns: 1fr; }
     }
     @media (max-width: 1200px) {
-      .layout { grid-template-columns: 1fr; padding: 14px; gap: 14px; }
+      .layout { grid-template-columns: 1fr; padding: 18px; gap: 18px; }
       .sidebar { position: relative; height: auto; }
       .grid2, .grid3, .whatif-grid { grid-template-columns: 1fr; }
       .decision-grid { grid-template-columns: 1fr; }
       .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .hero .meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 720px) {
+      .hero .meta { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: 1fr; }
+      .table-tools { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 1.7rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .btn:active, .kpi:hover, .chart-card:hover { transform: none !important; }
     }
     @media print {
       .sidebar { display: none; }
@@ -1571,7 +1595,7 @@ def build_dashboard_v2() -> str:
       <div class="hero-kicker">Command center ejecutivo de red</div>
       <h1>Centro de Decisión de Red: Congestión, Resiliencia, Flexibilidad y Priorización de Inversiones</h1>
       <div class="subtitle">
-        Pregunta guía: ¿dónde la red pierde capacidad operativa y flexibilidad, y cómo conviene priorizar entre refuerzo físico, operación avanzada, flexibilidad y almacenamiento?
+        Pregunta guía: ¿dónde la red pierde capacidad operativa, resiliencia y flexibilidad, qué driver explica esa pérdida y qué decisión conviene tomar entre refuerzo físico, operación avanzada, flexibilidad, almacenamiento o monitorización reforzada?
       </div>
       <div class="hero-highlights">
         <span class="hero-pill">Lectura territorial</span>
@@ -1591,9 +1615,9 @@ def build_dashboard_v2() -> str:
       <div class="active-filters-head">
         <div>
           <div class="active-filters-kicker">Perímetro activo</div>
-          <div class="active-filters-title">La lectura ejecutiva del dashboard se actualiza sobre este subconjunto</div>
+          <div class="active-filters-title">La lectura ejecutiva se recalcula sobre el subconjunto activo antes de interpretar cualquier ranking</div>
         </div>
-        <div class="active-filters-note">Usa esta banda para validar rápido si una decisión aplica al sistema completo o a un foco concreto.</div>
+        <div class="active-filters-note">Usa esta banda para distinguir una decisión sistémica de una decisión territorial, y para comprobar si la evidencia sigue siendo suficiente al reducir el perímetro.</div>
       </div>
       <div class="filter-pills" id="filter_pills"></div>
     </section>
@@ -1656,7 +1680,7 @@ def build_dashboard_v2() -> str:
 
     <section class="section panel">
       <h2>0) Insights automáticos y benchmark operativo</h2>
-      <p class="intro">Síntesis de lectura para comité: señales clave, cumplimiento de umbrales y focos que requieren escalado inmediato.</p>
+      <p class="intro">Síntesis para comité: señales que cambian la decisión, umbrales fuera de tolerancia y focos que requieren escalado. La lectura separa tres planos: riesgo operativo observado, capacidad de mitigación y disciplina de capital.</p>
       <div class="grid2">
         <div class="chart-card">
           <span class="chart-question">¿Qué señales cambian la decisión del comité?</span>
@@ -1673,7 +1697,7 @@ def build_dashboard_v2() -> str:
 
     <section class="section panel">
       <h2>1) Estado de red y congestión</h2>
-      <p class="intro">Lectura operativa: dónde y cuándo se produce tensión de capacidad, y en qué territorios conviene escalar intervención estructural frente a mitigación táctica.</p>
+      <p class="intro">Lectura operativa: dónde, cuándo y con qué persistencia se produce tensión de capacidad. La sección diferencia estrés precursor de congestión confirmada para decidir si basta una mitigación táctica o si el territorio debe entrar en estudio estructural.</p>
       <div class="grid2">
         <div class="chart-card">
           <span class="chart-question">¿Cuándo supera la red el límite operativo?</span>
@@ -1706,7 +1730,7 @@ def build_dashboard_v2() -> str:
 
     <section class="section panel">
       <h2>2) Resiliencia y calidad de servicio</h2>
-      <p class="intro">Lectura de continuidad: ENS, interrupciones y clientes afectados para discriminar entre ajuste operativo y necesidad de refuerzo o renovación de activos.</p>
+      <p class="intro">Lectura de continuidad: ENS, interrupciones y clientes afectados convierten el riesgo técnico en exposición de servicio. Una zona con menos horas de congestión puede subir en prioridad si el impacto por evento es material para clientes, regulación o reputación.</p>
       <div class="grid3">
         <div class="chart-card">
           <span class="chart-question">¿Dónde la energía no suministrada exige escalado?</span>
@@ -1728,7 +1752,7 @@ def build_dashboard_v2() -> str:
 
     <section class="section panel">
       <h2>3) Flexibilidad, almacenamiento y trade-offs operativos</h2>
-      <p class="intro">El objetivo no es maximizar CAPEX, sino elegir palanca óptima según urgencia, coste, robustez y tiempo de despliegue.</p>
+      <p class="intro">El objetivo no es maximizar CAPEX, sino preservar opción. La decisión compara urgencia, coste, robustez, tiempo de despliegue y capacidad real de cubrir la hora crítica; por eso una solución flexible sólo es defendible si reduce el gap técnico donde y cuando aparece el estrés.</p>
       <div class="grid2">
         <div class="chart-card">
           <span class="chart-question">¿Dónde falta flexibilidad antes de construir?</span>
@@ -1759,7 +1783,7 @@ def build_dashboard_v2() -> str:
 
     <section class="section panel">
       <h2>4) Electrificación, nueva demanda y curtailment</h2>
-      <p class="intro">Lectura de presión futura: EV, electrificación industrial y curtailment para anticipar saturación y definir secuencia de intervención.</p>
+      <p class="intro">Lectura de presión futura: EV, electrificación industrial y curtailment permiten anticipar saturación, pero no sustituyen la evidencia operativa actual. La decisión robusta aparece cuando nueva demanda, congestión y baja flexibilidad coinciden en la misma zona.</p>
       <div class="grid3">
         <div class="chart-card">
           <span class="chart-question">¿Qué zonas absorben más presión EV?</span>
@@ -1781,7 +1805,7 @@ def build_dashboard_v2() -> str:
 
     <section class="section panel">
       <h2>5) Priorización de inversiones y acción operativa</h2>
-      <p class="intro">La priorización debe ser defendible: score total, driver principal, urgencia y alternativa recomendada por zona, subestación y alimentador.</p>
+      <p class="intro">La priorización debe ser defendible ante ingeniería, finanzas y operación: score total, driver principal, urgencia, alternativa recomendada y trazabilidad a subestación/alimentador. El ranking no autoriza inversión; ordena expedientes y define qué evidencia falta para decidir.</p>
       <div class="grid3">
         <div class="chart-card">
           <span class="chart-question">¿Qué zonas entran primero al backlog ejecutivo?</span>
@@ -1803,7 +1827,7 @@ def build_dashboard_v2() -> str:
 
     <section class="section panel">
       <h2>6) Escenarios y simulación what-if</h2>
-      <p class="intro">Comparación de escenarios para cuantificar impacto de no actuar y beneficio relativo de combinar CAPEX, flexibilidad y almacenamiento.</p>
+      <p class="intro">Comparación de escenarios para cuantificar exposición relativa, coste de no actuar y beneficio de combinar CAPEX, flexibilidad y almacenamiento. Los escenarios son pruebas de robustez, no probabilidades; sirven para diseñar secuencia y condiciones de escalada.</p>
       <div class="grid2">
         <div class="chart-card">
           <span class="chart-question">¿Qué escenario reduce coste de riesgo por euro invertido?</span>
@@ -1842,7 +1866,7 @@ def build_dashboard_v2() -> str:
 
     <section class="section panel">
       <h2>7) Tabla accionable de priorización</h2>
-      <p class="intro">Ruta completa dato → insight → acción. La tabla permite filtrar, ordenar y justificar intervención por territorio.</p>
+      <p class="intro">Ruta completa dato → insight → acción. La tabla permite filtrar, ordenar y justificar intervención por territorio, manteniendo visible si la recomendación se basa en congestión, servicio, flexibilidad, activos, electrificación o economía relativa.</p>
       <div class="table-tools">
         <input id="searchBox" placeholder="Buscar por zona, driver o intervención" />
         <button class="btn secondary" id="btn_export_table" style="padding:9px 12px;">Export filtro</button>
@@ -1870,7 +1894,7 @@ def build_dashboard_v2() -> str:
 
     <section class="section panel">
       <h2>8) Plan de acción por horizonte y drill-down territorial</h2>
-      <p class="intro">Convierte priorización en secuencia temporal ejecutable y permite analizar una zona de referencia con sus alternativas de intervención.</p>
+      <p class="intro">Convierte priorización en secuencia temporal ejecutable y permite analizar una zona de referencia con sus alternativas de intervención. Cada horizonte debe tener responsable, línea base, criterio de éxito y umbral de escalada.</p>
       <div class="grid2">
         <div class="chart-card">
           <span class="chart-question">¿Qué trabajo entra en cada ventana de ejecución?</span>
@@ -1889,9 +1913,9 @@ def build_dashboard_v2() -> str:
 
     <section class="method">
       <b>Notas metodológicas y límites</b><br>
-      - Scores y costes son proxies comparativos para priorización relativa, no presupuesto regulatorio definitivo.<br>
-      - El simulador what-if es táctico; para ingeniería de detalle se requiere estudio eléctrico por activo/nodo.<br>
-      - Los datos son sintéticos calibrados para plausibilidad operacional y análisis de decisión.
+      - Scores y costes son proxies comparativos para priorización relativa; no son presupuesto regulatorio, business case definitivo ni autorización de CAPEX.<br>
+      - El simulador what-if es táctico y orienta sensibilidad direccional; para ingeniería de detalle se requiere flujo de carga, N-1, protecciones, permisos, costes reales y restricciones de ejecución.<br>
+      - Los datos son sintéticos calibrados para plausibilidad operacional. El uso correcto es soporte a decisión, diseño de gobernanza analítica y prototipado avanzado antes de conectar fuentes operativas gobernadas.
     </section>
   </main>
 </div>
@@ -1916,6 +1940,36 @@ function esc(v) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+function humanize(v) {
+  return String(v ?? "N/A").replace(/_/g, " ");
+}
+function driverLabel(v) {
+  const map = {
+    congestion_risk_score: "congestión estructural",
+    flexibility_gap_score: "brecha de flexibilidad",
+    asset_exposure_score: "exposición de activos",
+    electrification_pressure_score: "presión de electrificación",
+    service_impact_score: "impacto de servicio",
+    economic_priority_score: "prioridad económica",
+    sin_driver: "sin driver dominante",
+  };
+  return map[String(v || "")] || humanize(v);
+}
+function interventionLabel(v) {
+  const map = {
+    intervencion_inmediata_prioritaria: "intervención inmediata prioritaria",
+    reforzar_red_local: "refuerzo local de red",
+    desplegar_almacenamiento: "despliegue de almacenamiento",
+    activar_flexibilidad: "activación de flexibilidad",
+    optimizar_operacion: "optimización operativa",
+    sustituir_activos: "sustitución de activos",
+    monitorizar: "monitorización reforzada",
+  };
+  return map[String(v || "")] || humanize(v);
+}
+function share(n, d, decimals = 0) {
+  return d ? `${fmt(100 * n / d, decimals)}%` : "0%";
 }
 
 function getTheme() {
@@ -2145,7 +2199,7 @@ function updateExecutiveSummary(fd) {
     driverCount[d] = (driverCount[d] || 0) + 1;
   });
   const driverSorted = Object.entries(driverCount).sort((a,b) => b[1] - a[1]).slice(0,3);
-  const driverTxt = driverSorted.map(([k,v]) => `${k} (${v})`).join(", ") || "N/A";
+  const driverTxt = driverSorted.map(([k,v]) => `${driverLabel(k)} (${v})`).join(", ") || "N/A";
 
   const intCount = {};
   fd.scoring.forEach(s => {
@@ -2153,16 +2207,22 @@ function updateExecutiveSummary(fd) {
     intCount[i] = (intCount[i] || 0) + 1;
   });
   const intSorted = Object.entries(intCount).sort((a,b) => b[1] - a[1]);
-  const firstInt = intSorted.length ? `${intSorted[0][0]} (${intSorted[0][1]} zonas)` : "N/A";
+  const firstInt = intSorted.length ? `${interventionLabel(intSorted[0][0])} (${intSorted[0][1]} zonas)` : "N/A";
+  const topScore = topRisk.length ? num(topRisk[0].investment_priority_score) : 0;
+  const critical = fd.scoring.filter(r => ["critico", "alto"].includes(String(r.risk_tier || "").toLowerCase())).length;
+  const immediate = fd.scoring.filter(r => ["inmediata", "alta"].includes(String(r.urgency_tier || "").toLowerCase())).length;
 
   byId("sum_riesgo").textContent = `${fmt(fd.zoneProfile.length)} zonas activas en filtro`;
-  byId("sum_riesgo_text").textContent = `Mayor presión actual en: ${topRiskTxt}.`;
+  byId("sum_riesgo_text").textContent =
+    `Mayor presión actual en ${topRiskTxt}; el primer score del filtro es ${fmt(topScore,1)} y ${critical} zonas quedan en tier alto/crítico.`;
 
-  byId("sum_drivers").textContent = driverSorted.length ? driverSorted[0][0] : "Sin señal";
-  byId("sum_drivers_text").textContent = `Drivers dominantes del filtro: ${driverTxt}.`;
+  byId("sum_drivers").textContent = driverSorted.length ? driverLabel(driverSorted[0][0]) : "Sin señal";
+  byId("sum_drivers_text").textContent =
+    `Drivers dominantes del filtro: ${driverTxt}. La palanca elegida debe atacar ese driver, no sólo mejorar el ranking agregado.`;
 
   byId("sum_decision").textContent = firstInt;
-  byId("sum_decision_text").textContent = "La recomendación debe cerrarse contra coste, plazo y robustez para evitar CAPEX homogéneo sin criterio territorial.";
+  byId("sum_decision_text").textContent =
+    `${immediate} urgencias requieren decisión de corto plazo. Cerrar cada recomendación contra coste, plazo, robustez y evidencia técnica antes de liberar CAPEX.`;
 }
 
 function updateTopDecision(fd) {
@@ -2186,21 +2246,22 @@ function updateTopDecision(fd) {
   const capexDifPct = capex ? 100 * capexDif / capex : 0;
 
   const firstAction = top[0]?.recommended_intervention || "monitorizar";
+  const topScore = top[0] ? num(top[0].investment_priority_score) : 0;
   byId("exec_action_focus").textContent = topIds;
   byId("exec_action_text").innerHTML =
-    `<strong>${fmt(critical.length,0)} zonas alto/crítico</strong> y ${fmt(immediate.length,0)} urgencias inmediatas/altas. Acción dominante: <strong>${esc(firstAction)}</strong>.`;
+    `<strong>${fmt(critical.length,0)} zonas alto/crítico</strong> y ${fmt(immediate.length,0)} urgencias inmediatas/altas. La primera decisión debe centrarse en ${esc(topIds)}; score líder <strong>${fmt(topScore,1)}</strong> y acción dominante <strong>${esc(interventionLabel(firstAction))}</strong>.`;
 
-  byId("exec_bottleneck").textContent = topDriver[0];
+  byId("exec_bottleneck").textContent = driverLabel(topDriver[0]);
   byId("exec_bottleneck_text").innerHTML =
-    `Explica ${fmt(topDriver[1],0)} zonas del perímetro. Validar si el driver requiere CAPEX estructural o mitigación operativa.`;
+    `Explica ${fmt(topDriver[1],0)} zonas del perímetro (${share(topDriver[1], fd.scoring.length, 0)}). Validar si el driver exige refuerzo estructural, medida reversible o sólo monitorización con umbral de escalada.`;
 
   byId("exec_operational_impact").textContent = `${fmt(ens,1)} MWh`;
   byId("exec_operational_impact_text").innerHTML =
-    `ENS filtrada con coste de riesgo proxy de <strong>${fmt(costRisk,0)} EUR</strong>. Usar para ordenar la respuesta semanal.`;
+    `ENS filtrada con coste de riesgo proxy de <strong>${fmt(costRisk,0)} EUR</strong>. Usar para ordenar respuesta semanal y exigir beneficio esperado por expediente.`;
 
   byId("exec_capex_release").textContent = `${fmt(capexDifPct,1)}%`;
   byId("exec_capex_release_text").innerHTML =
-    `CAPEX potencialmente diferible: <strong>${fmt(capexDif,0)} EUR</strong>. Diferir sólo donde forecast y tier permiten monitorización.`;
+    `CAPEX potencialmente diferible: <strong>${fmt(capexDif,0)} EUR</strong>. Diferir sólo donde tier, forecast, cobertura flexible y señal de servicio permiten preservar opción sin aumentar riesgo residual.`;
 }
 
 function buildFilterChip(label, value, muted = false) {
@@ -2351,10 +2412,10 @@ function updateAlerts(fd) {
   const differ = fd.scoring.filter(r => String(r.decision_forecast || "").toLowerCase().includes("diferir") && ["bajo", "medio"].includes(String(r.risk_tier))).map(r => r.zona_id);
   const differTxt = differ.slice(0,4).join(", ");
 
-  byId("alert_critico").textContent = `Alerta crítica: el riesgo se concentra en ${topTxt}. Requiere seguimiento semanal de congestión y ENS.`;
-  byId("alert_tradeoff").textContent = `${tradeMsg} Priorizar intervención por robustez y plazo, no sólo por score.`;
+  byId("alert_critico").textContent = `Alerta crítica: el riesgo se concentra en ${topTxt}. Requiere propietario, fecha de revisión y seguimiento semanal de congestión, ENS y brecha flexible.`;
+  byId("alert_tradeoff").textContent = `${tradeMsg} Priorizar intervención por robustez, plazo, reversibilidad y evidencia de reducción de riesgo, no sólo por score.`;
   byId("alert_diferible").textContent = differ.length
-    ? `Decisiones potencialmente diferibles con monitorización reforzada: ${differTxt}${differ.length > 4 ? "..." : ""}.`
+    ? `Decisiones potencialmente diferibles con monitorización reforzada: ${differTxt}${differ.length > 4 ? "..." : ""}. El diferimiento debe tener umbral explícito de escalada.`
     : "No se observan zonas claramente diferibles bajo el filtro actual.";
 }
 
@@ -2364,14 +2425,18 @@ function renderAutoInsights(fd) {
   const topRiskTxt = topRisk.map(z => z.zona_id).join(", ");
   const topScenario = [...fd.scenarioSummary].sort((a,b) => num(a.coste_riesgo_total) - num(b.coste_riesgo_total))[0];
   const horizonShort = fd.scoring.filter(s => String(s.recommended_sequence).includes("0-")).length;
+  const scoreAvg = fd.scoring.length ? fd.scoring.reduce((s,r) => s + num(r.investment_priority_score), 0) / fd.scoring.length : 0;
+  const flexMean = fd.flexGap.length ? fd.flexGap.reduce((s,f) => s + num(f.ratio_flexibilidad_estres), 0) / fd.flexGap.length : 0;
+  const critical = fd.scoring.filter(r => ["critico", "alto"].includes(String(r.risk_tier || "").toLowerCase())).length;
 
   const dyn = [];
-  if (topRiskTxt) dyn.push(`Prioridad inmediata territorial: ${topRiskTxt}.`);
-  dyn.push(`Backlog corto plazo (0-12m): ${fmt(horizonShort,0)} intervenciones en el perímetro actual.`);
-  if (topScenario) dyn.push(`Escenario más eficiente por coste de riesgo: ${topScenario.scenario}.`);
-  dyn.push(`El filtro activo conserva ${fmt(fd.zoneIds.length,0)} zonas y ${fmt(fd.substations.length,0)} subestaciones con señal analítica.`);
+  if (topRiskTxt) dyn.push(`Prioridad inmediata territorial: ${topRiskTxt}; convertir el ranking en expedientes, no en aprobación automática de obra.`);
+  dyn.push(`Backlog corto plazo (0-12m): ${fmt(horizonShort,0)} intervenciones; score medio filtrado ${fmt(scoreAvg,1)} y ${critical} zonas alto/crítico.`);
+  dyn.push(`Cobertura flexible media del filtro: ${fmt(flexMean,2)}; si se mantiene por debajo del umbral, la mitigación reversible necesita prueba de disponibilidad horaria.`);
+  if (topScenario) dyn.push(`Escenario más eficiente por coste de riesgo: ${humanize(topScenario.scenario)}; usarlo como referencia de secuencia, no como presupuesto aprobado.`);
+  dyn.push(`El filtro activo conserva ${fmt(fd.zoneIds.length,0)} zonas y ${fmt(fd.substations.length,0)} subestaciones con señal analítica; si el perímetro es pequeño, validar dependencia regional antes de decidir.`);
 
-  byId("auto_insights").innerHTML = [...base.slice(0,4), ...dyn].map(t => `<li>${esc(t)}</li>`).join("");
+  byId("auto_insights").innerHTML = [...base.slice(0,6), ...dyn].map(t => `<li>${esc(t)}</li>`).join("");
 }
 
 function _benchStatus(v, target, dir = "le") {
@@ -2862,21 +2927,21 @@ function justification(row) {
   const interv = String(row.recommended_intervention || "");
   const score = num(row.investment_priority_score);
   if (interv === "reforzar_red_local") {
-    return `Riesgo ${fmt(score,1)} con señal estructural (${driver}); refuerzo recomendado por persistencia de congestión.`;
+    return `Riesgo ${fmt(score,1)} con señal estructural (${driverLabel(driver)}); abrir estudio de refuerzo y confirmar topología, contingencias, permisos y coste real antes de aprobar obra.`;
   }
   if (interv === "activar_flexibilidad") {
-    return `Riesgo ${fmt(score,1)} y brecha flexible relevante; flexibilidad permite respuesta rápida con menor CAPEX inicial.`;
+    return `Riesgo ${fmt(score,1)} y brecha flexible relevante; flexibilidad permite respuesta rápida si demuestra disponibilidad en la hora crítica y reduce ENS/congestión observada.`;
   }
   if (interv === "desplegar_almacenamiento") {
-    return `Riesgo ${fmt(score,1)} con presión variable; storage mejora cobertura en punta y reduce curtailment.`;
+    return `Riesgo ${fmt(score,1)} con presión variable; storage debe dimensionarse por duración, ubicación y efecto simultáneo sobre punta, curtailment y resiliencia.`;
   }
   if (interv === "optimizar_operacion") {
-    return `Riesgo ${fmt(score,1)} con ventana de acción operativa inmediata; útil para contener ENS mientras madura inversión.`;
+    return `Riesgo ${fmt(score,1)} con ventana operativa inmediata; útil para contener ENS mientras madura la decisión estructural, con revisión si persiste el estrés.`;
   }
   if (interv === "sustituir_activos") {
-    return `Riesgo ${fmt(score,1)} asociado a exposición de activos; renovación prioritaria para mejorar resiliencia.`;
+    return `Riesgo ${fmt(score,1)} asociado a exposición de activos; renovación prioritaria si inspección, edad, criticidad y continuidad confirman fragilidad material.`;
   }
-  return `Riesgo ${fmt(score,1)} con señal no concluyente para CAPEX inmediato; mantener monitorización reforzada.`;
+  return `Riesgo ${fmt(score,1)} con señal no concluyente para CAPEX inmediato; mantener monitorización reforzada con umbral de escalada y fecha de relectura.`;
 }
 
 function renderPriorityTable(fd) {
@@ -3023,12 +3088,12 @@ function updateDecisionList(fd) {
   const capex = top.reduce((s,r) => s + num(r.capex_total), 0);
 
   const items = [
-    `Intervención inmediata en zonas top del ranking: ${topIds}.`,
-    `Refuerzo de red conviene donde la congestión y la presión de electrificación son persistentes (casos detectados: ${reinforce}).`,
-    `Flexibilidad y operación avanzada son preferibles en la mayoría de zonas de urgencia alta-planificada cuando el horizonte de obra es largo (casos: ${flex}).`,
-    `Storage se justifica en zonas con gap flexible estructural y variabilidad de demanda (casos: ${storage}).`,
-    `Decisiones diferibles deben limitarse a zonas monitorizables con score medio-bajo y forecasting aceptable (casos monitorización: ${monitor}).`,
-    `En el perímetro filtrado, score medio ${fmt(riskMean,1)} y CAPEX agregado ${fmt(capex,0)} EUR; la secuencia debe evitar ejecutar CAPEX homogéneo sin discriminación territorial.`,
+    `Intervención inmediata en zonas top del ranking: ${topIds}; abrir expediente con propietario, línea base, alternativa preferida y mitigación transitoria.`,
+    `Refuerzo de red conviene donde la congestión y la presión de electrificación son persistentes (casos detectados: ${reinforce}); no debe aprobarse sin ingeniería, permisos y coste real.`,
+    `Flexibilidad y operación avanzada son preferibles en zonas de urgencia alta-planificada cuando el horizonte de obra es largo (casos: ${flex}); exigir medición antes/después y umbral de renovación.`,
+    `Storage se justifica en zonas con gap flexible estructural y variabilidad de demanda (casos: ${storage}); dimensionar por MW, MWh, localización y valor de curtailment evitado.`,
+    `Decisiones diferibles deben limitarse a zonas monitorizables con score medio-bajo y forecasting aceptable (casos monitorización: ${monitor}); diferir sin gatillo de escalada equivale a aceptar riesgo no gobernado.`,
+    `En el perímetro filtrado, score medio ${fmt(riskMean,1)} y CAPEX agregado ${fmt(capex,0)} EUR; la secuencia debe proteger opción, reducir exposición y evitar CAPEX homogéneo sin discriminación territorial.`,
   ];
 
   list.innerHTML = items.map(x => `<li>${esc(x)}</li>`).join("");

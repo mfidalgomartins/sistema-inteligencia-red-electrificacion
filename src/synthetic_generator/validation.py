@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict
 
 import numpy as np
 import pandas as pd
@@ -9,7 +8,7 @@ import pandas as pd
 from .config import SyntheticDataConfig
 
 
-def build_cardinality_summary(tables: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+def build_cardinality_summary(tables: dict[str, pd.DataFrame]) -> pd.DataFrame:
     keys = {
         "zonas_red": "zona_id",
         "subestaciones": "subestacion_id",
@@ -51,7 +50,7 @@ def build_cardinality_summary(tables: Dict[str, pd.DataFrame]) -> pd.DataFrame:
     return pd.DataFrame(records).sort_values("tabla").reset_index(drop=True)
 
 
-def run_plausibility_checks(tables: Dict[str, pd.DataFrame], config: SyntheticDataConfig) -> pd.DataFrame:
+def run_plausibility_checks(tables: dict[str, pd.DataFrame], config: SyntheticDataConfig) -> pd.DataFrame:
     zonas = tables["zonas_red"]
     sub = tables["subestaciones"]
     al = tables["alimentadores"]
@@ -190,7 +189,7 @@ def run_plausibility_checks(tables: Dict[str, pd.DataFrame], config: SyntheticDa
 def write_logic_summary(
     output_path: Path,
     config: SyntheticDataConfig,
-    tables: Dict[str, pd.DataFrame],
+    tables: dict[str, pd.DataFrame],
     cardinalidad: pd.DataFrame,
 ) -> None:
     demanda = tables["demanda_horaria"]

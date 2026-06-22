@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Dict
-
 import pandas as pd
 
 from .config import DEFAULT_CONFIG, SyntheticDataConfig
@@ -30,7 +27,6 @@ from .operations import (
 )
 from .validation import build_cardinality_summary, run_plausibility_checks, write_logic_summary
 
-
 TABLE_ORDER = [
     "zonas_red",
     "subestaciones",
@@ -50,7 +46,7 @@ TABLE_ORDER = [
 ]
 
 
-def generate_synthetic_ecosystem(config: SyntheticDataConfig = DEFAULT_CONFIG) -> Dict[str, pd.DataFrame]:
+def generate_synthetic_ecosystem(config: SyntheticDataConfig = DEFAULT_CONFIG) -> dict[str, pd.DataFrame]:
     time_features = create_time_features(config)
 
     zonas_red = generate_zonas_red(config)
@@ -118,7 +114,7 @@ def generate_synthetic_ecosystem(config: SyntheticDataConfig = DEFAULT_CONFIG) -
     )
     inversiones_posibles = generate_inversiones_posibles(zonas_red, subestaciones, alimentadores, seed=config.seed)
 
-    tables: Dict[str, pd.DataFrame] = {
+    tables: dict[str, pd.DataFrame] = {
         "zonas_red": zonas_red,
         "subestaciones": subestaciones,
         "alimentadores": alimentadores,

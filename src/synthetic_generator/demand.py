@@ -215,7 +215,6 @@ def generate_demanda_horaria(
     rng = np.random.default_rng(seed + 181)
 
     feeder_map = alimentadores.merge(subestaciones[["subestacion_id", "zona_id"]], on="subestacion_id", how="left")
-    zone_lookup = zonas_red.set_index("zona_id")
 
     timestamps = time_features["timestamp"].to_numpy()
     h = len(timestamps)

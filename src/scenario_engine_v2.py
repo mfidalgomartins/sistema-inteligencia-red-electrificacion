@@ -5,7 +5,6 @@ import pandas as pd
 
 from .common_v2 import connect_v2, ensure_dirs, get_paths, write_df
 
-
 SCENARIOS = {
     "crecimiento_acelerado_ev": {
         "load_factor": 1.12,

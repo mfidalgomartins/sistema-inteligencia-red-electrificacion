@@ -1,12 +1,8 @@
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Dict
-
 import pandas as pd
 
 from .common_v2 import connect_v2, ensure_dirs, get_paths, write_df
-
 
 SQL_SEQUENCE_V2 = [
     "01_staging_core_tables.sql",
@@ -42,7 +38,7 @@ EXPORT_OBJECTS = {
 }
 
 
-def run_sql_layer_v2() -> Dict[str, pd.DataFrame]:
+def run_sql_layer_v2() -> dict[str, pd.DataFrame]:
     paths = ensure_dirs(get_paths())
     conn = connect_v2(paths)
     format_context = {"raw_path": str(paths.data_raw).replace("'", "''")}
@@ -52,7 +48,7 @@ def run_sql_layer_v2() -> Dict[str, pd.DataFrame]:
         sql_text = sql_path.read_text(encoding="utf-8").format(**format_context)
         conn.execute(sql_text)
 
-    outputs: Dict[str, pd.DataFrame] = {}
+    outputs: dict[str, pd.DataFrame] = {}
     for db_object, out_name in EXPORT_OBJECTS.items():
         df = conn.execute(f"SELECT * FROM {db_object}").df()
         outputs[db_object] = df

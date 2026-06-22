@@ -12,7 +12,6 @@ def run_advanced_analysis_v2() -> dict[str, pd.DataFrame]:
     paths = ensure_dirs(get_paths())
     conn = connect_v2(paths)
 
-    zone_risk = conn.execute("SELECT * FROM vw_zone_operational_risk").df()
     node_hour = conn.execute(
         """
         SELECT
@@ -33,7 +32,6 @@ def run_advanced_analysis_v2() -> dict[str, pd.DataFrame]:
     zone_day = conn.execute("SELECT * FROM zone_day_features").df()
     flex_gap = conn.execute("SELECT * FROM vw_flexibility_gap").df()
     scoring = pd.read_csv(paths.data_processed / "intervention_scoring_table.csv")
-    scenario_summary = pd.read_csv(paths.data_processed / "scenario_summary_v2.csv") if (paths.data_processed / "scenario_summary_v2.csv").exists() else pd.DataFrame()
 
     # Bloque 1: salud operativa general.
     b1_temporal = (

@@ -10,6 +10,7 @@ os.environ.setdefault("MPLCONFIGDIR", str(plot_cache_dir / "matplotlib"))
 os.environ.setdefault("XDG_CACHE_HOME", str(plot_cache_dir / "xdg"))
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
@@ -291,7 +292,7 @@ def run_visualization_v2() -> list[str]:
     x = np.arange(len(c15))
     bottom = np.zeros(len(c15))
     colors = ["#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e", "#e6ab02", "#a6761d"]
-    for d, c in zip(drivers, colors):
+    for d, c in zip(drivers, colors, strict=False):
         vals = c15[d].to_numpy(dtype=float)
         ax.bar(x, vals, bottom=bottom, label=d, color=c, alpha=0.85)
         bottom += vals
@@ -326,7 +327,7 @@ def run_visualization_v2() -> list[str]:
         "15. Drivers de score por zona: composición del riesgo agregado.",
     ]
 
-    for exp, path in zip(explanations, chart_paths):
+    for exp, path in zip(explanations, chart_paths, strict=False):
         index_lines.append(f"- {exp} -> `{Path(path).name}`")
 
     (paths.outputs_charts / "index_visualizaciones.md").write_text("\n".join(index_lines) + "\n", encoding="utf-8")

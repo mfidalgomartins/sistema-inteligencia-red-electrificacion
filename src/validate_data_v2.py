@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pandas as pd
 
@@ -564,7 +564,7 @@ def run_validate_data_v2() -> dict[str, pd.DataFrame]:
 
     (paths.outputs_reports / "validation_report.md").write_text(report, encoding="utf-8")
     summary = {
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "generated_at_utc": datetime.now(UTC).isoformat(),
         "overall_status": overall_status,
         "confidence_level": confidence,
         "issues_high": n_high,

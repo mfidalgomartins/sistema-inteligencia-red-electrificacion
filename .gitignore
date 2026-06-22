@@ -2,14 +2,18 @@
 .venv/
 __pycache__/
 .pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 *.pyc
 build/
 *.egg-info/
 
-# OS / editor noise
+# OS / editor / tooling noise
 .DS_Store
 .mplconfig/
 .Rhistory
+.claude/
 
 # Large generated datasets (rebuild with pipeline)
 data/raw/*.csv

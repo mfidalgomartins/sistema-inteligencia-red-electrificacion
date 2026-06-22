@@ -6,7 +6,7 @@ from textwrap import dedent
 import numpy as np
 import pandas as pd
 
-from .common_v2 import connect_v2, ensure_dirs, get_paths, minmax, write_df
+from .common_v2 import connect_v2, ensure_dirs, get_paths, write_df
 
 
 @dataclass(frozen=True)

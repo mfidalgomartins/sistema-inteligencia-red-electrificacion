@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_DASHBOARD = ROOT / "outputs" / "dashboard" / "grid-electrification-command-center.html"
 PUBLIC_REPORT = ROOT / "outputs" / "reports" / "informe_analitico_red_electrificacion.pdf"

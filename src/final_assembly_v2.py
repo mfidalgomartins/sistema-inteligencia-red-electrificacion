@@ -18,7 +18,7 @@ from .visualization_v2 import run_visualization_v2
 
 
 def run_final_assembly_v2() -> dict[str, str]:
-    paths = ensure_dirs(get_paths())
+    ensure_dirs(get_paths())
 
     # 0) Regeneración determinista del ecosistema raw para evitar drift de artefactos.
     generate_synthetic_ecosystem()

@@ -26,9 +26,10 @@ make setup
 make release
 ```
 
-`make release` executa testes, reconstrói o pipeline analítico, gera os artefactos públicos e aplica os quality gates. Comandos individuais:
+`make release` corre o linter e os testes, reconstrói o pipeline analítico, gera os artefactos públicos e aplica os quality gates. Comandos individuais:
 
 ```bash
+make lint
 make test
 make run
 make publication
@@ -78,6 +79,14 @@ Definições completas:
 - [Framework de scoring](docs/scoring_framework.md)
 - [Governance e quality gates](docs/governance_framework.md)
 
+## Qualidade
+
+A garantia de qualidade combina três camadas, todas executadas na CI a cada `push`:
+
+- **Lint** (`make lint`, Ruff): estilo, imports, modernização e deteção de código morto.
+- **Testes de contrato** (`make test`): invariantes analíticos — limites de score `0-100`, regras de scoring, contratos SQL, validação e smoke de release.
+- **Integração ponta a ponta** (`make run`, `python -m src`): reconstrói todo o pipeline determinístico, sendo a cobertura real dos módulos analíticos. Por isso a cobertura de linha medida só pelos testes unitários (`make coverage`) subestima a verificação efetiva.
+
 ## Artefactos públicos
 
 - [Dashboard autónomo](outputs/dashboard/grid-electrification-command-center.html)
@@ -90,7 +99,7 @@ Os dados e custos são sintéticos. O sistema demonstra arquitetura analítica e
 
 ## Stack
 
-Python, pandas, NumPy, DuckDB, Matplotlib, ReportLab, Chart.js e pytest.
+Python, pandas, NumPy, DuckDB, Matplotlib, ReportLab, Chart.js, pytest e Ruff.
 
 ## Licença
 

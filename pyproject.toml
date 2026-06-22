@@ -20,7 +20,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest==9.0.2"]
+dev = ["pytest==9.0.2", "pytest-cov==7.1.0", "ruff==0.15.18"]
 
 [tool.setuptools.packages.find]
 include = ["src", "src.*"]
@@ -32,3 +32,33 @@ src = ["assets/*.js"]
 testpaths = ["tests"]
 pythonpath = ["."]
 addopts = "-q"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+extend-exclude = [".venv", "build", "notebooks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["E501"]  # line length governed by formatter, not enforced as an error
+
+[tool.ruff.lint.per-file-ignores]
+# matplotlib requires the Agg backend to be selected before pyplot is imported,
+# so a small number of module-level statements legitimately precede imports.
+"src/visualization_v2.py" = ["E402"]
+"scripts/build_publication_outputs.py" = ["E402"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+# Unit tests assert contracts/invariants; full line coverage of the analytical
+# modules comes from the end-to-end `python -m src` run exercised in CI.
+exclude_lines = ["pragma: no cover", "if __name__ == .__main__.:", "raise NotImplementedError"]

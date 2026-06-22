@@ -120,7 +120,6 @@ def generate_eventos_congestion(
     util = df["demanda_mw"] / np.maximum(df["capacidad_mw"], 1e-6)
     threshold = np.clip(0.91 + 0.11 * df["coverage"], 0.9, 1.03)
 
-    overload_mw = np.maximum(df["demanda_mw"] - df["capacidad_mw"], 0) + 0.35 * np.maximum(df["demanda_mw"] - threshold * df["capacidad_mw"], 0)
     prob_burst = np.clip((util - threshold) * (1.6 - df["coverage"]) * 2.2, 0, 0.95)
     random_gate = rng.random(len(df))
     congested_flag = (util > threshold) & (random_gate < (0.55 + prob_burst))
