@@ -1,12 +1,20 @@
 name: CI
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
   pull_request:
 
 jobs:
-  test:
+  release-gate:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6.0.3
       - uses: actions/setup-python@v6.2.0
@@ -15,19 +23,5 @@ jobs:
           cache: pip
       - name: Install
         run: python -m pip install -e ".[dev]"
-      - name: Lint
-        run: ruff check .
-      - name: Compile
-        run: python -m compileall -q src tests scripts
-      - name: Test
-        run: pytest
-      - name: Run analytical pipeline
-        run: python -m src
-      - name: Build publication artifacts
-        run: python scripts/build_publication_outputs.py
-      - name: Refresh release manifest
-        run: python -m src.release_manifest_v2
-      - name: Verify release
-        run: |
-          python -m src.qa_smoke_v2
-          pytest -q tests/test_public_artifacts.py
+      - name: Release gate
+        run: make release PYTHON=python

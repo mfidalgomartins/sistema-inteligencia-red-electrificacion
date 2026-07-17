@@ -16,7 +16,7 @@ Construir una capa visible y auditable para:
 
 ## Estructura por niveles
 
-### 1) Staging
+### 1) Preparación
 Archivo: `sql/01_staging_core_tables.sql`
 
 Función:
@@ -41,7 +41,7 @@ Tablas/vistas creadas:
 - `stg_inversiones_posibles`
 - `stg_escenario_macro`
 
-### 2) Integration
+### 2) Integración
 Archivos:
 - `sql/02_integrated_network_load.sql`
 - `sql/03_integrated_grid_events.sql`
@@ -49,7 +49,7 @@ Archivos:
 - `sql/05_integrated_flexibility_assets.sql`
 
 Función:
-- Integrar carga horaria de nodo con EV, electrificación industrial y GD.
+- Integrar carga horaria de nodo con vehículos eléctricos, electrificación industrial y GD.
 - Normalizar eventos de congestión e interrupciones con duración/severidad.
 - Consolidar recursos de flexibilidad, almacenamiento e intervención por zona.
 
@@ -62,7 +62,7 @@ Vistas clave:
 - `vw_int_service_quality_enriched`
 - `vw_int_flexibility_assets_zone`
 
-### 3) Analytical Marts
+### 3) Marts analíticos
 Archivos:
 - `sql/06_analytical_mart_node_hour.sql`
 - `sql/07_analytical_mart_zone_day.sql`
@@ -71,7 +71,7 @@ Archivos:
 Función:
 - Crear granularidades analíticas para operación y planificación.
 - Materializar vistas de riesgo y exposición.
-- Preparar base de scoring y priorización de inversiones.
+- Preparar base de puntuación y priorización de inversiones.
 
 Marts:
 - `mart_node_hour_operational_state`
@@ -85,7 +85,7 @@ Vistas obligatorias implementadas:
 - `vw_flexibility_gap`
 - `vw_investment_candidates`
 
-### 4) KPI Queries
+### 4) Consultas KPI
 Archivo: `sql/09_kpi_queries.sql`
 
 Vistas KPI implementadas:
@@ -98,7 +98,7 @@ Vistas KPI implementadas:
 - `kpi_activos_mas_expuestos`
 - `kpi_zonas_afectadas_ev_industrial`
 
-### 5) Validation Queries
+### 5) Consultas de validación
 Archivo: `sql/10_validation_queries.sql`
 
 Activos de calidad:
@@ -135,8 +135,8 @@ Familias de control:
 - Sin `SELECT *`.
 - CTEs con responsabilidad única.
 - Nombres de columnas en español de negocio técnico.
-- Flags booleanos para trazabilidad (`flag_congestion`, `flag_estres_operativo`, etc.).
-- Métricas normalizadas con funciones ventana para scores comparables entre zonas/candidatos.
+- Banderas booleanas para trazabilidad (`flag_congestion`, `flag_estres_operativo`, etc.).
+- Métricas normalizadas con funciones ventana para puntuaciones comparables entre zonas/candidatos.
 
 ## Cómo ejecutar rápidamente con DuckDB
 Ejemplo de ejecución secuencial desde shell:

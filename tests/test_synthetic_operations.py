@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from src.synthetic_generator.operations import generate_interrupciones_servicio
+from grid_intelligence.synthetic_generator.operations import generate_interrupciones_servicio
 
 
 def test_relacion_congestion_flag_has_real_overlap_when_true():

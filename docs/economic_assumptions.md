@@ -1,7 +1,7 @@
 # Supuestos Económicos de Referencia
 
 ## Marco
-Supuestos de orden de magnitud para comparar alternativas de inversión y operación en una utility de distribución.
+Supuestos de orden de magnitud para comparar alternativas de inversión y operación en una distribuidora eléctrica.
 
 ## CAPEX unitario (referencia relativa)
 - Refuerzo estructural de red: alto coste, mayor robustez de largo plazo.
@@ -9,12 +9,12 @@ Supuestos de orden de magnitud para comparar alternativas de inversión y operac
 - Almacenamiento distribuido: coste intermedio/alto, mejora absorción de variabilidad.
 - Intervención operativa: menor coste inicial, efecto de corto plazo.
 
-## Proxies operativos usados en el modelo
+## Referencias operativas usadas en el modelo
 - Coste por ENS: **2.500 EUR/MWh**.
-- Coste por curtailment: **90 EUR/MWh**.
+- Coste por vertido: **90 EUR/MWh**.
 - Penalización por congestión: **45 EUR/hora**.
 
-Estos factores se aplican como proxies relativos para priorización, no como presupuesto regulatorio definitivo.
+Estos factores se aplican como referencias relativas para priorización, no como presupuesto regulatorio definitivo.
 
 ## Parámetros de despliegue
 - Horizonte de secuenciación: 0-24 meses según intervención recomendada.

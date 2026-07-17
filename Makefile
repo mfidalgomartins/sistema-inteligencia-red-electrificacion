@@ -1,45 +1,60 @@
-VENV_PY := .venv/bin/python
-VENV_PIP := .venv/bin/pip
-PYTEST := .venv/bin/pytest
+PYTHON ?= .venv/bin/python
+PIP ?= .venv/bin/pip
 
-.PHONY: setup lint format test coverage run publication manifest validate smoke verify-publication release clean-cache
+.DEFAULT_GOAL := help
+.PHONY: help setup deps-check lint format compile test check coverage run publication manifest validate smoke verify-publication release clean-cache
 
-setup:
+help:  ## Muestra los comandos disponibles
+	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[1m%-20s\033[0m %s\n", $$1, $$2}'
+
+setup:  ## Crea el entorno virtual e instala dependencias
 	python3 -m venv .venv
-	$(VENV_PIP) install -e ".[dev]"
+	$(PIP) install -e ".[dev]"
 
-lint:
-	$(VENV_PY) -m ruff check .
+deps-check:  ## Verifica la consistencia de dependencias instaladas
+	$(PYTHON) -m pip check
 
-format:
-	$(VENV_PY) -m ruff format .
+lint:  ## Comprueba lint y formato con Ruff
+	$(PYTHON) -m ruff check .
+	$(PYTHON) -m ruff format --check .
 
-test:
-	$(PYTEST) -q
+format:  ## Aplica el formato canónico de Ruff
+	$(PYTHON) -m ruff format .
 
-coverage:
-	$(VENV_PY) -m pytest -q --cov=src --cov-report=term-missing
+compile:  ## Compila módulos y pruebas para detectar errores de sintaxis
+	$(PYTHON) -m compileall -q src tests scripts
 
-run:
-	$(VENV_PY) -m src
+test:  ## Ejecuta la suite completa de pruebas
+	$(PYTHON) -m pytest
 
-publication:
-	$(VENV_PY) scripts/build_publication_outputs.py
+check: deps-check lint compile test  ## Gate rápido para desarrollo local
 
-manifest:
-	$(VENV_PY) -m src.release_manifest_v2
+coverage:  ## Mide pruebas unitarias + pipeline y exige 80% de cobertura
+	$(PYTHON) -m coverage erase
+	$(PYTHON) -m coverage run -m pytest
+	$(PYTHON) -m coverage run --append -m grid_intelligence --log-level WARNING
+	$(PYTHON) -m coverage report --fail-under=80
 
-validate:
-	$(VENV_PY) -m src.validate_data_v2
+run:  ## Ejecuta el pipeline analítico completo
+	$(PYTHON) -m grid_intelligence
 
-smoke:
-	$(VENV_PY) -m src.qa_smoke_v2
+publication:  ## Genera gráficos, tablero y el informe PDF
+	$(PYTHON) scripts/build_publication_outputs.py
 
-verify-publication:
-	$(PYTEST) -q tests/test_public_artifacts.py
+manifest:  ## Regenera el manifiesto de release
+	$(PYTHON) -m grid_intelligence.release_manifest
 
-release: lint test run publication manifest smoke verify-publication
+validate:  ## Ejecuta la validación analítica formal
+	$(PYTHON) -m grid_intelligence.validation
 
-clean-cache:
-	rm -rf .pytest_cache .mplconfig
-	find . -type d -name __pycache__ -prune -exec rm -rf {} +
+smoke:  ## Pruebas de humo de release
+	$(PYTHON) -m grid_intelligence.quality_gates
+
+verify-publication:  ## Verifica la integridad de artefactos públicos
+	$(PYTHON) -m pytest tests/test_public_artifacts.py
+
+release: deps-check lint compile coverage publication manifest smoke verify-publication  ## Gate completo de producción
+
+clean-cache:  ## Elimina cachés y residuos locales de build
+	rm -rf .coverage .pytest_cache .ruff_cache .mplconfig build
+	find . -path './.git' -prune -o -path './.venv' -prune -o -type d \( -name __pycache__ -o -name '*.egg-info' \) -prune -exec rm -rf {} +

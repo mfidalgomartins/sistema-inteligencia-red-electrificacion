@@ -1,5 +1,5 @@
 -- Dialecto: DuckDB SQL
--- Nivel: analytical marts
+-- Nivel: marts analíticos
 -- Objetivo: sintetizar desempeño mensual y generar vistas para brecha de flexibilidad y candidatos de inversión.
 
 CREATE OR REPLACE TABLE mart_zone_month_operational AS

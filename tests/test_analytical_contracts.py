@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.anomaly_detection_v2 import _future_window_max
-from src.scenario_engine_v2 import _localized_factor
+from grid_intelligence.anomaly_detection import _future_window_max
+from grid_intelligence.scenario_engine import _localized_factor
 
 ROOT = Path(__file__).resolve().parents[1]
 

@@ -6,6 +6,8 @@
 
 ## Raw (`data/raw`)
 
+Cada tabla raw tiene un contrato versionado con sistema origen, estrategia `snapshot|upsert`, clave primaria, columna temporal, nulabilidad y límites numéricos. En landing se añaden `_batch_id`, `_source_contract`, `_source_checksum` y `_ingested_at`; estas columnas de auditoría no forman parte de la interfaz raw promovida.
+
 ### `zonas_red.csv`
 - `zona_id`: identificador de zona.
 - `zona_nombre`: nombre de zona.
@@ -93,4 +95,35 @@
 - `zone_day_features.csv`
 - `zone_month_features.csv`
 - `intervention_scoring_table.csv`
-- `scenario_impacts_v2.csv` (salida técnica de escenarios)
+- `prioridades_inversion_alimentadores.csv`
+- `scenario_impacts.csv` (salida técnica de escenarios)
+- `scenario_summary.csv`
+- `scenario_priority_ranking.csv`
+
+### `prioridades_inversion_alimentadores.csv`
+- Grain: `alimentador_id`.
+- Claves de contexto: `zona_id`, `subestacion_id`.
+- Señales: carga relativa, ratio de congestión, exposición de activos, probabilidad de fallo y ENS asociada.
+- Decisión: `puntuacion_prioridad`, `nivel_prioridad`, `accion_recomendada` y `alivio_requerido_mw`.
+
+### Pronóstico gobernado
+
+- `forecast_rolling_backtest.csv`: modelo, entidad, fold, fecha, cutoff, real, predicción y error.
+- `forecast_model_selection_rolling.csv`: ranking por MAE/RMSE, sesgo y observaciones.
+- `forecast_uncertainty_intervals.csv`: predicción, límites y cobertura al 80/95% para el fold de evaluación.
+- `forecast_calibration_summary.csv`: cobertura nominal/empírica, ancho medio y muestras de calibración/evaluación.
+- `forecast_monitoring_status.csv`: modelo elegido, ratio y z-score de deriva MAE, dispersión entre folds, cobertura 95%, ventana y estado operativo.
+
+## Incremental (`data/incremental`)
+
+- `mart_feeder_day/fecha=YYYY-MM-DD/part-00000.parquet`: una fila por alimentador y día.
+- `mart_zone_day/fecha=YYYY-MM-DD/part-00000.parquet`: una fila por zona y día.
+- Ambas tablas incluyen demanda total, punta, media, horas observadas y completitud.
+
+## Operacional (`data/operational/operations.duckdb`)
+
+- `ingestion_batches`: estado y linaje de cada lote.
+- `ingestion_partitions`: ruta, fecha, filas y checksum de cada partición.
+- `incremental_runs`: watermark, estado, filas, tiempos y error del refresco diario.
+- `decisions`: recomendación, owner, estado, valores esperados/reales, hitos y versión.
+- `decision_events`: historial append-only de creación y transición.

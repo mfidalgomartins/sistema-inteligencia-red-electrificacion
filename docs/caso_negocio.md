@@ -14,12 +14,12 @@ Generar una cartera de intervenciones priorizada por zona que equilibre:
 1. Priorización relativa de inversión y operación por zona.
 2. Selección del tipo de palanca (física, flexibilidad, almacenamiento, automatización).
 3. Secuenciación de intervenciones en horizontes de 0-24 meses.
-4. Evaluación de robustez bajo escenarios what-if.
+4. Evaluación de robustez bajo escenarios simulados.
 
 ## KPIs de negocio
 - Horas de congestión zonales.
 - ENS (MWh) y severidad de continuidad.
-- Curtailment estimado (MWh).
+- Vertido estimado (MWh).
 - Brecha técnica de flexibilidad (MW).
-- Coste de riesgo y CAPEX diferible como proxies relativos.
+- Coste de riesgo y CAPEX diferible como referencias relativas.
 - Número de zonas en prioridad crítica/alta.

@@ -1,0 +1,374 @@
+{
+  "contract_version": "1.0.0",
+  "contracts": {
+    "gis_zonas": {
+      "source_system": "GIS",
+      "target_table": "zonas_red",
+      "load_strategy": "snapshot",
+      "primary_key": ["zona_id"],
+      "event_time": null,
+      "columns": {
+        "zona_id": "string",
+        "zona_nombre": "string",
+        "comunidad_autonoma": "string",
+        "provincia": "string",
+        "tipo_zona": "string",
+        "region_operativa": "string",
+        "densidad_demanda": "float",
+        "penetracion_generacion_distribuida": "float",
+        "criticidad_territorial": "float",
+        "potencial_flexibilidad": "float",
+        "riesgo_climatico": "float",
+        "tension_crecimiento_demanda": "float"
+      },
+      "bounds": {
+        "densidad_demanda": [0, 100],
+        "penetracion_generacion_distribuida": [0, 1],
+        "criticidad_territorial": [0, 100],
+        "potencial_flexibilidad": [0, 100],
+        "riesgo_climatico": [0, 100],
+        "tension_crecimiento_demanda": [0, 100]
+      }
+    },
+    "gis_subestaciones": {
+      "source_system": "GIS",
+      "target_table": "subestaciones",
+      "load_strategy": "snapshot",
+      "primary_key": ["subestacion_id"],
+      "event_time": null,
+      "columns": {
+        "subestacion_id": "string",
+        "zona_id": "string",
+        "nombre_subestacion": "string",
+        "capacidad_mw": "float",
+        "capacidad_firme_mw": "float",
+        "antiguedad_anios": "integer",
+        "indice_criticidad": "float",
+        "digitalizacion_nivel": "float",
+        "redundancia_nivel": "float"
+      },
+      "bounds": {
+        "capacidad_mw": [0, null],
+        "capacidad_firme_mw": [0, null],
+        "antiguedad_anios": [0, 150],
+        "indice_criticidad": [0, 100],
+        "digitalizacion_nivel": [0, 100],
+        "redundancia_nivel": [0, 100]
+      }
+    },
+    "gis_alimentadores": {
+      "source_system": "GIS",
+      "target_table": "alimentadores",
+      "load_strategy": "snapshot",
+      "primary_key": ["alimentador_id"],
+      "event_time": null,
+      "columns": {
+        "alimentador_id": "string",
+        "subestacion_id": "string",
+        "tipo_red": "string",
+        "capacidad_mw": "float",
+        "longitud_km": "float",
+        "nivel_perdidas_estimado": "float",
+        "exposicion_climatica": "float",
+        "carga_base_esperada": "float",
+        "criticidad_operativa": "float"
+      },
+      "bounds": {
+        "capacidad_mw": [0, null],
+        "longitud_km": [0, null],
+        "nivel_perdidas_estimado": [0, 1],
+        "exposicion_climatica": [0, 100],
+        "carga_base_esperada": [0, null],
+        "criticidad_operativa": [0, 100]
+      }
+    },
+    "scada_ami_demanda": {
+      "source_system": "SCADA_AMI",
+      "target_table": "demanda_horaria",
+      "load_strategy": "upsert",
+      "primary_key": ["timestamp", "alimentador_id"],
+      "event_time": "timestamp",
+      "columns": {
+        "timestamp": "datetime",
+        "zona_id": "string",
+        "subestacion_id": "string",
+        "alimentador_id": "string",
+        "demanda_mw": "float",
+        "demanda_reactiva_proxy": "float",
+        "temperatura": "float",
+        "humedad": "float",
+        "tipo_dia": "string",
+        "mes": "integer",
+        "hora": "integer",
+        "factor_estacional": "float",
+        "hora_punta_flag": "boolean",
+        "tension_sistema_proxy": "float"
+      },
+      "bounds": {
+        "demanda_mw": [0, null],
+        "humedad": [0, 100],
+        "mes": [1, 12],
+        "hora": [0, 23],
+        "factor_estacional": [0, null],
+        "tension_sistema_proxy": [0, null]
+      }
+    },
+    "der_generacion": {
+      "source_system": "DERMS",
+      "target_table": "generacion_distribuida",
+      "load_strategy": "upsert",
+      "primary_key": ["timestamp", "zona_id", "tecnologia"],
+      "event_time": "timestamp",
+      "columns": {
+        "timestamp": "datetime",
+        "zona_id": "string",
+        "tecnologia": "string",
+        "capacidad_instalada_mw": "float",
+        "generacion_mw": "float",
+        "autoconsumo_estimado_mw": "float",
+        "vertido_estimado_mw": "float",
+        "curtailment_estimado_mw": "float"
+      },
+      "bounds": {
+        "capacidad_instalada_mw": [0, null],
+        "generacion_mw": [0, null],
+        "autoconsumo_estimado_mw": [0, null],
+        "vertido_estimado_mw": [0, null],
+        "curtailment_estimado_mw": [0, null]
+      }
+    },
+    "planning_ev": {
+      "source_system": "PLANNING",
+      "target_table": "demanda_ev",
+      "load_strategy": "upsert",
+      "primary_key": ["timestamp", "zona_id", "tipo_recarga"],
+      "event_time": "timestamp",
+      "columns": {
+        "timestamp": "datetime",
+        "zona_id": "string",
+        "tipo_recarga": "string",
+        "demanda_ev_mw": "float",
+        "penetracion_ev": "float",
+        "horario_recarga_dominante": "string"
+      },
+      "bounds": {
+        "demanda_ev_mw": [0, null],
+        "penetracion_ev": [0, 1]
+      }
+    },
+    "planning_industrial": {
+      "source_system": "PLANNING",
+      "target_table": "demanda_electrificacion_industrial",
+      "load_strategy": "upsert",
+      "primary_key": ["timestamp", "zona_id", "cluster_industrial"],
+      "event_time": "timestamp",
+      "columns": {
+        "timestamp": "datetime",
+        "zona_id": "string",
+        "cluster_industrial": "string",
+        "demanda_industrial_adicional_mw": "float",
+        "perfil_operativo": "string",
+        "elasticidad_flexibilidad_proxy": "float"
+      },
+      "bounds": {
+        "demanda_industrial_adicional_mw": [0, null],
+        "elasticidad_flexibilidad_proxy": [0, 1]
+      }
+    },
+    "scada_congestion": {
+      "source_system": "SCADA",
+      "target_table": "eventos_congestion",
+      "load_strategy": "upsert",
+      "primary_key": ["evento_id"],
+      "event_time": "timestamp_inicio",
+      "columns": {
+        "evento_id": "string",
+        "timestamp_inicio": "datetime",
+        "timestamp_fin": "datetime",
+        "zona_id": "string",
+        "subestacion_id": "string",
+        "alimentador_id": "string",
+        "severidad": "string",
+        "energia_afectada_mwh": "float",
+        "carga_relativa_max": "float",
+        "causa_principal": "string",
+        "impacto_servicio_flag": "boolean"
+      },
+      "bounds": {
+        "energia_afectada_mwh": [0, null],
+        "carga_relativa_max": [0, null]
+      }
+    },
+    "oms_interrupciones": {
+      "source_system": "OMS",
+      "target_table": "interrupciones_servicio",
+      "load_strategy": "upsert",
+      "primary_key": ["interrupcion_id"],
+      "event_time": "timestamp_inicio",
+      "columns": {
+        "interrupcion_id": "string",
+        "timestamp_inicio": "datetime",
+        "timestamp_fin": "datetime",
+        "zona_id": "string",
+        "subestacion_id": "string",
+        "clientes_afectados": "integer",
+        "energia_no_suministrada_mwh": "float",
+        "causa": "string",
+        "nivel_severidad": "string",
+        "relacion_congestion_flag": "boolean"
+      },
+      "bounds": {
+        "clientes_afectados": [0, null],
+        "energia_no_suministrada_mwh": [0, null]
+      }
+    },
+    "eam_activos": {
+      "source_system": "EAM",
+      "target_table": "activos_red",
+      "load_strategy": "snapshot",
+      "primary_key": ["activo_id"],
+      "event_time": null,
+      "nullable_columns": ["alimentador_id"],
+      "columns": {
+        "activo_id": "string",
+        "tipo_activo": "string",
+        "subestacion_id": "string",
+        "alimentador_id": "string",
+        "edad_anios": "integer",
+        "estado_salud": "float",
+        "probabilidad_fallo_proxy": "float",
+        "criticidad": "float",
+        "capex_reposicion_estimado": "float",
+        "opex_mantenimiento_estimado": "float"
+      },
+      "bounds": {
+        "edad_anios": [0, 200],
+        "estado_salud": [0, 100],
+        "probabilidad_fallo_proxy": [0, 1],
+        "criticidad": [0, 100],
+        "capex_reposicion_estimado": [0, null],
+        "opex_mantenimiento_estimado": [0, null]
+      }
+    },
+    "derms_flexibilidad": {
+      "source_system": "DERMS",
+      "target_table": "recursos_flexibilidad",
+      "load_strategy": "snapshot",
+      "primary_key": ["recurso_id"],
+      "event_time": null,
+      "columns": {
+        "recurso_id": "string",
+        "zona_id": "string",
+        "tipo_recurso": "string",
+        "capacidad_flexible_mw": "float",
+        "coste_activacion_eur_mwh": "float",
+        "tiempo_respuesta_min": "integer",
+        "disponibilidad_media": "float",
+        "fiabilidad_activacion": "float",
+        "madurez_operativa": "float"
+      },
+      "bounds": {
+        "capacidad_flexible_mw": [0, null],
+        "coste_activacion_eur_mwh": [0, null],
+        "tiempo_respuesta_min": [0, null],
+        "disponibilidad_media": [0, 1],
+        "fiabilidad_activacion": [0, 1],
+        "madurez_operativa": [0, 100]
+      }
+    },
+    "derms_almacenamiento": {
+      "source_system": "DERMS",
+      "target_table": "almacenamiento_distribuido",
+      "load_strategy": "snapshot",
+      "primary_key": ["storage_id"],
+      "event_time": null,
+      "columns": {
+        "storage_id": "string",
+        "zona_id": "string",
+        "capacidad_energia_mwh": "float",
+        "capacidad_potencia_mw": "float",
+        "eficiencia_roundtrip": "float",
+        "coste_operacion_proxy": "float",
+        "disponibilidad_media": "float"
+      },
+      "bounds": {
+        "capacidad_energia_mwh": [0, null],
+        "capacidad_potencia_mw": [0, null],
+        "eficiencia_roundtrip": [0, 1],
+        "coste_operacion_proxy": [0, null],
+        "disponibilidad_media": [0, 1]
+      }
+    },
+    "operations_intervenciones": {
+      "source_system": "OMS",
+      "target_table": "intervenciones_operativas",
+      "load_strategy": "snapshot",
+      "primary_key": ["intervencion_id"],
+      "event_time": null,
+      "columns": {
+        "intervencion_id": "string",
+        "zona_id": "string",
+        "tipo_intervencion": "string",
+        "capacidad_alivio_estimado_mw": "float",
+        "coste_estimado": "float",
+        "tiempo_despliegue_dias": "integer",
+        "complejidad_operativa": "float"
+      },
+      "bounds": {
+        "capacidad_alivio_estimado_mw": [0, null],
+        "coste_estimado": [0, null],
+        "tiempo_despliegue_dias": [0, null],
+        "complejidad_operativa": [0, 100]
+      }
+    },
+    "capex_inversiones": {
+      "source_system": "CAPEX",
+      "target_table": "inversiones_posibles",
+      "load_strategy": "snapshot",
+      "primary_key": ["inversion_id"],
+      "event_time": null,
+      "columns": {
+        "inversion_id": "string",
+        "zona_id": "string",
+        "tipo_inversion": "string",
+        "capex_estimado": "float",
+        "opex_incremental_estimado": "float",
+        "reduccion_riesgo_esperada": "float",
+        "aumento_capacidad_esperado": "float",
+        "horizonte_meses": "integer",
+        "facilidad_implementacion": "float",
+        "impacto_resiliencia": "float"
+      },
+      "bounds": {
+        "capex_estimado": [0, null],
+        "opex_incremental_estimado": [0, null],
+        "reduccion_riesgo_esperada": [0, 100],
+        "aumento_capacidad_esperado": [0, null],
+        "horizonte_meses": [0, null],
+        "facilidad_implementacion": [0, 100],
+        "impacto_resiliencia": [0, 100]
+      }
+    },
+    "planning_macro": {
+      "source_system": "PLANNING",
+      "target_table": "escenario_macro",
+      "load_strategy": "upsert",
+      "primary_key": ["fecha", "escenario"],
+      "event_time": "fecha",
+      "columns": {
+        "fecha": "date",
+        "escenario": "string",
+        "crecimiento_demanda_indice": "float",
+        "penetracion_ev_indice": "float",
+        "electrificacion_industrial_indice": "float",
+        "presion_capex_indice": "float"
+      },
+      "bounds": {
+        "crecimiento_demanda_indice": [0, null],
+        "penetracion_ev_indice": [0, null],
+        "electrificacion_industrial_indice": [0, null],
+        "presion_capex_indice": [0, null]
+      }
+    }
+  }
+}

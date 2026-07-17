@@ -22,6 +22,9 @@ data/raw/*.md
 data/processed/*.csv
 data/processed/*.parquet
 data/processed/*.duckdb
+data/incremental/
+data/landing/
+data/operational/
 
 # Generated outputs
 outputs/charts/

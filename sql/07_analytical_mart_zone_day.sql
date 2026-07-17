@@ -1,5 +1,5 @@
 -- Dialecto: DuckDB SQL
--- Nivel: analytical marts
+-- Nivel: marts analíticos
 -- Objetivo: consolidar riesgo operativo diario por zona y exposición de activos.
 
 CREATE OR REPLACE TABLE mart_zone_day_operational AS

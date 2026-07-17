@@ -1,5 +1,5 @@
 -- Dialecto: DuckDB SQL
--- Nivel: validation queries
+-- Nivel: consultas de validación
 -- Objetivo: controles de calidad y consistencia para staging, integración y marts analíticos.
 
 CREATE OR REPLACE TABLE validation_checks AS

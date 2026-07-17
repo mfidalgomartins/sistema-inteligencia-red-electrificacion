@@ -1,25 +1,25 @@
-# Feature Dictionary
+# Diccionario de Variables Analíticas
 
 ## Principio de diseño
 - **Observadas**: señales directamente medidas en operación o eventos.
 - **Derivadas**: señales transformadas para modelado, interpretación o decisión.
 
 ## node_hour_features (granularidad nodo-hora)
-- `carga_relativa` (observada): ratio demanda/capacidad instantánea.
+- `carga_relativa` (observada): relación demanda/capacidad instantánea.
 - `sobrecarga_flag` (derivada): 1 si `carga_relativa >= 1.0`.
 - `proximidad_a_capacidad` (derivada): cercanía a saturación técnica.
 - `hora_punta_flag` (observada): marca de punta operativa.
 - `volatilidad_reciente` (derivada): desviación estándar móvil de 24h en demanda.
 - `rolling_mean_24h` (derivada): media móvil de demanda 24h.
 - `rolling_max_7d` (derivada): máximo de carga relativa en 7 días.
-- `crecimiento_vs_baseline` (derivada): desviación frente a baseline horario por tipo de día.
-- `presion_ev` (derivada): proporción EV en demanda del nodo.
+- `crecimiento_vs_baseline` (derivada): desviación frente a línea base horaria por tipo de día.
+- `presion_ev` (derivada): proporción de vehículos eléctricos en demanda del nodo.
 - `presion_electrificacion_industrial` (derivada): proporción industrial adicional en demanda.
 - `cobertura_flexibilidad` (derivada): cobertura flexible sobre demanda nodal.
-- `storage_support_ratio` (derivada): soporte de storage sobre demanda nodal.
+- `storage_support_ratio` (derivada): soporte de almacenamiento sobre demanda nodal.
 - `coste_flexibilidad_proxy` (observada/derivada): coste medio zonal de activación flexible.
 - `penetracion_generacion_distribuida` (derivada): GD asignada sobre demanda.
-- `curtailment_ratio` (derivada): energía recortada sobre GD asignada.
+- `curtailment_ratio` (derivada): energía vertida sobre GD asignada.
 - `historial_congestion_7d` (derivada): congestión acumulada de 7 días.
 - `historial_congestion_30d` (derivada): congestión acumulada de 30 días.
 - `historial_interrupciones_30d` (derivada): interrupciones acumuladas por subestación en 30 días.
@@ -36,29 +36,29 @@
 - `gap_flexibilidad` (derivada): brecha técnica flexible diaria.
 - `exposicion_activos` (derivada): exposición media de activos en la zona.
 - `demanda_total_mwh` (observada agregada): demanda total diaria de la zona.
-- `demanda_ev_total` (observada agregada): energía EV diaria.
+- `demanda_ev_total` (observada agregada): energía diaria de vehículos eléctricos.
 - `demanda_industrial_adicional_total` (observada agregada): energía industrial adicional diaria.
-- `curtailment_total` (observada agregada): energía recortada diaria.
-- `demanda_no_servida_proxy` (derivada): ENS + componente de curtailment.
-- `coste_riesgo_proxy` (derivada): proxy económico de riesgo diario.
+- `curtailment_total` (observada agregada): energía vertida diaria.
+- `demanda_no_servida_proxy` (derivada): ENS + componente de vertido.
+- `coste_riesgo_proxy` (derivada): aproximación económica de riesgo diario.
 
 ## zone_month_features (granularidad zona-mes)
 - `tendencia_demanda` (derivada): cambio mensual de demanda total.
 - `cambio_estacional` (derivada): demanda mensual respecto a media anual zonal.
 - `recurrencia_congestion` (derivada): frecuencia relativa mensual de congestión.
 - `riesgo_operativo_agregado` (derivada): índice compuesto de riesgo mensual.
-- `indice_resiliencia` (derivada): score inverso de fragilidad mensual.
-- `intensidad_capex_proxy` (derivada): presión de inversión por carga y gap flexible.
+- `indice_resiliencia` (derivada): índice inverso de fragilidad mensual.
+- `intensidad_capex_proxy` (derivada): presión de inversión por carga y brecha flexible.
 - `flexibilidad_efectiva` (derivada): cobertura flexible media / carga punta.
-- `storage_efectivo` (derivada): soporte storage medio / carga punta.
+- `storage_efectivo` (derivada): soporte medio de almacenamiento / carga punta.
 - `presion_crecimiento` (observada agregada): tensión estructural de crecimiento.
 
 ## intervention_candidates_features (granularidad candidato-zona)
-- `main_risk_driver` (derivada): driver dominante de riesgo para intervención.
-- `technical_score_inputs` (derivada): inputs técnicos combinados de riesgo.
-- `economic_score_inputs` (derivada): inputs económicos y CAPEX.
-- `flexibility_viability_inputs` (derivada): viabilidad operativa de flex/storage.
+- `main_risk_driver` (derivada): factor dominante de riesgo para intervención.
+- `technical_score_inputs` (derivada): entradas técnicas combinadas de riesgo.
+- `economic_score_inputs` (derivada): entradas económicas y CAPEX.
+- `flexibility_viability_inputs` (derivada): viabilidad operativa de flexibilidad/almacenamiento.
 - `investment_readiness_inputs` (derivada): madurez de despliegue e impacto.
 
-## Utilidad para utility
-Estas señales permiten separar saturación puntual vs. estructural, conectar calidad de servicio con exposición de activos, y traducir estrés operativo en decisiones de refuerzo, flexibilidad, storage o secuenciación CAPEX.
+## Utilidad para la empresa eléctrica
+Estas señales permiten separar saturación puntual frente a estructural, conectar calidad de servicio con exposición de activos, y traducir estrés operativo en decisiones de refuerzo, flexibilidad, almacenamiento o secuenciación CAPEX.

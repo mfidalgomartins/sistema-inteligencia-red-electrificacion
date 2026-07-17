@@ -2,7 +2,7 @@
 
 ## Principios
 - Todas las métricas se calculan en la capa SQL para trazabilidad.
-- Las métricas de score se normalizan por máximo observado cuando procede.
+- Las métricas de puntuación se normalizan por máximo observado cuando procede.
 - Los agregados horarios usan `demanda_mw` como aproximación de `MWh` (paso horario = 1h).
 
 ## Métricas de estado operativo de nodo (`vw_node_hour_operational_state`)
@@ -11,13 +11,13 @@
 - `carga_relativa` = `demanda_mw / capacidad_mw`
 - `carga_relativa_neta` = `net_load_mw / capacidad_mw`
 - `overload_mw` = `max(demanda_mw - capacidad_mw, 0)`
-- `demanda_critica_mw` = `demanda_mw`. La demanda horaria sintética ya incorpora EV e industrial.
+- `demanda_critica_mw` = `demanda_mw`. La demanda horaria sintética ya incorpora vehículos eléctricos e industrial.
 
 ### Integración de electrificación y generación distribuida
-- `demanda_ev_asignada_mw`: carga EV asignada al nodo por share de demanda zonal.
-- `demanda_industrial_asignada_mw`: carga industrial asignada al nodo por share de demanda zonal.
-- `generacion_distribuida_asignada_mw`: GD asignada al nodo por share de capacidad zonal.
-- `curtailment_asignado_mw`: curtailment asignado al nodo por share de capacidad zonal.
+- `demanda_ev_asignada_mw`: carga de vehículos eléctricos asignada al nodo por proporción de demanda zonal.
+- `demanda_industrial_asignada_mw`: carga industrial asignada al nodo por proporción de demanda zonal.
+- `generacion_distribuida_asignada_mw`: GD asignada al nodo por proporción de capacidad zonal.
+- `curtailment_asignado_mw`: vertido asignado al nodo por proporción de capacidad zonal.
 
 ### Flexibilidad y almacenamiento
 - `flexibilidad_cobertura_mw` = `soporte_flex_storage_mw * (demanda_mw / demanda_total_zona_mw)`
@@ -29,7 +29,7 @@
 - `flag_congestion`: `carga_relativa >= 1.00` o `overload_mw > 0` o eventos de congestión en la hora
 - `flag_estres_climatico`: `temperatura >= 33` o `exposicion_climatica >= 0.70`
 - `flag_estres_tension`: `tension_sistema_proxy < 0.94` o `> 1.06`
-- `flag_estres_operativo`: combinación lógica de sobrecarga, congestión, curtailment o estrés de tensión
+- `flag_estres_operativo`: combinación lógica de sobrecarga, congestión, vertido o estrés de tensión
 
 ## Métricas de riesgo por zona (`vw_zone_operational_risk`)
 
@@ -43,7 +43,7 @@
 - `presion_electrificacion_media` = media de `(demanda_ev_mwh + demanda_industrial_mwh) / demanda_total_mwh`.
 - `brecha_flex_media` = media de `gap_flex_tecnico_mwh / demanda_total_mwh`.
 
-### Score de riesgo operativo
+### Puntuación de riesgo operativo
 `riesgo_operativo_score` combina siete señales:
 1. presión por congestión (`horas_congestion`)
 2. severidad media de congestión
@@ -63,7 +63,7 @@ Ponderaciones usadas:
 - 9% tensión de demanda
 
 ## Métricas de exposición de activos (`vw_assets_exposure`)
-- `exposicion_activo_score`: score `0-100` compuesto por edad, salud normalizada, criticidad, horas de estrés y probabilidad de fallo base.
+- `exposicion_activo_score`: puntuación `0-100` compuesta por edad, salud normalizada, criticidad, horas de estrés y probabilidad de fallo base.
 - `probabilidad_fallo_ajustada_proxy`: ajuste multiplicativo de `probabilidad_fallo_proxy` por exposición operativa observada.
 - `energia_congestion_expuesta_mwh`: energía de congestión en el nodo donde opera el activo.
 
@@ -72,7 +72,7 @@ Ponderaciones usadas:
 - `cobertura_flexible_total_mw`: `soporte_flex_storage_mw` zonal.
 - `gap_tecnico_mw` = `max(demanda_critica_mw - cobertura_flexible_total_mw, 0)`.
 - `gap_tecnico_mwh_medio`: media mensual de brecha técnica energética.
-- `gap_economico_proxy_eur`: proxy de coste por brecha técnica, coste activación y horas de estrés.
+- `gap_economico_proxy_eur`: aproximación de coste por brecha técnica, coste de activación y horas de estrés.
 - `ratio_flexibilidad_estres` = `cobertura_flexible_total_mw / demanda_critica_mw`.
 
 ## Métricas de priorización de inversión (`vw_investment_candidates`)
@@ -81,7 +81,7 @@ Ponderaciones usadas:
 - `eficiencia_capex_riesgo` = `(reduccion_riesgo_esperada * riesgo_operativo_score + 15 * impacto_resiliencia) / capex_estimado`.
 - `estrategia_flexibilidad_vs_refuerzo`: clasificación en `refuerzo`, `flexibilidad` u `operacion`.
 
-### Score de prioridad inicial
+### Puntuación de prioridad inicial
 `prioridad_inicial_score` agrega:
 - 28% reducción de riesgo esperada
 - 22% impacto en resiliencia

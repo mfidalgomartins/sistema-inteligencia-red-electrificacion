@@ -1,8 +1,8 @@
 -- Dialecto: DuckDB SQL
--- Nivel: KPI queries
+-- Nivel: consultas KPI
 -- Objetivo: publicar consultas ejecutivas para priorización territorial y técnica.
 
--- 1) Top zonas por riesgo operativo.
+-- 1) Zonas líderes por riesgo operativo.
 CREATE OR REPLACE VIEW kpi_top_zonas_riesgo_operativo AS
 SELECT
     r.zona_id,
@@ -21,7 +21,7 @@ ORDER BY
     r.horas_congestion DESC
 LIMIT 10;
 
--- 2) Top subestaciones por congestión acumulada.
+-- 2) Subestaciones líderes por congestión acumulada.
 CREATE OR REPLACE VIEW kpi_top_subestaciones_congestion_acumulada AS
 SELECT
     nh.zona_id,
@@ -46,7 +46,7 @@ ORDER BY
     energia_afectada_total_mwh DESC
 LIMIT 20;
 
--- 3) Top alimentadores por exposición.
+-- 3) Alimentadores líderes por exposición.
 CREATE OR REPLACE VIEW kpi_top_alimentadores_exposicion AS
 SELECT
     a.zona_id,
