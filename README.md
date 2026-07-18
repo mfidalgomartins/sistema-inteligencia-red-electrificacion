@@ -10,15 +10,27 @@
 
 Convierte 4,8 millones de lecturas horarias de demanda en una cartera de intervención priorizada y trazable — dónde reforzar la red, dónde flexibilidad o almacenamiento bastan, y qué puede esperar — con cada cifra publicada respaldada por su propio contrato de validación.
 
-**[Abrir tablero interactivo](https://mfidalgomartins.github.io/sistema-inteligencia-red-electrificacion/)** · **[Informe analítico PDF](https://mfidalgomartins.github.io/sistema-inteligencia-red-electrificacion/outputs/reports/informe_analitico_red_electrificacion.pdf)** · **[Caso de negocio](docs/caso_negocio.md)** · **[Arquitectura](docs/arquitectura_sistema.md)**
+<p align="center">
+  <a href="https://mfidalgomartins.github.io/sistema-inteligencia-red-electrificacion/">
+    <img src="https://img.shields.io/badge/Open_the_Live_Dashboard-0B6E75?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Open the Live Dashboard">
+  </a>
+  &nbsp;
+  <a href="https://mfidalgomartins.github.io/sistema-inteligencia-red-electrificacion/outputs/reports/informe_analitico_red_electrificacion.pdf">
+    <img src="https://img.shields.io/badge/Read_the_Analytical_Report-13202C?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="Read the Analytical Report">
+  </a>
+</p>
 
-![Ranking de prioridad de las zonas](outputs/graphs/04_ranking_prioridad_zonas.png)
+<p align="center"><sub><a href="docs/caso_negocio.md">Caso de negocio</a> · <a href="docs/arquitectura_sistema.md">Arquitectura</a> · <a href="#índice">Índice de este documento</a></sub></p>
+
+![Centro de decisión de red — tablero ejecutivo](assets/screenshots/dashboard-overview.png)
+<p align="center"><sub>Tablero de situación: seis lecturas ejecutivas — dónde, por qué, cuándo, con qué palanca, bajo qué incertidumbre y en qué estado de publicación — recalculadas en vivo sobre el perímetro filtrado.</sub></p>
 
 ---
 
 ## Índice
 
 - [Por qué existe](#por-qué-existe)
+- [Vista previa](#vista-previa)
 - [El sistema en cifras](#el-sistema-en-cifras)
 - [Qué entrega](#qué-entrega)
 - [Arquitectura](#arquitectura)
@@ -38,7 +50,14 @@ Convierte 4,8 millones de lecturas horarias de demanda en una cartera de interve
 
 Una red de distribución bajo presión de electrificación —vehículos eléctricos, industria, generación distribuida— no falla de forma homogénea: unas pocas zonas concentran la mayor parte del riesgo, mientras el capital para reforzarlas es limitado y secuencial. La pregunta que este sistema responde no es *si* invertir, sino **dónde, con qué palanca y en qué orden**, equilibrando seguridad operativa, integración de nueva demanda, eficiencia de CAPEX/OPEX y factibilidad de ejecución territorial.
 
-La respuesta se entrega como una cartera de intervención por zona —refuerzo físico, flexibilidad, almacenamiento, operación avanzada o monitorización— secuenciada en horizontes de 0 a 24 meses y sometida a escenarios de estrés antes de comprometer capital. Detalle completo en el [caso de negocio](docs/caso_negocio.md).
+La respuesta se entrega como una cartera de intervención por zona —refuerzo físico, flexibilidad, almacenamiento, operación avanzada o monitorización— secuenciada en horizontes de 0 a 24 meses y sometida a escenarios de estrés antes de comprometer capital. Cada cifra que llega al comité —coste de no actuar, CAPEX diferible, prioridad por zona— desciende de un pipeline auditable, no de una hoja de cálculo aislada: mismo dato, mismo contrato, desde la lectura horaria hasta la diapositiva del comité. Detalle completo en el [caso de negocio](docs/caso_negocio.md).
+
+## Vista previa
+
+| Analítica operativa | Informe editorial |
+|---|---|
+| ![Sección analítica del tablero: tendencia de carga, ranking de congestión y mapa de calor horario](assets/screenshots/dashboard-analytics.png) | ![Portada y página interior del informe PDF de 34 páginas](assets/screenshots/report-preview.png) |
+| Tendencia de carga relativa, ranking territorial de congestión y mapa de calor horario por región — recalculados con el perímetro activo. | 34 páginas de formato consultoría: implicación explícita para la decisión en cada figura, no solo el gráfico. |
 
 ## El sistema en cifras
 
@@ -170,6 +189,7 @@ outputs/dashboard/      tablero HTML autónomo
 outputs/reports/        informe analítico PDF
 scripts/                gráficos, artefactos públicos y generador editorial del PDF
 assets/fonts/           tipografías integradas y licencias de distribución
+assets/screenshots/     capturas del tablero y del informe usadas en este README
 ```
 
 ## Metodología y contratos
@@ -210,9 +230,18 @@ La garantía de calidad combina tres capas, todas ejecutadas en CI en cada `push
 
 ## Artefactos públicos
 
-- [Tablero autónomo](outputs/dashboard/grid-electrification-command-center.html)
-- [Informe analítico](outputs/reports/informe_analitico_red_electrificacion.pdf)
-- [Gráficos de publicación](outputs/graphs/)
+<p>
+  <a href="https://mfidalgomartins.github.io/sistema-inteligencia-red-electrificacion/">
+    <img src="https://img.shields.io/badge/→_Tablero_autónomo-0B6E75?style=flat-square&logoColor=white" alt="Abrir el tablero">
+  </a>
+  <a href="https://mfidalgomartins.github.io/sistema-inteligencia-red-electrificacion/outputs/reports/informe_analitico_red_electrificacion.pdf">
+    <img src="https://img.shields.io/badge/→_Informe_analítico_PDF-13202C?style=flat-square&logoColor=white" alt="Abrir el informe">
+  </a>
+</p>
+
+- [Tablero autónomo](outputs/dashboard/grid-electrification-command-center.html) — también disponible localmente, sin servidor.
+- [Informe analítico](outputs/reports/informe_analitico_red_electrificacion.pdf) — se abre directamente en el visor PDF del navegador, sin descarga previa.
+- [Gráficos de publicación](outputs/graphs/) — 19 figuras PNG usadas en el informe y en publicaciones externas.
 
 ## Hoja de ruta
 
