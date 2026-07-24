@@ -11,13 +11,13 @@ requires-python = ">=3.12"
 license = "MIT"
 authors = [{ name = "Miguel Fidalgo Martins", email = "mfidalgomartins@gmail.com" }]
 dependencies = [
-    "duckdb==1.5.1",
-    "fastapi==0.139.0",
-    "matplotlib==3.10.8",
-    "numpy==2.4.3",
-    "pandas==3.0.1",
-    "pyarrow==23.0.1",
-    "reportlab==4.5.1",
+    "duckdb==1.5.5",
+    "fastapi==0.139.2",
+    "matplotlib==3.11.1",
+    "numpy==2.5.1",
+    "pandas==3.0.5",
+    "pyarrow==25.0.0",
+    "reportlab==5.0.0",
     "tabulate==0.10.0",
     "uvicorn==0.51.0",
 ]
